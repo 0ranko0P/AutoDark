@@ -1,0 +1,39 @@
+<resources>
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primaryVariant</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorAccent">@color/primary</item>
+
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">?colorOnPrimary</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+
+    <style name="DialogFullscreen" parent="Theme.MaterialComponents.DayNight.DialogWhenLarge">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:statusBarColor">@color/surface</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+        <item name="android:navigationBarColor">?colorOnPrimary</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+
+    <style name="TitleText" parent="AppTheme">
+        <item name="android:textSize">@dimen/into_title_text_size</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:drawablePadding">@dimen/into_icon_padding_start</item>
+    </style>
+
+    <style name="PermissionButton" parent="AppTheme">
+        <item name="android:textSize">@dimen/into_button_text_size</item>
+        <item name="android:textColor">@color/primary</item>
+        <item name="android:paddingStart">@dimen/into_button_padding</item>
+        <item name="android:paddingEnd">@dimen/into_button_padding</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+    </style>
+</resources>

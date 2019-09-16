@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">AutoDark</string>
+    <string name="app_about">About AutoDark</string>
+    <string name="app_copy_adb">Command code copied</string>
+    <string name="main_title">Schedule dark mode</string>
+
+    <string name="settings_category_dev">Experimental feature</string>
+    <string name="settings_category_timer">Schedule start and end time.</string>
+
+    <string name="pref_master_switch">Master switch</string>
+    <string name="pref_time_start">Start time</string>
+    <string name="pref_time_end">End time</string>
+    <string name="pref_force_dark">Force-dark mode (Root)</string>
+    <string name="pref_force_dark_summary">Provide by android, force apps into dark mode \nNot recommend, will set some apps on fire.</string>
+
+    <string name="dark_mode_disabled">Master switch is Off now.</string>
+    <string name="dark_mode_summary_on_start">Will turn off dark mode at <xliff:g name="time">%1$s</xliff:g></string>
+    <string name="dark_mode_summary_off_start">Will turn on dark mode at <xliff:g name="time">%1$s</xliff:g></string>
+    <string name="dark_mode_summary_action">Trigger now</string>
+    <string name="dark_mode_permission_denied">Failed to set darkMode: Permission denied!</string>
+
+    <string name="adb_title">Grant permission with adb.</string>
+    <string name="adb_description">Use your PC/Mac to grant ADB permission."
+        "\n Please read this <a href="https://greenify.uservoice.com/knowledgebase/articles/749142-how-to-grant-permissions-required-by-some-features">guide</a> (its written for Greenify but procedure are basically the same)."
+        "\n after you read the guide and know how to use adb, you can run this command: "
+        "\n adb -d shell pm grant me.ranko.autodark android.permission.WRITE_SECURE_SETTINGS "
+        "\n to grant permission. After that, you can click check button."
+    </string>
+
+    <string name="adb_send">Send</string>
+    <string name="adb_copy">Copy</string>
+    <string name="adb_check">Check</string>
+    <string name="adb_share_text">Share with</string>
+    <string name="adb_check_failed">Failed! make sure you typed right command.</string>
+
+    <string name="root_title">Grant permission using root.</string>
+    <string name="root_description">If your device is rooted, you can grant permission with root now.</string>
+    <string name="root_grant">Grant Permission</string>
+    <string name="root_check_failed">Failed to get root permission!</string>
+</resources>

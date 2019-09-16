@@ -1,0 +1,45 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    ext {
+        ver_appcompat = '1.1.0'
+        ver_core = '1.2.0-alpha03'
+        ver_coroutine = "1.3.0-RC"
+        ver_constraint_layout = "2.0.0-beta2"
+        ver_fragment = "1.0.0"
+        ver_gradle = '3.5.0'
+        ver_leak = "2.0-beta-3"
+        ver_lifecycle_extensions = "2.1.0"
+        ver_kotlin = '1.3.41'
+        ver_kotlin_coroutines = "1.3.0-RC"
+        ver_material = "1.1.0-alpha10"
+        ver_navigation = '2.1.0-beta02'
+        ver_preference = "1.1.0"
+        ver_support = "1.0.0"
+        ver_timber = "4.7.1"
+        ver_junit = "4.12"
+    }
+
+    repositories {
+        google()
+        jcenter()
+
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:$ver_gradle"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$ver_kotlin"
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

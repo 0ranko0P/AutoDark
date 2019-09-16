@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="fragment_padding_horizontal">8dp</dimen>
+    <dimen name="fragment_padding_vertical">8dp</dimen>
+    <dimen name="app_bar_background_height">192dp</dimen>
+    <dimen name="main_content_margin_top">192dp</dimen>
+    <dimen name="text_summary_padding_start">24dp</dimen>
+    <dimen name="text_summary_padding_end">0dp</dimen>
+    
+    <dimen name="into_title_padding_start">16dp</dimen>
+    <dimen name="into_title_padding_end">16dp</dimen>
+    <dimen name="into_title_padding_top">8dp</dimen>
+    <dimen name="into_title_padding_bottom">8dp</dimen>
+    <dimen name="into_title_text_size">18sp</dimen>
+
+    <dimen name="into_info_margin_top">8dp</dimen>
+    <dimen name="into_icon_padding_start">16dp</dimen>
+    <dimen name="into_icon_height">48dp</dimen>
+
+    <dimen name="into_card_elevation">8dp</dimen>
+    <dimen name="into_card_radius">4dp</dimen>
+    <dimen name="into_card_margin">8dp</dimen>
+
+    <dimen name="into_button_text_size">16sp</dimen>
+    <dimen name="into_button_height">48dp</dimen>
+    <dimen name="into_button_padding">8dp</dimen>
+    <dimen name="into_button_margin_end">8dp</dimen>
+    <dimen name="into_button_icon_padding_start">8dp</dimen>
+
+</resources>

@@ -1,0 +1,65 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.2"
+
+    defaultConfig {
+        applicationId "me.ranko.autodark"
+        minSdkVersion 29
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    testImplementation "junit:junit:$ver_junit"
+    debugImplementation "com.squareup.leakcanary:leakcanary-android:$ver_leak"
+
+    // Support libraries
+    implementation "androidx.appcompat:appcompat:$ver_appcompat"
+    implementation "androidx.constraintlayout:constraintlayout:$ver_constraint_layout"
+    implementation "androidx.legacy:legacy-support-v4:$ver_support"
+    implementation "androidx.preference:preference:$ver_preference"
+    implementation "com.google.android.material:material:$ver_material"
+
+    // Android KTX
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$ver_kotlin"
+    implementation "androidx.core:core-ktx:$ver_core"
+
+    // Coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$ver_kotlin_coroutines"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$ver_kotlin_coroutines"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$ver_kotlin_coroutines"
+
+    // ViewModel
+    implementation "androidx.lifecycle:lifecycle-common-java8:$ver_lifecycle_extensions"
+    implementation "androidx.lifecycle:lifecycle-extensions:$ver_lifecycle_extensions"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$ver_lifecycle_extensions"
+
+    // Logging
+    implementation "com.jakewharton.timber:timber:$ver_timber"
+}
