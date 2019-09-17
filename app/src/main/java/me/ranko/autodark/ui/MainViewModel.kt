@@ -4,11 +4,13 @@ import android.app.Activity
 import android.app.Application
 import android.app.UiModeManager
 import android.content.pm.PackageManager
+import android.text.TextUtils
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.*
 import kotlinx.coroutines.*
 import me.ranko.autodark.Constant
 import me.ranko.autodark.Constant.*
+import me.ranko.autodark.Exception.CommandExecuteError
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.DarkTimeUtil
 import me.ranko.autodark.Utils.ShellJobUtil
@@ -18,6 +20,12 @@ import java.time.LocalTime
 
 const val SP_MAIN_FILE_NAME = "audoDark"
 const val SP_KEY_MASTER_SWITCH = "switch"
+
+/**
+ * Magic happens on my phone 100% reproduce,  0% on emulator
+ * SP_KEY_MASTER_SWITCH returned true on first init, use a flag to fix it
+ * */
+const val SP_KEY_MASTER_SWITCH_FIRST_INIT = "IS_FIRST_INIT"
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     val darkSettings = DarkModeSettings(application)
@@ -80,6 +88,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val uiScope = CoroutineScope(Dispatchers.Main.plus(sudoJob))
 
     init {
+        // fix focking magic
+        // when first install force set master switch to false
+        if (sp.getInt(SP_KEY_MASTER_SWITCH_FIRST_INIT, -1) == -1) {
+            sp.edit()
+                .putInt(SP_KEY_MASTER_SWITCH_FIRST_INIT, 128)
+                .putBoolean(SP_KEY_MASTER_SWITCH, false)
+                .apply()
+        }
+
         _masterSwitch.value = sp.getBoolean(SP_KEY_MASTER_SWITCH, false)
 
         if (!checkPermissionGranted()) {
@@ -244,6 +261,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             } catch (e: Exception) {
                 Timber.e("Error: ${e.localizedMessage}")
                 return false
+            }
+        }
+
+        /**
+         * @return  current force-dark mode status
+         *
+         * @throws  CommandExecuteError permission denied when
+         *          do not have root access.
+         *
+         * @see     COMMAND_GET_FORCE_DARK
+         * */
+        @Throws(CommandExecuteError::class)
+        suspend fun getForceDark(): Boolean {
+            val forceDark = ShellJobUtil.runJobForValue(COMMAND_GET_FORCE_DARK)
+            if (forceDark == null || TextUtils.isEmpty(forceDark.trim())) {
+                Timber.v("Force-dark settings is untouched")
+                return false
+            } else {
+                return forceDark.trim().toBoolean()
             }
         }
     }
