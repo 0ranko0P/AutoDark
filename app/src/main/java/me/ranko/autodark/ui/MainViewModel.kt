@@ -172,10 +172,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _forceDarkStatus.value = JOB_STATUS_PENDING
 
         withContext(Dispatchers.Main) {
-            val nowStatus = setForceDark(enabled)
-            // Check set job result
-            _forceDarkStatus.value =
-                if (nowStatus == enabled) JOB_STATUS_SUCCEED else JOB_STATUS_FAILED
+            val result = setForceDark(enabled)
+            // Show force-dark job result
+            _forceDarkStatus.value = if (result) JOB_STATUS_SUCCEED else JOB_STATUS_FAILED
         }
     }
 
