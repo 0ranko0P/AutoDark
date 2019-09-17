@@ -4,12 +4,12 @@
         <me.ranko.autodark.ui.Preference.DarkDisplayPreference
             android:key="dark_mode_time_start"
             android:title="@string/pref_time_start"
-            android:defaultValue="12:00"/>
+            android:defaultValue="19:20"/>
 
         <me.ranko.autodark.ui.Preference.DarkDisplayPreference
             android:key="dark_mode_time_end"
             android:title="@string/pref_time_end"
-            android:defaultValue="12:00"/>
+            android:defaultValue="06:15"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/settings_category_dev">

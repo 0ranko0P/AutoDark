@@ -210,6 +210,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _requireAdb.value = null
     }
 
+    fun setRootConsumed() {
+        _sudoJobStatus.value = -1
+    }
+
     fun grantWithRoot() = uiScope.launch {
         _sudoJobStatus.value = JOB_STATUS_PENDING
 

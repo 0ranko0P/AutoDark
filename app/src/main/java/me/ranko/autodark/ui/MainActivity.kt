@@ -58,10 +58,13 @@ class MainActivity : AppCompatActivity() {
                 showPermissionDialog()
             } else {
                 dialog?.dismiss()
+                viewModel.setAdbConsumed()
             }
         })
 
         viewModel.sudoJobStatus.observe(this, Observer { status ->
+            if(status == -1) return@Observer
+
             when (status) {
                 JOB_STATUS_PENDING -> showRootJobProgress(true)
 
@@ -70,7 +73,10 @@ class MainActivity : AppCompatActivity() {
                     showToast(R.string.root_check_failed)
                 }
 
-                JOB_STATUS_SUCCEED -> dialog?.dismiss()
+                JOB_STATUS_SUCCEED -> {
+                    dialog?.dismiss()
+                    viewModel.setRootConsumed()
+                }
             }
         })
     }

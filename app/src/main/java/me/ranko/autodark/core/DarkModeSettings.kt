@@ -11,8 +11,11 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.preference.Preference
 import androidx.preference.Preference.OnPreferenceChangeListener
 import me.ranko.autodark.DarkModeAlarmReceiver
+import me.ranko.autodark.Utils.DarkTimeUtil
+import me.ranko.autodark.Utils.DarkTimeUtil.getPersistFormattedString
 import me.ranko.autodark.Utils.DarkTimeUtil.getTodayOrNextDay
 import me.ranko.autodark.Utils.DarkTimeUtil.toAlarmMillis
+import me.ranko.autodark.Utils.DarkTimeUtil.toNextDayAlarmMillis
 import me.ranko.autodark.ui.Preference.DarkDisplayPreference
 import timber.log.Timber
 import java.time.LocalTime
@@ -75,6 +78,7 @@ class DarkModeSettings(private val context: Context) :
         @JvmStatic
         fun setDarkMode(manager: UiModeManager, context: Context, enabled: Boolean): Boolean {
             val newMode = if (enabled) UiModeManager.MODE_NIGHT_YES else UiModeManager.MODE_NIGHT_NO
+
             if (manager.nightMode == newMode) {
                 Timber.v("Already in %s mode", newMode)
                 return true
@@ -82,7 +86,11 @@ class DarkModeSettings(private val context: Context) :
 
             try {
                 Timber.d("Current mode: ${manager.currentModeType} change to $newMode")
-                Settings.Secure.putInt(context.contentResolver, SYSTEM_SECURE_PROP_DARK_MODE, newMode)
+                Settings.Secure.putInt(
+                    context.contentResolver,
+                    SYSTEM_SECURE_PROP_DARK_MODE,
+                    newMode
+                )
 
                 // Manually trigger car mode
                 // UiManager will call setNightMode() after carMode
@@ -98,7 +106,7 @@ class DarkModeSettings(private val context: Context) :
         @JvmStatic
         fun setDarkMode(context: Context, enabled: Boolean) {
             val manager = ContextCompat.getSystemService(context, UiModeManager::class.java)!!
-            setDarkMode(manager,context, enabled)
+            setDarkMode(manager, context, enabled)
         }
 
         /**
@@ -113,16 +121,47 @@ class DarkModeSettings(private val context: Context) :
 
     override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
         val key = preference.key
-
-        if (key == DARK_PREFERENCE_START || key == DARK_PREFERENCE_END) {
-            val time = newValue as LocalTime
-            val timeMillis = toAlarmMillis(time)
-            pendingNextAlarm(timeMillis, key)
-            Timber.d("Pending alarm at %s:%s, epoch: %s", time.hour, time.minute, timeMillis)
-            return true
-        } else {
+        if (key != DARK_PREFERENCE_START && key != DARK_PREFERENCE_END)
             throw RuntimeException("Wtf are you listening? $key")
+
+        val time = newValue as LocalTime
+        var timeMillis = toAlarmMillis(time)
+
+        // Set start alarm at tomorrow
+        val isNextDay = DarkTimeUtil.isNextDay(LocalTime.now(), time)
+        if (isNextDay) {
+            timeMillis = toNextDayAlarmMillis(timeMillis)
         }
+
+        pendingNextAlarm(timeMillis, key)
+
+        // Active dark mode now if needed to let user see the effect
+        if (key == DARK_PREFERENCE_START) {
+            adjustModeOnTime(time, getEndTime())
+        } else {
+            adjustModeOnTime(getStartTime(), time)
+        }
+
+        Timber.d(
+            "Pending alarm at ${if (isNextDay) "NextDay" else ""} %s, epoch: %s",
+            getPersistFormattedString(time), timeMillis
+        )
+        return true
+    }
+
+    /**
+     * Adjust mode on/off now if current time at user selected range.
+     *
+     * @return  true if is in range now and dark mode is active
+     *
+     * @see     DarkTimeUtil.isInTime
+     * */
+    private fun adjustModeOnTime(start: LocalTime, end: LocalTime): Boolean {
+        val shouldActive = DarkTimeUtil.isInTime(start, end, LocalTime.now())
+
+        setDarkMode(context, shouldActive)
+        Timber.d("User currently ${if (shouldActive) "in" else "not in"} mode range")
+        return shouldActive
     }
 
     /**
@@ -141,7 +180,9 @@ class DarkModeSettings(private val context: Context) :
 
     fun setAllAlarm() {
         val startTime = getStartTime()
-        val endTime = getStartTime()
+        val endTime = getEndTime()
+
+        adjustModeOnTime(startTime, endTime)
 
         // check if job already done, cancel job on next day
         val startMillis = getTodayOrNextDay(startTime)
@@ -150,13 +191,16 @@ class DarkModeSettings(private val context: Context) :
         pendingNextAlarm(startMillis, DARK_PREFERENCE_START)
         pendingNextAlarm(endMillis, DARK_PREFERENCE_END)
 
-        Timber.v("Set start job: %s: %s", startTime.hour, startTime.minute)
-        Timber.v("Set end job: %s: %s", endTime.hour, endTime.minute)
+        Timber.v("Set start job: %s: %s", getPersistFormattedString(startTime), startMillis)
+        Timber.v("Set end job: %s: %s", getPersistFormattedString(endTime), endMillis)
     }
 
     fun cancelAllAlarm() {
         val startTime = getStartTime()
-        val endTime = getStartTime()
+        val endTime = getEndTime()
+
+        // DeActive dark mode now
+        setDarkMode(context, false)
 
         // check if job already done, cancel job on next day
         val startMillis = getTodayOrNextDay(startTime)
@@ -177,16 +221,16 @@ class DarkModeSettings(private val context: Context) :
         mAlarmManager.cancel(startJob)
         mAlarmManager.cancel(endJob)
 
-        Timber.v("Cancel start job: %s: %s", startTime.hour, startTime.minute)
-        Timber.v("Cancel end job: %s: %s", endTime.hour, endTime.minute)
+        Timber.v("Cancel start job: %s: %s", getPersistFormattedString(startTime), startMillis)
+        Timber.v("Cancel end job: %s: %s", getPersistFormattedString(endTime), endMillis)
     }
 
     fun getStartTime(): LocalTime = getPreferenceTime(DARK_PREFERENCE_START)
 
     fun getEndTime(): LocalTime = getPreferenceTime(DARK_PREFERENCE_END)
 
-    private fun getPreferenceTime(type: String):LocalTime {
+    private fun getPreferenceTime(type: String): LocalTime {
         requireNotNull(mSupplier) { "Exception call: Preference has been detached." }
-        return  mSupplier!!.get(type).time
+        return mSupplier!!.get(type).time
     }
 }
