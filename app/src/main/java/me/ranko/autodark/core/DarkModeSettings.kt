@@ -10,7 +10,8 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.preference.Preference
 import androidx.preference.Preference.OnPreferenceChangeListener
-import me.ranko.autodark.DarkModeAlarmReceiver
+import me.ranko.autodark.BuildConfig
+import me.ranko.autodark.Receivers.DarkModeAlarmReceiver
 import me.ranko.autodark.Utils.DarkTimeUtil
 import me.ranko.autodark.Utils.DarkTimeUtil.getPersistFormattedString
 import me.ranko.autodark.Utils.DarkTimeUtil.getTodayOrNextDay
@@ -28,7 +29,13 @@ const val SYSTEM_PROP_FORCE_DARK = "debug.hwui.force_dark"
 
 const val DARK_PREFERENCE_START = "dark_mode_time_start"
 const val DARK_PREFERENCE_END = "dark_mode_time_end"
+
+/**
+ * Experimental feature
+ * System will reset this flag after reboot
+ * */
 const val DARK_PREFERENCE_FORCE = "dark_mode_force"
+const val DARK_PREFERENCE_FILE_NAME = "${BuildConfig.APPLICATION_ID}_preferences"
 
 interface DarkPreferenceSupplier {
     fun get(type: String): DarkDisplayPreference
@@ -110,6 +117,22 @@ class DarkModeSettings(private val context: Context) :
         }
 
         /**
+         * Adjust mode on/off now if current time at user selected range.
+         *
+         * @return  true if is in range now and dark mode is active
+         *
+         * @see     DarkTimeUtil.isInTime
+         * */
+        @JvmStatic
+        fun adjustModeOnTime(context: Context, start: LocalTime, end: LocalTime): Boolean {
+            val shouldActive = DarkTimeUtil.isInTime(start, end, LocalTime.now())
+
+            setDarkMode(context, shouldActive)
+            Timber.d("User currently ${if (shouldActive) "in" else "not in"} mode range")
+            return shouldActive
+        }
+
+        /**
          * @see UiModeManager.getNightMode
          * */
         @JvmStatic
@@ -149,19 +172,9 @@ class DarkModeSettings(private val context: Context) :
         return true
     }
 
-    /**
-     * Adjust mode on/off now if current time at user selected range.
-     *
-     * @return  true if is in range now and dark mode is active
-     *
-     * @see     DarkTimeUtil.isInTime
-     * */
-    private fun adjustModeOnTime(start: LocalTime, end: LocalTime): Boolean {
-        val shouldActive = DarkTimeUtil.isInTime(start, end, LocalTime.now())
 
-        setDarkMode(context, shouldActive)
-        Timber.d("User currently ${if (shouldActive) "in" else "not in"} mode range")
-        return shouldActive
+    private fun adjustModeOnTime(start: LocalTime, end: LocalTime): Boolean {
+        return adjustModeOnTime(context, start, end)
     }
 
     /**

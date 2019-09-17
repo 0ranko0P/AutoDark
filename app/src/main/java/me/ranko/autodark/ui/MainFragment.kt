@@ -7,6 +7,10 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.preference.Preference.OnPreferenceChangeListener
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import me.ranko.autodark.Constant
 import me.ranko.autodark.R
 import me.ranko.autodark.core.DARK_PREFERENCE_END
@@ -66,7 +70,9 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
         // Set job running on background, reject new value in observer
         forcePreference.onPreferenceChangeListener = OnPreferenceChangeListener { _, newValue ->
 
-            viewModel.triggerForceDark(newValue.toString().toBoolean())
+            GlobalScope.launch(Dispatchers.Main, CoroutineStart.ATOMIC) {
+                viewModel.triggerForceDark(newValue.toString().toBoolean())
+            }
             true
         }
 

@@ -6,10 +6,7 @@ import android.app.UiModeManager
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import me.ranko.autodark.Constant
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.R
@@ -171,21 +168,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * @see Constant.COMMAND_SET_FORCE_DARK_OFF
      * @see Constant.COMMAND_SET_FORCE_DARK_ON
      * */
-    fun triggerForceDark(enabled: Boolean) = uiScope.launch {
+    suspend fun triggerForceDark(enabled: Boolean) = uiScope.launch {
         _forceDarkStatus.value = JOB_STATUS_PENDING
 
-        try {
-            // Run: set force mode && get force mode
-            val setCMD = if (enabled) COMMAND_SET_FORCE_DARK_ON else COMMAND_SET_FORCE_DARK_OFF
-            val command = "$setCMD && su -c $COMMAND_GET_FORCE_DARK"
-
-            val nowStatus = ShellJobUtil.runSudoJobForValue(command)!!.trim().toBoolean()
+        withContext(Dispatchers.Main) {
+            val nowStatus = setForceDark(enabled)
             // Check set job result
             _forceDarkStatus.value =
                 if (nowStatus == enabled) JOB_STATUS_SUCCEED else JOB_STATUS_FAILED
-        } catch (e: Exception) {
-            Timber.e("Error: ${e.localizedMessage}")
-            _forceDarkStatus.value = JOB_STATUS_FAILED
         }
     }
 
@@ -241,6 +231,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     return MainViewModel(application) as T
                 }
                 throw IllegalArgumentException("Unable to construct viewModel")
+            }
+        }
+
+        suspend fun setForceDark(enabled: Boolean): Boolean {
+            try {
+                // Run: set force mode && get force mode
+                val setCMD = if (enabled) COMMAND_SET_FORCE_DARK_ON else COMMAND_SET_FORCE_DARK_OFF
+                val command = "$setCMD && su -c $COMMAND_GET_FORCE_DARK"
+
+                val nowStatus = ShellJobUtil.runSudoJobForValue(command)!!.trim().toBoolean()
+                return nowStatus == enabled
+            } catch (e: Exception) {
+                Timber.e("Error: ${e.localizedMessage}")
+                return false
             }
         }
     }

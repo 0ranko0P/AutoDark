@@ -5,6 +5,7 @@
     tools:ignore="ProtectedPermissions">
 
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".AutoDarkApplication"
@@ -16,10 +17,14 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
 
-        <receiver
-            android:name=".DarkModeAlarmReceiver"
+        <receiver android:name=".Receivers.DarkModeAlarmReceiver"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true"
+            tools:ignore="InnerclassSeparator">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
 
         <activity
             android:name=".ui.MainActivity">
