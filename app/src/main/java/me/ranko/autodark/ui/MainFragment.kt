@@ -2,6 +2,8 @@ package me.ranko.autodark.ui
 
 import android.os.Bundle
 import android.widget.Toast
+import androidx.databinding.Observable
+import androidx.databinding.ObservableBoolean
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.preference.Preference.OnPreferenceChangeListener
@@ -24,6 +26,17 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
     private lateinit var startPreference: DarkDisplayPreference
     private lateinit var endPreference: DarkDisplayPreference
     private lateinit var forcePreference: SwitchPreference
+
+    /**
+     * Sync master switch status to preferences
+     * */
+    private val onSwitchChangedCallback = object : Observable.OnPropertyChangedCallback() {
+        override fun onPropertyChanged(sender: Observable, propertyId: Int) {
+            val enabled = (sender as ObservableBoolean).get()
+            startPreference.isEnabled = enabled
+            endPreference.isEnabled = enabled
+        }
+    }
 
     private val viewModel: MainViewModel by lazy {
         val context = requireNotNull(activity) { "Call after activity created!" }
@@ -49,10 +62,8 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
         startPreference.onPreferenceChangeListener = viewModel.darkSettings
         endPreference.onPreferenceChangeListener = viewModel.darkSettings
 
-        viewModel.masterSwitch.observe(this, Observer<Boolean> { enabled ->
-            startPreference.isEnabled = enabled
-            endPreference.isEnabled = enabled
-        })
+        viewModel.switch.addOnPropertyChangedCallback(onSwitchChangedCallback)
+        onSwitchChangedCallback.onPropertyChanged(viewModel.switch, 0)
 
         viewModel.forceDarkStatus.observe(this, Observer<Int> { status ->
             when (status) {
@@ -78,6 +89,11 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
 
 
         lifecycle.addObserver(viewModel.darkSettings)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewModel.switch.removeOnPropertyChangedCallback(onSwitchChangedCallback)
     }
 
     override fun get(type: String): DarkDisplayPreference {

@@ -1,67 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/cardAdb"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="@dimen/into_card_margin"
-    app:cardCornerRadius="@dimen/into_card_radius"
-    app:elevation="@dimen/into_card_elevation"
-    tools:showIn="@layout/fragment_permission">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <RelativeLayout
+    <data>
+        <import type="android.text.method.LinkMovementMethod" />
+
+        <variable
+            name="viewModel"
+            type="me.ranko.autodark.ui.MainViewModel" />
+    </data>
+
+    <androidx.cardview.widget.CardView android:id="@+id/cardAdb"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="@dimen/into_title_padding_start"
-        android:paddingTop="@dimen/into_title_padding_top"
-        android:paddingEnd="@dimen/into_title_padding_end"
-        android:paddingBottom="@dimen/into_title_padding_bottom">
+        android:layout_margin="@dimen/into_card_margin"
+        app:cardCornerRadius="@dimen/into_card_radius"
+        app:elevation="@dimen/into_card_elevation"
+        tools:showIn="@layout/fragment_permission">
 
-        <TextView android:id="@+id/titleAdb"
-            android:text="@string/adb_title"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/into_icon_height"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:drawableStart="@drawable/ic_adb"
-            style="@style/TitleText"/>
-
-        <TextView android:id="@+id/infoAdb"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/titleAdb"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="@dimen/into_info_margin_top"
-            android:layout_marginBottom="@dimen/into_info_margin_top"
-            android:text="@string/adb_description" />
+            android:paddingStart="@dimen/into_title_padding_start"
+            android:paddingTop="@dimen/into_title_padding_top"
+            android:paddingEnd="@dimen/into_title_padding_end"
+            android:paddingBottom="@dimen/into_title_padding_bottom">
 
-        <TextView android:id="@+id/btnAdb"
-            android:text="@string/adb_check"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/into_button_height"
-            android:layout_below="@id/infoAdb"
-            android:paddingStart="0dp"
-            android:layout_alignParentStart="true"
-            android:drawableStart="@drawable/ic_restart"
-            android:drawablePadding="@dimen/into_button_icon_padding_start"
-            style="@style/PermissionButton" />
+            <TextView android:id="@+id/titleAdb"
+                style="@style/TitleText"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/into_icon_height"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:drawableStart="@drawable/ic_adb"
+                android:text="@string/adb_title" />
 
-        <TextView android:id="@+id/btnSend"
-            android:text="@string/adb_send"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/into_button_height"
-            android:layout_below="@id/infoAdb"
-            android:layout_toStartOf="@id/btnCopy"
-            style="@style/PermissionButton"/>
+            <TextView android:id="@+id/infoAdb"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/titleAdb"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="@dimen/into_info_margin_top"
+                android:layout_marginBottom="@dimen/into_info_margin_top"
+                app:movementMethod = "@{LinkMovementMethod.getInstance()}"
+                android:text="@string/adb_description" />
 
-        <TextView android:id="@+id/btnCopy"
-            android:text="@string/adb_copy"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/into_button_height"
-            android:layout_marginStart="@dimen/into_button_margin_end"
-            android:layout_below="@id/infoAdb"
-            android:layout_alignParentEnd="true"
-            style="@style/PermissionButton"/>
-    </RelativeLayout>
-</androidx.cardview.widget.CardView>
+            <TextView android:id="@+id/btnAdb"
+                style="@style/PermissionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/into_button_height"
+                android:layout_below="@id/infoAdb"
+                android:layout_alignParentStart="true"
+                android:drawableStart="@drawable/ic_restart"
+                android:drawablePadding="@dimen/into_button_icon_padding_start"
+                android:paddingStart="0dp"
+                android:paddingEnd="0dp"
+                android:onClick="@{() -> viewModel.onAdbCheck()}"
+                android:text="@string/adb_check" />
+
+            <TextView android:id="@+id/btnSend"
+                style="@style/PermissionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/into_button_height"
+                android:layout_below="@id/infoAdb"
+                android:layout_toStartOf="@id/btnCopy"
+                android:onClick="@{viewModel.shareAdbCommand}"
+                android:text="@string/adb_send" />
+
+            <TextView android:id="@+id/btnCopy"
+                style="@style/PermissionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/into_button_height"
+                android:layout_below="@id/infoAdb"
+                android:layout_alignParentEnd="true"
+                android:layout_marginStart="@dimen/into_button_margin_end"
+                android:onClick="@{viewModel.copyAdbCommand}"
+                android:text="@string/adb_copy" />
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+</layout>

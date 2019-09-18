@@ -3,9 +3,18 @@ package me.ranko.autodark.ui
 import android.app.Activity
 import android.app.Application
 import android.app.UiModeManager
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.text.TextUtils
+import android.view.View
+import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
+import androidx.databinding.ObservableBoolean
+import androidx.databinding.ObservableField
+import androidx.databinding.ObservableInt
 import androidx.lifecycle.*
 import kotlinx.coroutines.*
 import me.ranko.autodark.Constant
@@ -40,18 +49,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * <p>
      * Set to Off, all the pending alarm will be canceled.
      * */
-    private val _masterSwitch = MutableLiveData<Boolean>()
-    val masterSwitch: LiveData<Boolean>
-        get() = _masterSwitch
+    val switch = ObservableBoolean(false)
 
     /**
      * Show summary text message wen main switch triggered
      *
      * @see    onDarkSwitchChanged
      * */
-    private val _summaryText = MutableLiveData<String>()
-    val summaryText: LiveData<String>
-        get() = _summaryText
+    val summaryText = ObservableField<String>()
 
     /**
      * Progress that indicates change fore-dark job status
@@ -79,10 +84,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * @see  JOB_STATUS_FAILED
      * @see  JOB_STATUS_PENDING
      * */
-    private val _sudoJobStatus = MutableLiveData<Int>()
-    val sudoJobStatus: LiveData<Int>
-        get() = _sudoJobStatus
-
+    val sudoJobStatus = ObservableInt()
 
     private val sudoJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main.plus(sudoJob))
@@ -97,7 +99,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 .apply()
         }
 
-        _masterSwitch.value = sp.getBoolean(SP_KEY_MASTER_SWITCH, false)
+        switch.set(sp.getBoolean(SP_KEY_MASTER_SWITCH, false))
 
         if (!checkPermissionGranted()) {
             // show dialog if not permission
@@ -105,7 +107,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun checkPermissionGranted(): Boolean {
+    private fun checkPermissionGranted(): Boolean {
         val permission = getApplication<Application>().checkCallingOrSelfPermission(
             PERMISSION_WRITE_SECURE_SETTINGS
         )
@@ -128,13 +130,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        val status = masterSwitch.value!!.xor(true)
-        _masterSwitch.value = status
+        val status = !switch.get()
+        switch.set(status)
 
-        if (status) {
-            darkSettings.setAllAlarm()
-        } else {
-            darkSettings.cancelAllAlarm()
+        // delay 260L to let button animation finish
+        uiScope.launch {
+            delay(260L)
+            if (status) {
+                darkSettings.setAllAlarm()
+            } else {
+                darkSettings.cancelAllAlarm()
+            }
         }
 
         sp.edit().putBoolean(SP_KEY_MASTER_SWITCH, status).apply()
@@ -150,8 +156,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun onDarkSwitchChanged() {
         val context = getApplication<Application>()
 
-        if (!masterSwitch.value!!) { // master switch is off now
-            _summaryText.value = context.getString(R.string.dark_mode_disabled)
+        if (!switch.get()) { // master switch is off now
+            sendDelayText(context.getString(R.string.dark_mode_disabled))
         } else {
             val time: LocalTime
             val textRes: Int
@@ -173,8 +179,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             val displayTime = DarkTimeUtil.getDisplayFormattedString(time)
-            _summaryText.value = context.getString(textRes, displayTime)
+            sendDelayText(context.getString(textRes, displayTime))
         }
+    }
+
+    /**
+     * A config change will recreate view
+     * delay the summary text a little while
+     * */
+    private fun sendDelayText(text: String) = uiScope.launch {
+        delay(700L)
+        summaryText.set( text)
     }
 
     /**
@@ -200,7 +215,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * switch mode now
      * */
     fun setDarkModeManually() {
-        if (!_masterSwitch.value!!) {
+        if (!switch.get()) {
             triggerMasterSwitch()
         } else {
             val state = mUiManager.nightMode == UiModeManager.MODE_NIGHT_NO
@@ -208,29 +223,33 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun setSummaryConsumed() {
-        _summaryText.value = null
-    }
-
     fun setAdbConsumed() {
         _requireAdb.value = null
     }
 
-    fun setRootConsumed() {
-        _sudoJobStatus.value = -1
-    }
-
     fun grantWithRoot() = uiScope.launch {
-        _sudoJobStatus.value = JOB_STATUS_PENDING
+        sudoJobStatus.set(JOB_STATUS_PENDING)
+
+        delay(800L) // Show progress longer
 
         val isRooted: Boolean = ShellJobUtil.runSudoJob(COMMAND_GRANT_ROOT)
 
+        // Notify job completed
+        val jobStatus = if(isRooted) JOB_STATUS_SUCCEED else JOB_STATUS_FAILED
+        sudoJobStatus.set(jobStatus)
+
+        // dismiss dialog
+        if (isRooted) _requireAdb.value = false
         Timber.d("Root job finished, result: %s", isRooted)
-        if (isRooted) {
-            _sudoJobStatus.value = JOB_STATUS_SUCCEED
+    }
+
+    fun onAdbCheck() {
+        if (checkPermissionGranted()) {
+            setAdbConsumed()
             _requireAdb.value = false
+            Timber.v("Access granted through ADB.")
         } else {
-            _sudoJobStatus.value = JOB_STATUS_FAILED
+            Toast.makeText(getApplication(), R.string.adb_check_failed, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -281,6 +300,26 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             } else {
                 return forceDark.trim().toBoolean()
             }
+        }
+
+        @JvmStatic
+        val copyAdbCommand = View.OnClickListener { v ->
+            val clipboard =
+                v.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+            val clip: ClipData = ClipData.newPlainText("command", COMMAND_GRANT_ADB)
+            clipboard.setPrimaryClip(clip)
+            Toast.makeText(v.context, R.string.app_copy_adb, Toast.LENGTH_SHORT).show()
+        }
+
+        @JvmStatic
+        val shareAdbCommand = View.OnClickListener { v ->
+            val sharingIntent = Intent(Intent.ACTION_SEND)
+            sharingIntent.type = "text/plain"
+            sharingIntent.putExtra(Intent.EXTRA_SUBJECT, "Null")
+            sharingIntent.putExtra(Intent.EXTRA_TEXT, COMMAND_GRANT_ADB)
+            v.context.startActivity(
+                Intent.createChooser(sharingIntent, v.resources.getString(R.string.adb_share_text))
+            )
         }
     }
 }
