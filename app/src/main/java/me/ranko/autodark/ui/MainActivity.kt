@@ -15,7 +15,8 @@ import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
 import me.ranko.autodark.Constant.JOB_STATUS_FAILED
 import me.ranko.autodark.R
-import me.ranko.autodark.databinding.FragmentPermissionBinding
+import me.ranko.autodark.databinding.DialogPermissionBinding
+
 import me.ranko.autodark.databinding.MainActivityBinding
 
 class MainActivity : AppCompatActivity() {
@@ -77,11 +78,12 @@ class MainActivity : AppCompatActivity() {
     private fun showPermissionDialog() {
         if (dialog == null) {
             dialog = Dialog(this, R.style.DialogFullscreen).let {
-                val binding = DataBindingUtil.inflate<FragmentPermissionBinding>(
+                val binding = DataBindingUtil.inflate<DialogPermissionBinding>(
                     LayoutInflater.from(this),
-                    R.layout.fragment_permission, null, false
+                    R.layout.dialog_permission, null, false
                 )
                 binding.viewModel = viewModel
+                binding.lifecycleOwner = this
 
                 it.setContentView(binding.root)
                 it.setCancelable(true)
