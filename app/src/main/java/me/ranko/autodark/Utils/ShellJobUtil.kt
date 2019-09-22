@@ -17,7 +17,7 @@ object ShellJobUtil {
 
     @JvmStatic
     @WorkerThread
-    suspend fun runSudoJob(command: String): Boolean {
+    suspend fun runSudoJob(command: String) {
         return runJob("su", "-c", command)
     }
 
@@ -61,13 +61,11 @@ object ShellJobUtil {
     /**
      * Execute non result command
      *
-     * @return false if failed to execute command
-     *
      * @see     Runtime.exec
      * */
     @WorkerThread
     @JvmStatic
-    suspend fun runJob(vararg commands: String): Boolean = withContext(Dispatchers.IO) {
+    suspend fun runJob(vararg commands: String) = withContext(Dispatchers.IO) {
         var process: Process? = null
         try {
             process = Runtime.getRuntime().exec(commands)
@@ -78,11 +76,8 @@ object ShellJobUtil {
 
             if (process.waitFor() != 0)
                 throw CommandExecuteError(readStdout(process.errorStream, false))
-
-            true
         }  catch (e: Exception) {
-            //e.printStackTrace()
-            return@withContext false
+            throw CommandExecuteError(e)
         } finally {
             process?.destroy()
         }

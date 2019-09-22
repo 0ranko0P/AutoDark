@@ -1,6 +1,7 @@
 package me.ranko.autodark;
 
 import android.app.Application;
+
 import me.ranko.autodark.core.DebugTree;
 import me.ranko.autodark.core.ReleaseTree;
 import timber.log.Timber;
@@ -16,5 +17,4 @@ public final class AutoDarkApplication extends Application {
             Timber.plant(ReleaseTree.INSTANCE);
         }
     }
-
 }

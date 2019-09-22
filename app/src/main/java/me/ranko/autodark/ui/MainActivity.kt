@@ -2,8 +2,6 @@ package me.ranko.autodark.ui
 
 import android.app.Dialog
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -15,16 +13,14 @@ import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
 import me.ranko.autodark.Constant.JOB_STATUS_FAILED
 import me.ranko.autodark.R
-import me.ranko.autodark.databinding.DialogPermissionBinding
-
 import me.ranko.autodark.databinding.MainActivityBinding
+import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
     private lateinit var binding: MainActivityBinding
 
     private var dialog: Dialog? = null
-    private var processRoot: ProgressBar? = null
 
     /**
      * Show failed toast message
@@ -59,40 +55,11 @@ class MainActivity : AppCompatActivity() {
         viewModel.summaryText.addOnPropertyChangedCallback(summaryTextListener)
 
         viewModel.requireAdb.observe(this, Observer { required ->
-            if (required == null) return@Observer
-
             if (required) {
-                showPermissionDialog()
-            } else {
-                dialog?.dismiss()
-                viewModel.setAdbConsumed()
+                PermissionActivity.startPermissionActivity(this)
+                viewModel.onRequireAdbConsumed()
             }
         })
-    }
-
-    /**
-     * Full screen dialog show ask permission interface
-     *
-     * @see     MainViewModel._requireAdb
-     * */
-    private fun showPermissionDialog() {
-        if (dialog == null) {
-            dialog = Dialog(this, R.style.DialogFullscreen).let {
-                val binding = DataBindingUtil.inflate<DialogPermissionBinding>(
-                    LayoutInflater.from(this),
-                    R.layout.dialog_permission, null, false
-                )
-                binding.viewModel = viewModel
-                binding.lifecycleOwner = this
-
-                it.setContentView(binding.root)
-                it.setCancelable(true)
-                processRoot = it.findViewById(R.id.progressRoot)
-                it
-            }
-        }
-
-        if (!dialog!!.isShowing) dialog!!.show()
     }
 
     override fun onDestroy() {

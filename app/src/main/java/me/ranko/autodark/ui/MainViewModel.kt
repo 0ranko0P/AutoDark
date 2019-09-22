@@ -3,14 +3,7 @@ package me.ranko.autodark.ui
 import android.app.Activity
 import android.app.Application
 import android.app.UiModeManager
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.text.TextUtils
-import android.view.View
-import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
@@ -73,8 +66,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Control permission dialog
      * */
-    private val _requireAdb = MutableLiveData<Boolean?>()
-    val requireAdb: LiveData<Boolean?>
+    private val _requireAdb = MutableLiveData<Boolean>()
+    val requireAdb: LiveData<Boolean>
         get() = _requireAdb
 
     /**
@@ -100,18 +93,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         switch.set(sp.getBoolean(SP_KEY_MASTER_SWITCH, false))
-
-        if (!checkPermissionGranted()) {
-            // show dialog if not permission
-            _requireAdb.value = true
-        }
-    }
-
-    private fun checkPermissionGranted(): Boolean {
-        val permission = getApplication<Application>().checkCallingOrSelfPermission(
-            PERMISSION_WRITE_SECURE_SETTINGS
-        )
-        return PackageManager.PERMISSION_GRANTED == permission
     }
 
     /**
@@ -189,7 +170,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * */
     private fun sendDelayText(text: String) = uiScope.launch {
         delay(700L)
-        summaryText.set( text)
+        summaryText.set(text)
     }
 
     /**
@@ -223,34 +204,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun setAdbConsumed() {
-        _requireAdb.value = null
-    }
-
-    fun grantWithRoot() = uiScope.launch {
-        sudoJobStatus.set(JOB_STATUS_PENDING)
-
-        delay(800L) // Show progress longer
-
-        val isRooted: Boolean = ShellJobUtil.runSudoJob(COMMAND_GRANT_ROOT)
-
-        // Notify job completed
-        val jobStatus = if(isRooted) JOB_STATUS_SUCCEED else JOB_STATUS_FAILED
-        sudoJobStatus.set(jobStatus)
-
-        // dismiss dialog
-        if (isRooted) _requireAdb.value = false
-        Timber.d("Root job finished, result: %s", isRooted)
-    }
-
-    fun onAdbCheck() {
-        if (checkPermissionGranted()) {
-            setAdbConsumed()
-            _requireAdb.value = false
-            Timber.v("Access granted through ADB.")
-        } else {
-            Toast.makeText(getApplication(), R.string.adb_check_failed, Toast.LENGTH_SHORT).show()
-        }
+    fun onRequireAdbConsumed() {
+        _requireAdb.postValue(false)
     }
 
     override fun onCleared() {
@@ -300,26 +255,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             } else {
                 return forceDark.trim().toBoolean()
             }
-        }
-
-        @JvmStatic
-        val copyAdbCommand = View.OnClickListener { v ->
-            val clipboard =
-                v.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clip: ClipData = ClipData.newPlainText("command", COMMAND_GRANT_ADB)
-            clipboard.setPrimaryClip(clip)
-            Toast.makeText(v.context, R.string.app_copy_adb, Toast.LENGTH_SHORT).show()
-        }
-
-        @JvmStatic
-        val shareAdbCommand = View.OnClickListener { v ->
-            val sharingIntent = Intent(Intent.ACTION_SEND)
-            sharingIntent.type = "text/plain"
-            sharingIntent.putExtra(Intent.EXTRA_SUBJECT, "Null")
-            sharingIntent.putExtra(Intent.EXTRA_TEXT, COMMAND_GRANT_ADB)
-            v.context.startActivity(
-                Intent.createChooser(sharingIntent, v.resources.getString(R.string.adb_share_text))
-            )
         }
     }
 }

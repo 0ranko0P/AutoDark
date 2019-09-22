@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="me.ranko.autodark.ui.MainViewModel" />
+            type="me.ranko.autodark.ui.PermissionViewModel" />
     </data>
 
     <ScrollView
@@ -18,7 +18,7 @@
             android:layout_height="wrap_content"
             android:background="?attr/colorSurface"
             android:orientation="vertical"
-            tools:context=".ui.MainActivity">
+            tools:context=".ui.PermissionActivity">
 
             <include
                 layout="@layout/card_permission_adb"
