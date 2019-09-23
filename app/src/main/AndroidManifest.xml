@@ -17,7 +17,8 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
 
-        <receiver android:name=".Receivers.DarkModeAlarmReceiver"
+        <receiver
+            android:name=".Receivers.DarkModeAlarmReceiver"
             android:enabled="true"
             android:exported="true"
             tools:ignore="InnerclassSeparator">
@@ -34,6 +35,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.PermissionActivity"/>
+        <activity android:name=".ui.PermissionActivity"
+            android:theme="@style/AppTheme.TransparentActionBar"/>
     </application>
 </manifest>

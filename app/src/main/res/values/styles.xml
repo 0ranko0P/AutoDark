@@ -13,13 +13,14 @@
         <item name="android:windowLightNavigationBar">true</item>
     </style>
 
-    <style name="DialogFullscreen" parent="Theme.MaterialComponents.DayNight.DialogWhenLarge">
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:statusBarColor">@color/surface</item>
-        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
-        <item name="android:navigationBarColor">?colorOnPrimary</item>
+    <style name="AppTheme.TransparentActionBar" parent="AppTheme">
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="actionBarTheme">@style/Widget.ActionBar</item>
+        <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar">true</item>
     </style>
+
+    <style name="Widget.ActionBar" parent="@android:style/Widget.Material.ActionBar.Solid"/>
 
     <style name="TitleText" parent="AppTheme">
         <item name="android:textSize">@dimen/into_title_text_size</item>

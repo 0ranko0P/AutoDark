@@ -64,6 +64,24 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
         Timber.d("Root job finished, result: %s", isRooted)
     }
 
+    /**
+     * @return  System status bar height
+     *
+     * @link    https://stackoverflow.com/questions/3407256/height-of-status-bar-in-android/47125610#47125610
+     * */
+    fun getStatusBarHeight(context: Context): Int {
+        val resourceId = context.resources.getIdentifier("status_bar_height", "dimen", "android")
+        if (resourceId > 0) {
+           return context.resources.getDimensionPixelSize(resourceId)
+        }
+        return 1
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        sudoJob.cancel()
+    }
+
     companion object {
         class Factory(private val application: Application) : ViewModelProvider.Factory {
             override fun <T : ViewModel?> create(modelClass: Class<T>): T {

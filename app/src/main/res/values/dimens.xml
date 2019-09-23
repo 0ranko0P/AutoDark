@@ -4,6 +4,7 @@
     <dimen name="fragment_padding_horizontal">8dp</dimen>
     <dimen name="fragment_padding_vertical">8dp</dimen>
     <dimen name="app_bar_background_height">192dp</dimen>
+    <dimen name="app_bar_transparent_sibling_elevation">-1dp</dimen>
     <dimen name="main_content_margin_top">192dp</dimen>
     <dimen name="text_summary_padding_start">24dp</dimen>
     <dimen name="text_summary_padding_end">0dp</dimen>

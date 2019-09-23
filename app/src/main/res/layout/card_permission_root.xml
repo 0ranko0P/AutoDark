@@ -15,7 +15,7 @@
         android:layout_margin="@dimen/into_card_margin"
         app:cardCornerRadius="@dimen/into_card_radius"
         app:elevation="@dimen/into_card_elevation"
-        tools:showIn="@layout/dialog_permission">
+        tools:showIn="@layout/permission_activity">
 
         <LinearLayout
             android:layout_width="match_parent"

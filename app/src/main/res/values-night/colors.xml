@@ -4,4 +4,5 @@
     <color name="primaryVariant">#3700B3</color>
     <color name="secondary">#03DAC6</color>
     <color name="surface">#121212</color>
+    <color name="appbar_background">#E62A2A2A</color>
 </resources>

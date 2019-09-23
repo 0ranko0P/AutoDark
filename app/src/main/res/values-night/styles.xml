@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme.TransparentActionBar" parent="AppTheme">
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="actionBarTheme">@style/Widget.ActionBar</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+</resources>

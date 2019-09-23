@@ -7,7 +7,6 @@ import android.text.TextUtils
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
-import androidx.databinding.ObservableInt
 import androidx.lifecycle.*
 import kotlinx.coroutines.*
 import me.ranko.autodark.Constant
@@ -69,15 +68,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _requireAdb = MutableLiveData<Boolean>()
     val requireAdb: LiveData<Boolean>
         get() = _requireAdb
-
-    /**
-     * Progress that indicates grant with root permission job status
-     *
-     * @see  JOB_STATUS_SUCCEED
-     * @see  JOB_STATUS_FAILED
-     * @see  JOB_STATUS_PENDING
-     * */
-    val sudoJobStatus = ObservableInt()
 
     private val sudoJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main.plus(sudoJob))

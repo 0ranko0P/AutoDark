@@ -9,24 +9,53 @@
             type="me.ranko.autodark.ui.PermissionViewModel" />
     </data>
 
-    <ScrollView
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="true"
+        tools:context=".ui.PermissionActivity">
 
-        <LinearLayout
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbar_permission"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorSurface"
-            android:orientation="vertical"
-            tools:context=".ui.PermissionActivity">
+            android:background="@color/appbar_background"
+            android:fitsSystemWindows="true"
+            app:liftOnScroll="true"
+            app:setAppBarPadding="@{viewModel}">
 
-            <include
-                layout="@layout/card_permission_adb"
-                app:viewModel="@{viewModel}" />
+            <androidx.appcompat.widget.Toolbar
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:fitsSystemWindows="true"
+                app:title="@string/app_name"
+                app:titleTextColor="?attr/colorOnSurface" />
+        </com.google.android.material.appbar.AppBarLayout>
 
-            <include
-                layout="@layout/card_permission_root"
-                app:viewModel="@{viewModel}" />
-        </LinearLayout>
-    </ScrollView>
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scrollView_permission"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:elevation="@dimen/app_bar_transparent_sibling_elevation"
+            android:fitsSystemWindows="true">
+
+            <LinearLayout
+                android:id="@+id/linear_permission"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/colorSurface"
+                android:orientation="vertical"
+                android:paddingTop="?attr/actionBarSize"
+                app:setLinearViewPadding="@{viewModel}">
+
+                <include
+                    layout="@layout/card_permission_adb"
+                    app:viewModel="@{viewModel}" />
+
+                <include
+                    layout="@layout/card_permission_root"
+                    app:viewModel="@{viewModel}" />
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

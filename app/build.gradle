@@ -41,7 +41,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     testImplementation "junit:junit:$ver_junit"
-    debugImplementation "com.squareup.leakcanary:leakcanary-android:$ver_leak"
+    //debugImplementation "com.squareup.leakcanary:leakcanary-android:$ver_leak"
 
     // Support libraries
     implementation "androidx.appcompat:appcompat:$ver_appcompat"

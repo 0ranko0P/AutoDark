@@ -38,4 +38,5 @@
     <string name="root_description">If your device is rooted, you can grant permission with root now.</string>
     <string name="root_grant">Grant Permission</string>
     <string name="root_check_failed">Failed to get root permission!</string>
+    <string name="permission_failed">Failed to grant permission!</string>
 </resources>

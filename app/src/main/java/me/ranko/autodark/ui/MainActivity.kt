@@ -1,36 +1,19 @@
 package me.ranko.autodark.ui
 
-import android.app.Dialog
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
 import androidx.databinding.ObservableField
-import androidx.databinding.ObservableInt
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
-import me.ranko.autodark.Constant.JOB_STATUS_FAILED
 import me.ranko.autodark.R
 import me.ranko.autodark.databinding.MainActivityBinding
-import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
     private lateinit var binding: MainActivityBinding
-
-    private var dialog: Dialog? = null
-
-    /**
-     * Show failed toast message
-     * */
-    private val suJobListener = object : Observable.OnPropertyChangedCallback() {
-        override fun onPropertyChanged(sender: Observable, propertyId: Int) {
-            if ((sender as ObservableInt).get() == JOB_STATUS_FAILED)
-                Toast.makeText(application, R.string.root_check_failed, Toast.LENGTH_SHORT).show()
-        }
-    }
 
     private val summaryTextListener = object : Observable.OnPropertyChangedCallback() {
         override fun onPropertyChanged(sender: Observable, propertyId: Int) {
@@ -51,7 +34,6 @@ class MainActivity : AppCompatActivity() {
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
-        viewModel.sudoJobStatus.addOnPropertyChangedCallback(suJobListener)
         viewModel.summaryText.addOnPropertyChangedCallback(summaryTextListener)
 
         viewModel.requireAdb.observe(this, Observer { required ->
@@ -63,12 +45,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        viewModel.sudoJobStatus.removeOnPropertyChangedCallback(suJobListener)
         viewModel.summaryText.removeOnPropertyChangedCallback(summaryTextListener)
 
-        dialog?.run {
-            if (isShowing) dismiss()
-        }
         super.onDestroy()
     }
 }

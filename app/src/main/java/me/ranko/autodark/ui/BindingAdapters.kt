@@ -1,9 +1,11 @@
 package me.ranko.autodark.ui
 
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import me.ranko.autodark.Constant
 import me.ranko.autodark.R
@@ -16,10 +18,22 @@ fun setActiveImg(fab: FloatingActionButton, enabled: Boolean) {
 
 @BindingAdapter("onButtonSuProgress")
 fun onButtonSuProgress(v: TextView, process: Int) {
-    v.visibility = if(process == Constant.JOB_STATUS_PENDING) View.GONE else View.VISIBLE
+    v.visibility = if (process == Constant.JOB_STATUS_PENDING) View.GONE else View.VISIBLE
 }
 
 @BindingAdapter("onSuProgress")
 fun onSuProgress(v: ProgressBar, process: Int) {
-    v.visibility = if(process == Constant.JOB_STATUS_PENDING) View.VISIBLE else View.GONE
+    v.visibility = if (process == Constant.JOB_STATUS_PENDING) View.VISIBLE else View.GONE
+}
+
+@BindingAdapter("setAppBarPadding")
+fun setAppBarPadding(v: AppBarLayout, viewModel: PermissionViewModel) {
+    val verticalPadding = viewModel.getStatusBarHeight(v.context)/2
+    v.setPadding(v.paddingLeft, verticalPadding, v.paddingRight, verticalPadding)
+}
+
+@BindingAdapter("setLinearViewPadding")
+fun setLinearViewPadding(v: LinearLayout, viewModel: PermissionViewModel) {
+    val top = v.paddingTop + viewModel.getStatusBarHeight(v.context)
+    v.setPadding(v.paddingLeft, top, v.paddingRight, v.paddingBottom)
 }
