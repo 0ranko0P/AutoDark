@@ -31,4 +31,5 @@
     <string name="settings_category_dev">试验性功能</string>
     <string name="settings_category_timer">设置开始与结束时间</string>
     <string name="app_copy_adb">指令代码已复制到剪切板</string>
+    <string name="permission_failed">获取权限失败!</string>
 </resources>
