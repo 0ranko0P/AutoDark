@@ -59,7 +59,7 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
         val coordinate = intent.getIntArrayExtra(ARG_COORDINATE)!!
         val animator = CircularAnimationUtil.buildAnimator(coordinate, binding.coordRoot)
         showRootView()
-        animator.duration = resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
+        animator.duration = resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
         animator.start()
     }
 
