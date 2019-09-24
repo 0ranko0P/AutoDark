@@ -72,7 +72,7 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
     fun getStatusBarHeight(context: Context): Int {
         val resourceId = context.resources.getIdentifier("status_bar_height", "dimen", "android")
         if (resourceId > 0) {
-           return context.resources.getDimensionPixelSize(resourceId)
+            return context.resources.getDimensionPixelSize(resourceId)
         }
         return 1
     }

@@ -10,10 +10,14 @@
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordRoot"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="?attr/colorOnPrimary"
         android:fitsSystemWindows="true"
-        tools:context=".ui.PermissionActivity">
+        android:visibility="invisible"
+        tools:context=".ui.PermissionActivity"
+        tools:visibility="visible">
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/appbar_permission"
@@ -33,17 +37,14 @@
         </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.core.widget.NestedScrollView
-            android:id="@+id/scrollView_permission"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:elevation="@dimen/app_bar_transparent_sibling_elevation"
             android:fitsSystemWindows="true">
 
             <LinearLayout
-                android:id="@+id/linear_permission"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?attr/colorSurface"
                 android:orientation="vertical"
                 android:paddingTop="?attr/actionBarSize"
                 app:setLinearViewPadding="@{viewModel}">

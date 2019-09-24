@@ -13,9 +13,16 @@
         <item name="android:windowLightNavigationBar">true</item>
     </style>
 
-    <style name="AppTheme.TransparentActionBar" parent="AppTheme">
+    <style name="AppTransparentTheme" parent="AppTheme">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
         <item name="android:windowTranslucentStatus">false</item>
         <item name="actionBarTheme">@style/Widget.ActionBar</item>
+    </style>
+
+    <style name="AppTheme.TransparentActionBar" parent="AppTransparentTheme">
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar">true</item>
     </style>

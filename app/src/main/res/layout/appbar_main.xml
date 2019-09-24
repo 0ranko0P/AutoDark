@@ -13,8 +13,7 @@
         android:layout_height="@dimen/app_bar_background_height"
         android:fitsSystemWindows="true"
         app:contentScrim="?attr/colorPrimary"
-        app:layout_scrollFlags="noScroll"
-        app:layout_scrollInterpolator="@android:anim/decelerate_interpolator">
+        app:layout_scrollFlags="noScroll">
 
         <ImageView android:id="@+id/imgAppBar"
             android:layout_width="match_parent"
@@ -22,7 +21,6 @@
             android:adjustViewBounds="true"
             android:fitsSystemWindows="true"
             android:scaleType="centerCrop"
-            android:src="@drawable/ic_undraw_moonlight"
-            app:layout_collapseMode="none" />
+            android:src="@drawable/ic_undraw_moonlight" />
     </com.google.android.material.appbar.CollapsingToolbarLayout>
 </com.google.android.material.appbar.AppBarLayout>

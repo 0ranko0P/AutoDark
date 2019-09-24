@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.requireAdb.observe(this, Observer { required ->
             if (required) {
-                PermissionActivity.startPermissionActivity(this)
+                PermissionActivity.startWithAnimation(binding.fab,this)
                 viewModel.onRequireAdbConsumed()
             }
         })
