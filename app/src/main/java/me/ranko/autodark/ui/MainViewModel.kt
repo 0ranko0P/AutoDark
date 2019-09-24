@@ -22,12 +22,6 @@ import java.time.LocalTime
 const val SP_MAIN_FILE_NAME = "audoDark"
 const val SP_KEY_MASTER_SWITCH = "switch"
 
-/**
- * Magic happens on my phone 100% reproduce,  0% on emulator
- * SP_KEY_MASTER_SWITCH returned true on first init, use a flag to fix it
- * */
-const val SP_KEY_MASTER_SWITCH_FIRST_INIT = "IS_FIRST_INIT"
-
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     val darkSettings = DarkModeSettings(application)
 
@@ -73,15 +67,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val uiScope = CoroutineScope(Dispatchers.Main.plus(sudoJob))
 
     init {
-        // fix focking magic
-        // when first install force set master switch to false
-        if (sp.getInt(SP_KEY_MASTER_SWITCH_FIRST_INIT, -1) == -1) {
-            sp.edit()
-                .putInt(SP_KEY_MASTER_SWITCH_FIRST_INIT, 128)
-                .putBoolean(SP_KEY_MASTER_SWITCH, false)
-                .apply()
-        }
-
         switch.set(sp.getBoolean(SP_KEY_MASTER_SWITCH, false))
     }
 
