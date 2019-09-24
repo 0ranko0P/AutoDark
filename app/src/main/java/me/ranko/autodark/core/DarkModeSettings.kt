@@ -11,12 +11,16 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.preference.Preference
 import androidx.preference.Preference.OnPreferenceChangeListener
 import me.ranko.autodark.BuildConfig
+import me.ranko.autodark.Constant
+import me.ranko.autodark.Constant.COMMAND_GET_FORCE_DARK
+import me.ranko.autodark.Exception.CommandExecuteError
 import me.ranko.autodark.Receivers.DarkModeAlarmReceiver
 import me.ranko.autodark.Utils.DarkTimeUtil
 import me.ranko.autodark.Utils.DarkTimeUtil.getPersistFormattedString
 import me.ranko.autodark.Utils.DarkTimeUtil.getTodayOrNextDay
 import me.ranko.autodark.Utils.DarkTimeUtil.toAlarmMillis
 import me.ranko.autodark.Utils.DarkTimeUtil.toNextDayAlarmMillis
+import me.ranko.autodark.Utils.ShellJobUtil
 import me.ranko.autodark.ui.Preference.DarkDisplayPreference
 import timber.log.Timber
 import java.time.LocalTime
@@ -114,6 +118,47 @@ class DarkModeSettings(private val context: Context) :
         fun setDarkMode(context: Context, enabled: Boolean) {
             val manager = ContextCompat.getSystemService(context, UiModeManager::class.java)!!
             setDarkMode(manager, context, enabled)
+        }
+
+        /**
+         * Configure system force-dark mode
+         *
+         * @return  false If failed to set value
+         *
+         * @see     SYSTEM_PROP_FORCE_DARK
+         * @see     Constant.COMMAND_SET_FORCE_DARK_ON
+         * */
+        suspend fun setForceDark(enabled: Boolean): Boolean {
+            try {
+                // Run: set force mode && get force mode
+                val setCMD = if (enabled) Constant.COMMAND_SET_FORCE_DARK_ON else Constant.COMMAND_SET_FORCE_DARK_OFF
+                val command = "$setCMD && su -c $COMMAND_GET_FORCE_DARK"
+
+                val nowStatus = ShellJobUtil.runSudoJobForValue(command)!!.trim().toBoolean()
+                return nowStatus == enabled
+            } catch (e: Exception) {
+                Timber.e("Error: ${e.localizedMessage}")
+                return false
+            }
+        }
+
+        /**
+         * @return  current force-dark mode status
+         *
+         * @throws  CommandExecuteError permission denied when
+         *          do not have root access.
+         *
+         * @see     COMMAND_GET_FORCE_DARK
+         * */
+        @Throws(CommandExecuteError::class)
+        suspend fun getForceDark(): Boolean {
+            val forceDark = ShellJobUtil.runJobForValue(COMMAND_GET_FORCE_DARK)
+            if (forceDark == null || forceDark.trim().isEmpty()) {
+                Timber.v("Force-dark settings is untouched")
+                return false
+            } else {
+                return forceDark.trim().toBoolean()
+            }
         }
 
         /**

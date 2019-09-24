@@ -3,7 +3,6 @@ package me.ranko.autodark.ui
 import android.app.Activity
 import android.app.Application
 import android.app.UiModeManager
-import android.text.TextUtils
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
@@ -11,11 +10,10 @@ import androidx.lifecycle.*
 import kotlinx.coroutines.*
 import me.ranko.autodark.Constant
 import me.ranko.autodark.Constant.*
-import me.ranko.autodark.Exception.CommandExecuteError
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.DarkTimeUtil
-import me.ranko.autodark.Utils.ShellJobUtil
 import me.ranko.autodark.core.DarkModeSettings
+import me.ranko.autodark.core.DarkModeSettings.Companion.setForceDark
 import timber.log.Timber
 import java.time.LocalTime
 
@@ -196,39 +194,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     return MainViewModel(application) as T
                 }
                 throw IllegalArgumentException("Unable to construct viewModel")
-            }
-        }
-
-        suspend fun setForceDark(enabled: Boolean): Boolean {
-            try {
-                // Run: set force mode && get force mode
-                val setCMD = if (enabled) COMMAND_SET_FORCE_DARK_ON else COMMAND_SET_FORCE_DARK_OFF
-                val command = "$setCMD && su -c $COMMAND_GET_FORCE_DARK"
-
-                val nowStatus = ShellJobUtil.runSudoJobForValue(command)!!.trim().toBoolean()
-                return nowStatus == enabled
-            } catch (e: Exception) {
-                Timber.e("Error: ${e.localizedMessage}")
-                return false
-            }
-        }
-
-        /**
-         * @return  current force-dark mode status
-         *
-         * @throws  CommandExecuteError permission denied when
-         *          do not have root access.
-         *
-         * @see     COMMAND_GET_FORCE_DARK
-         * */
-        @Throws(CommandExecuteError::class)
-        suspend fun getForceDark(): Boolean {
-            val forceDark = ShellJobUtil.runJobForValue(COMMAND_GET_FORCE_DARK)
-            if (forceDark == null || TextUtils.isEmpty(forceDark.trim())) {
-                Timber.v("Force-dark settings is untouched")
-                return false
-            } else {
-                return forceDark.trim().toBoolean()
             }
         }
     }

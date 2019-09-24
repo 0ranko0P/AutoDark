@@ -14,6 +14,7 @@ import kotlinx.coroutines.withContext
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.DarkTimeUtil
 import me.ranko.autodark.core.*
+import me.ranko.autodark.core.DarkModeSettings.Companion.setForceDark
 import me.ranko.autodark.ui.MainViewModel
 import timber.log.Timber
 
@@ -132,7 +133,7 @@ class DarkModeAlarmReceiver : BroadcastReceiver() {
                 Timber.d("Start force dark job")
                 // Check set job result
                 withContext(Dispatchers.Default) {
-                    val result = MainViewModel.setForceDark(true)
+                    val result = setForceDark(true)
                     if (result)
                         Timber.d("force-dark job succeed.")
                     else
