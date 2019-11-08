@@ -47,6 +47,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:paddingTop="?attr/actionBarSize"
+                android:paddingBottom="@dimen/scroll_content_padding_bottom"
                 app:setLinearViewPadding="@{viewModel}">
 
                 <include

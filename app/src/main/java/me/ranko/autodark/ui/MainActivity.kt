@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
 import me.ranko.autodark.R
 import me.ranko.autodark.databinding.MainActivityBinding
+import me.ranko.autodark.ui.PermissionActivity.Companion.setImmersiveNavBar
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
@@ -27,6 +28,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setImmersiveNavBar(window)
+
         viewModel = ViewModelProviders.of(this, MainViewModel.Companion.Factory(application))
             .get(MainViewModel::class.java)
 
