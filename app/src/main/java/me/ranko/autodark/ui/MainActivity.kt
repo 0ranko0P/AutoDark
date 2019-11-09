@@ -1,5 +1,7 @@
 package me.ranko.autodark.ui
 
+import android.content.res.ColorStateList
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -7,6 +9,7 @@ import androidx.databinding.Observable
 import androidx.databinding.ObservableField
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.snackbar.Snackbar
 import me.ranko.autodark.R
 import me.ranko.autodark.databinding.MainActivityBinding
@@ -45,6 +48,11 @@ class MainActivity : AppCompatActivity() {
                 viewModel.onRequireAdbConsumed()
             }
         })
+
+        if (window.context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            val collapsingToolbar = binding.appbar.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbar)!!
+            collapsingToolbar.setExpandedTitleTextColor(ColorStateList.valueOf(getColor(android.R.color.transparent)))
+        }
     }
 
     override fun onDestroy() {
