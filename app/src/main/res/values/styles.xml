@@ -26,7 +26,7 @@
         <item name="android:windowLightNavigationBar">true</item>
     </style>
 
-    <style name="Widget.ActionBar" parent="@android:style/Widget.Material.ActionBar.Solid"/>
+    <style name="Widget.ActionBar" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar"/>
 
     <style name="TitleText" parent="AppTheme">
         <item name="android:textSize">@dimen/into_title_text_size</item>
