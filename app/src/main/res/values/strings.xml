@@ -22,10 +22,10 @@
 
     <string name="adb_title">Grant permission with adb.</string>
     <string name="adb_description">Use your PC/Mac to grant ADB permission."
-        "\n Please read this <a href="https://greenify.uservoice.com/knowledgebase/articles/749142-how-to-grant-permissions-required-by-some-features">guide</a> (its written for Greenify but procedure are basically the same)."
-        "\n after you read the guide and know how to use adb, you can run this command: "
-        "\n adb -d shell pm grant me.ranko.autodark android.permission.WRITE_SECURE_SETTINGS "
-        "\n to grant permission. After that, you can click check button."
+        "\n First Please read this <a href="https://greenify.uservoice.com/knowledgebase/articles/749142-how-to-grant-permissions-required-by-some-features">guide</a> (its written for Greenify but procedure are basically the same)."
+        "\n After you read the guide and know how to use ADB, click the share/copy button below to send the command code to your PC/Mac."
+        "\n After that run the command code to grant permission.
+        "\n Finally, you can click the check button to finish this grant procedure."
     </string>
 
     <string name="adb_send">Send</string>

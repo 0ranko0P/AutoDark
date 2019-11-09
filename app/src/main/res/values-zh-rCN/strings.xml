@@ -5,9 +5,9 @@
     <string name="adb_copy">复制</string>
     <string name="adb_description">使用你的 PC/Mac 来授予 ADB 权限."
         "\n 请阅读这份 <a href="https://greenify.uservoice.com/knowledgebase/articles/749142-how-to-grant-permissions-required-by-some-features"> 指南</a> (虽然是为绿色守护写的, 但步骤基本相同)."
-        "\n 当您已阅读指南并且知道如何使用 ADB 后, 您就可以输入这串指令: "
-        "\n adb -d shell pm grant me.ranko.autodark android.permission.WRITE_SECURE_SETTINGS "
-        "\n 进行授权, 授权后点击测试."
+        "\n 当您已阅读指南并且知道如何使用 ADB 后, 点击下方的 分享/复制 按钮将指令发送到您的 PC/Mac 上."
+        "\n 然后运行指令进行授权."
+        "\n 最后, 点击测试按钮即可完成授权步骤.
     </string>
     <string name="adb_check">测试</string>
     <string name="adb_send">发送到</string>
