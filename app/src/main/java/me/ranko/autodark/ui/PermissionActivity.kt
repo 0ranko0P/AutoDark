@@ -3,12 +3,9 @@ package me.ranko.autodark.ui
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
-import android.view.Window
-import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -16,6 +13,7 @@ import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.CircularAnimationUtil
+import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.databinding.PermissionActivityBinding
 import timber.log.Timber
 
@@ -30,7 +28,7 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setImmersiveNavBar(window)
+        if (!ViewUtil.isLandscape(window)) ViewUtil.setImmersiveNavBar(window)
 
         // replace default transition
         overridePendingTransition(R.anim.do_not_move, R.anim.do_not_move)
@@ -85,12 +83,6 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
             val coordinate = CircularAnimationUtil.getViewCenterCoordinate(startView)
             intent.putExtra(ARG_COORDINATE, coordinate)
             activity.startActivity(intent)
-        }
-
-        fun setImmersiveNavBar(window: Window) {
-            if( window.context.resources.configuration.orientation != Configuration.ORIENTATION_LANDSCAPE) {
-                window.setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS, WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
-            }
         }
     }
 }

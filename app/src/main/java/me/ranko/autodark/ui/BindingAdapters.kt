@@ -9,6 +9,7 @@ import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import me.ranko.autodark.Constant
 import me.ranko.autodark.R
+import me.ranko.autodark.Utils.ViewUtil
 
 @BindingAdapter("setActiveImg")
 fun setActiveImg(fab: FloatingActionButton, enabled: Boolean) {
@@ -28,12 +29,12 @@ fun onSuProgress(v: ProgressBar, process: Int) {
 
 @BindingAdapter("setAppBarPadding")
 fun setAppBarPadding(v: AppBarLayout, viewModel: PermissionViewModel) {
-    val verticalPadding = viewModel.getStatusBarHeight(v.context)/2
+    val verticalPadding = ViewUtil.getStatusBarHeight(v.resources) / 2
     v.setPadding(v.paddingLeft, verticalPadding, v.paddingRight, verticalPadding)
 }
 
 @BindingAdapter("setLinearViewPadding")
 fun setLinearViewPadding(v: LinearLayout, viewModel: PermissionViewModel) {
-    val top = v.paddingTop + viewModel.getStatusBarHeight(v.context)
+    val top = v.paddingTop + ViewUtil.getStatusBarHeight(v.resources)
     v.setPadding(v.paddingLeft, top, v.paddingRight, v.paddingBottom)
 }
