@@ -7,6 +7,9 @@
     <dimen name="app_bar_transparent_sibling_elevation">-1dp</dimen>
     <dimen name="main_content_margin_top">192dp</dimen>
     <dimen name="scroll_content_padding_bottom">48dp</dimen>
+    <dimen name="scroll_card_margin_side">48dp</dimen>
+    <dimen name="scroll_card_margin">8dp</dimen>
+    <dimen name="scroll_card_overlap">96dp</dimen>
     <dimen name="text_summary_padding_start">24dp</dimen>
     <dimen name="text_summary_padding_end">0dp</dimen>
     

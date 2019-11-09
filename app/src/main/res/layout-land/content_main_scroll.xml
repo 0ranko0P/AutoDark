@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    app:behavior_overlapTop="@dimen/scroll_card_overlap"
+    android:layout_marginBottom="?attr/actionBarSize"
+    tools:context=".ui.MainActivity"
+    tools:showIn="@layout/main_activity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/scroll_card_margin_side"
+            android:layout_marginTop="@dimen/scroll_card_margin"
+            android:layout_marginEnd="@dimen/scroll_card_margin_side"
+            android:layout_marginBottom="@dimen/scroll_card_margin">
+
+            <fragment android:id="@+id/container"
+                android:name="me.ranko.autodark.ui.MainFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:layout="@android:layout/activity_list_item" />
+        </com.google.android.material.card.MaterialCardView>
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>
