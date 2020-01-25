@@ -2,11 +2,17 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">AutoDark</string>
     <string name="app_about">About AutoDark</string>
+    <string name="app_confirm">OK</string>
     <string name="app_copy_adb">Command code copied</string>
     <string name="main_title">Schedule dark mode</string>
 
     <string name="settings_category_dev">Experimental feature</string>
     <string name="settings_category_timer">Schedule start and end time.</string>
+
+    <string name="app_receiver_disabled_title">App receiver has been disabled</string>
+    <string name="app_receiver_disabled_msg">AutoDark need this receiver to wake up in time and do the switch job"
+        "\n If you are using some kind of optimizer/battery saver app or something like that, please add AutoDark to their white list."
+    </string>
 
     <string name="pref_master_switch">Master switch</string>
     <string name="pref_time_start">Start time</string>
