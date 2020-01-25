@@ -82,14 +82,14 @@ class DarkModeAlarmReceiver : BroadcastReceiver() {
 
         try {
             DarkModeSettings.setDarkMode(context, switch)
+
+            // Pending next day alarm if no error occurred
+            val nextAlarmTime = DarkTimeUtil.toNextDayAlarmMillis(time)
+            pendingNextAlarm(context, type, nextAlarmTime)
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(context, R.string.dark_mode_permission_denied, Toast.LENGTH_SHORT).show()
         }
-
-        // Pending next day alarm if no error occurred
-        val nextAlarmTime = DarkTimeUtil.toNextDayAlarmMillis(time)
-        pendingNextAlarm(context, type, nextAlarmTime)
     }
 
     private fun pendingNextAlarm(context: Context, type: String, time: Long) {
