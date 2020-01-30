@@ -70,4 +70,7 @@ dependencies {
 
     // Logging
     implementation "com.jakewharton.timber:timber:$ver_timber"
+
+    // Shizuku
+    implementation "moe.shizuku.privilege:api:$ver_shizuku"
 }
