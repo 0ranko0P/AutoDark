@@ -5,7 +5,7 @@ import android.widget.Toast
 import androidx.databinding.Observable
 import androidx.databinding.ObservableBoolean
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.preference.Preference.OnPreferenceChangeListener
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
@@ -40,9 +40,9 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
 
     private val viewModel: MainViewModel by lazy {
         val context = requireNotNull(activity) { "Call after activity created!" }
-        ViewModelProviders.of(
-            context, MainViewModel.Companion.Factory(context.application)
-        ).get(MainViewModel::class.java)
+        ViewModelProvider(context, MainViewModel.Companion.Factory(context.application)).get(
+            MainViewModel::class.java
+        )
     }
 
     companion object {

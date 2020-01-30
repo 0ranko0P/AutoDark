@@ -10,7 +10,7 @@ import android.view.ViewTreeObserver
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.CircularAnimationUtil
@@ -24,9 +24,9 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
     private lateinit var binding: PermissionActivityBinding
 
     private val viewModel: PermissionViewModel by lazy {
-        ViewModelProviders
-            .of(this, PermissionViewModel.Companion.Factory(application))
-            .get(PermissionViewModel::class.java)
+        ViewModelProvider(this, PermissionViewModel.Companion.Factory(application)).get(
+            PermissionViewModel::class.java
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
