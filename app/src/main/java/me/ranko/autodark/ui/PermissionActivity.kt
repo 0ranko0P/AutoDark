@@ -3,6 +3,7 @@ package me.ranko.autodark.ui
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
@@ -15,6 +16,7 @@ import me.ranko.autodark.R
 import me.ranko.autodark.Utils.CircularAnimationUtil
 import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.databinding.PermissionActivityBinding
+import moe.shizuku.api.ShizukuApiConstants
 import timber.log.Timber
 
 class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutListener {
@@ -55,6 +57,26 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
         } else {
             showRootView()
         }
+
+        binding.shizukuRoot.btnShizuku.setOnClickListener {
+            if (viewModel.checkShizukuPermission()) {
+                viewModel.grantWithShizuku()
+            } else {
+                requestPermissions(arrayOf(ShizukuApiConstants.PERMISSION), REQUEST_CODE_SHIZUKU_PERMISSION)
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        if (requestCode == REQUEST_CODE_SHIZUKU_PERMISSION) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                viewModel.grantWithShizuku()
+            } else {
+                // denied
+                Snackbar.make(binding.coordRoot, R.string.permission_failed, Snackbar.LENGTH_SHORT)
+                    .show()
+            }
+        }
     }
 
     override fun onGlobalLayout() {
@@ -72,6 +94,8 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
 
     companion object {
         private const val ARG_COORDINATE: String = "ARG_COORDINATE"
+
+        private const val REQUEST_CODE_SHIZUKU_PERMISSION = 7
 
         fun start(context: Context) {
             val intent = Intent(context, PermissionActivity::class.java)

@@ -16,11 +16,19 @@ import me.ranko.autodark.Exception.CommandExecuteError
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.ShellJobUtil
 import me.ranko.autodark.core.ShizukuApi
+import moe.shizuku.api.ShizukuApiConstants
+import moe.shizuku.api.ShizukuClientHelper
 import timber.log.Timber
 
 fun AndroidViewModel.checkPermissionGranted(): Boolean {
     val context = getApplication<Application>()
     val permission = context.checkCallingOrSelfPermission(PERMISSION_WRITE_SECURE_SETTINGS)
+    return PackageManager.PERMISSION_GRANTED == permission
+}
+
+fun AndroidViewModel.checkShizukuPermission() :Boolean {
+    val context = getApplication<Application>()
+    val permission = context.checkCallingOrSelfPermission(ShizukuApiConstants.PERMISSION)
     return PackageManager.PERMISSION_GRANTED == permission
 }
 

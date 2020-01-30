@@ -58,7 +58,7 @@
                     layout="@layout/card_permission_root"
                     app:viewModel="@{viewModel}" />
 
-                <include
+                <include android:id="@+id/shizuku_root"
                     layout="@layout/card_permission_shizuku"
                     app:viewModel="@{viewModel}" />
             </LinearLayout>
