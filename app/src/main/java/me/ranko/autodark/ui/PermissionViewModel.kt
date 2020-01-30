@@ -12,8 +12,10 @@ import androidx.databinding.ObservableInt
 import androidx.lifecycle.*
 import kotlinx.coroutines.*
 import me.ranko.autodark.Constant.*
+import me.ranko.autodark.Exception.CommandExecuteError
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.ShellJobUtil
+import me.ranko.autodark.core.ShizukuApi
 import timber.log.Timber
 
 fun AndroidViewModel.checkPermissionGranted(): Boolean {
@@ -35,6 +37,8 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
      * @see  JOB_STATUS_PENDING
      * */
     val sudoJobStatus = ObservableInt()
+
+    val shizukuJobStatus = ObservableInt()
 
     private val _permissionResult = MutableLiveData<Boolean>()
     val permissionResult: LiveData<Boolean>
@@ -62,6 +66,31 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
         // dismiss dialog if rooted
         _permissionResult.value = isRooted
         Timber.d("Root job finished, result: %s", isRooted)
+    }
+
+    fun grantWithShizuku()  = uiScope.launch{
+        shizukuJobStatus.set(JOB_STATUS_PENDING)
+
+        delay(800L)
+
+        val result = try {
+            val isAvailable = ShizukuApi.checkShizuku()
+            if (isAvailable) {
+                ShizukuApi.runShizukuShell(COMMAND_GRANT_ROOT)
+                true
+            }else {
+                false
+            }
+        } catch (e: Throwable) {
+            false
+        }
+
+        // Notify job completed
+        shizukuJobStatus.set(if (result) JOB_STATUS_SUCCEED else JOB_STATUS_FAILED)
+
+        // dismiss dialog if rooted
+        _permissionResult.value = result
+        Timber.d("Shizuku job finished, result: %s", result)
     }
 
     override fun onCleared() {
