@@ -17,6 +17,7 @@ import me.ranko.autodark.Utils.CircularAnimationUtil
 import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.databinding.PermissionActivityBinding
 import moe.shizuku.api.ShizukuApiConstants
+import moe.shizuku.api.ShizukuClientHelper
 import timber.log.Timber
 
 class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutListener {
@@ -59,6 +60,12 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
         }
 
         binding.shizukuRoot.btnShizuku.setOnClickListener {
+            if (!ShizukuClientHelper.isManagerV3Installed(this)) {
+                Snackbar.make(binding.coordRoot, R.string.permission_failed, Snackbar.LENGTH_SHORT)
+                    .show()
+                return@setOnClickListener
+            }
+
             if (viewModel.checkShizukuPermission()) {
                 viewModel.grantWithShizuku()
             } else {

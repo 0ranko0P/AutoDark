@@ -50,6 +50,7 @@
                 android:paddingBottom="@dimen/scroll_content_padding_bottom"
                 app:setLinearViewPadding="@{viewModel}">
 
+                <!-- TODO: Replace with recycler view -->
                 <include
                     layout="@layout/card_permission_adb"
                     app:viewModel="@{viewModel}" />
