@@ -78,6 +78,10 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
             forcePreference.isEnabled = status != Constant.JOB_STATUS_PENDING
         })
 
+        viewModel.forceDarkTile.observe(this, Observer<Int> { strId ->
+            forcePreference.setTitle(strId)
+        })
+
         // Set job running on background, reject new value in observer
         forcePreference.onPreferenceChangeListener = OnPreferenceChangeListener { _, newValue ->
 
@@ -87,8 +91,9 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
             true
         }
 
-
         lifecycle.addObserver(viewModel.darkSettings)
+
+        viewModel.updateForceDarkTitle()
     }
 
     override fun onDestroyView() {

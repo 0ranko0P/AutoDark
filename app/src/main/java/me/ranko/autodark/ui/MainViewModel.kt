@@ -6,6 +6,7 @@ import android.app.UiModeManager
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
+import androidx.databinding.ObservableInt
 import androidx.lifecycle.*
 import kotlinx.coroutines.*
 import me.ranko.autodark.Constant
@@ -14,6 +15,8 @@ import me.ranko.autodark.R
 import me.ranko.autodark.Utils.DarkTimeUtil
 import me.ranko.autodark.core.DarkModeSettings
 import me.ranko.autodark.core.DarkModeSettings.Companion.setForceDark
+import me.ranko.autodark.core.DarkModeSettings.Companion.setForceDarkByShizuku
+import me.ranko.autodark.core.ShizukuApi
 import timber.log.Timber
 import java.time.LocalTime
 
@@ -53,6 +56,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val _forceDarkStatus = MutableLiveData<Int>()
     val forceDarkStatus: LiveData<Int>
         get() = _forceDarkStatus
+
+    /**
+     * Update preference if Shizuku available
+     *
+     * @see updateForceDarkTitle
+     * */
+    val _forceDarkTile = MutableLiveData<Int>()
+    val forceDarkTile:LiveData<Int>
+        get() = _forceDarkTile
 
     /**
      * Control permission dialog
@@ -158,7 +170,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _forceDarkStatus.value = JOB_STATUS_PENDING
 
         withContext(Dispatchers.Main) {
-            val result = setForceDark(enabled)
+            // Use shizuku if available
+            val result = if (R.string.pref_force_dark_shizuku == forceDarkTile.value) {
+                setForceDarkByShizuku(enabled)
+            } else {
+                setForceDark(enabled)
+            }
             // Show force-dark job result
             _forceDarkStatus.value = if (result) JOB_STATUS_SUCCEED else JOB_STATUS_FAILED
         }
@@ -179,6 +196,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onRequireAdbConsumed() {
         _requireAdb.postValue(false)
+    }
+
+    fun updateForceDarkTitle() = uiScope.launch {
+        withContext(Dispatchers.Main) {
+            _forceDarkStatus.value = JOB_STATUS_PENDING
+
+            if (ShizukuApi.checkShizuku() && checkShizukuPermission()) {
+                _forceDarkTile.value = R.string.pref_force_dark_shizuku
+            }
+            _forceDarkStatus.value = JOB_STATUS_SUCCEED
+        }
     }
 
     override fun onCleared() {

@@ -7,6 +7,7 @@ import me.ranko.autodark.AutoDarkApplication.isShizukuV3Failed
 import me.ranko.autodark.Exception.CommandExecuteError
 import me.ranko.autodark.Utils.ShellJobUtil
 import moe.shizuku.api.ShizukuService
+import timber.log.Timber
 import java.lang.Exception
 import java.lang.IllegalArgumentException
 
