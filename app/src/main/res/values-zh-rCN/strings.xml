@@ -36,4 +36,7 @@
     <string name="app_receiver_disabled_title">App接收器已被禁用</string>
     <string name="app_receiver_disabled_msg">该接收器确保AutoDark 在正确的时间醒来并且为您切换夜间模式"
         "\n 如果您使用了某种优化软件例如电池管家, 请将AutoDark 添加到他们的白名单中.</string>
+    <string name="pref_force_dark_shizuku">Force-dark 模式</string>
+    <string name="shizuku_description">由Shizuku 直接授权</string>
+    <string name="shizuku_not_install">Shizuku 并未安装!</string>
 </resources>
