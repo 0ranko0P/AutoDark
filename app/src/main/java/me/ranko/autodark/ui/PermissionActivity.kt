@@ -61,7 +61,7 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
 
         binding.shizukuRoot.btnShizuku.setOnClickListener {
             if (!ShizukuClientHelper.isManagerV3Installed(this)) {
-                Snackbar.make(binding.coordRoot, R.string.permission_failed, Snackbar.LENGTH_SHORT)
+                Snackbar.make(binding.coordRoot, R.string.shizuku_not_install, Snackbar.LENGTH_SHORT)
                     .show()
                 return@setOnClickListener
             }
