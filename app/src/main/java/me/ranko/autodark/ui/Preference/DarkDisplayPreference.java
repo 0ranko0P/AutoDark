@@ -22,7 +22,7 @@ import me.ranko.autodark.Utils.DarkTimeUtil;
  * @author 0rano0P
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
-public class DarkDisplayPreference extends Preference {
+public final class DarkDisplayPreference extends Preference {
 
     @Nullable
     private Dialog dialog;

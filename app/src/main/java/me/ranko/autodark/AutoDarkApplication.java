@@ -27,7 +27,6 @@ public final class AutoDarkApplication extends Application {
         }
     }
 
-
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);

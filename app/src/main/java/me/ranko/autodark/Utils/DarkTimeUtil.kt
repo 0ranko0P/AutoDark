@@ -88,9 +88,9 @@ object DarkTimeUtil {
 
 
     /**
-     * @return  true
-     *          if endTime at next day or not include wee hour.
-     *          E.g start at 10pm end at 2am, it is true.
+     * @return  **True** if **endTime** at next day or not include wee hour.
+     *
+     *          E.g start at 10pm end at 2am next day, returns true.
      * */
     fun isNextDay(start: LocalTime, end: LocalTime): Boolean {
         if (start.isAfter(end)) {

@@ -1,13 +1,17 @@
 package me.ranko.autodark;
 
-import static me.ranko.autodark.core.DarkModeSettingsKt.SYSTEM_PROP_FORCE_DARK;
-
 public final class Constant {
 
     public static final String PERMISSION_WRITE_SECURE_SETTINGS = "android.permission.WRITE_SECURE_SETTINGS";
 
-    public static final String COMMAND_GRANT_ROOT = "pm grant me.ranko.autodark android.permission.WRITE_SECURE_SETTINGS";
-    public static final String COMMAND_GRANT_ADB = "adb -d shell " + COMMAND_GRANT_ROOT;
+    public static final String COMMAND_GRANT_PM = "pm grant "+ BuildConfig.APPLICATION_ID + " " + PERMISSION_WRITE_SECURE_SETTINGS;
+    public static final String COMMAND_GRANT_ADB = "adb -d shell " + COMMAND_GRANT_PM;
+
+    // Force-dark mode
+    // Return <strong>null</strong> on some device while force-dark is false
+    public static final String SYSTEM_PROP_FORCE_DARK = "debug.hwui.force_dark";
+
+    public static final String SYSTEM_SECURE_PROP_DARK_MODE = "ui_night_mode";
 
     public static final String COMMAND_GET_FORCE_DARK = "getprop " + SYSTEM_PROP_FORCE_DARK;
     public static final String COMMAND_SET_FORCE_DARK_ON = "setprop " + SYSTEM_PROP_FORCE_DARK + " true";

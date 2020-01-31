@@ -12,12 +12,10 @@ import androidx.databinding.ObservableInt
 import androidx.lifecycle.*
 import kotlinx.coroutines.*
 import me.ranko.autodark.Constant.*
-import me.ranko.autodark.Exception.CommandExecuteError
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.ShellJobUtil
 import me.ranko.autodark.core.ShizukuApi
 import moe.shizuku.api.ShizukuApiConstants
-import moe.shizuku.api.ShizukuClientHelper
 import timber.log.Timber
 
 fun AndroidViewModel.checkPermissionGranted(): Boolean {
@@ -62,7 +60,7 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
         delay(800L) // Show progress longer
 
         val isRooted: Boolean = try {
-            ShellJobUtil.runSudoJob(COMMAND_GRANT_ROOT)
+            ShellJobUtil.runSudoJob(COMMAND_GRANT_PM)
             true
         } catch (e: Exception) {
             false
@@ -84,7 +82,7 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
         val result = try {
             val isAvailable = ShizukuApi.checkShizuku()
             if (isAvailable) {
-                ShizukuApi.runShizukuShell(COMMAND_GRANT_ROOT)
+                ShizukuApi.runShizukuShell(COMMAND_GRANT_PM)
                 true
             }else {
                 false

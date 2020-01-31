@@ -45,10 +45,6 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
         )
     }
 
-    companion object {
-        //fun newInstance() = MainFragment()
-    }
-
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) =
         addPreferencesFromResource(R.xml.preferences_main)
 

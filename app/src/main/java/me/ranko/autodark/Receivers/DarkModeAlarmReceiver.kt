@@ -15,7 +15,6 @@ import me.ranko.autodark.R
 import me.ranko.autodark.Utils.DarkTimeUtil
 import me.ranko.autodark.core.*
 import me.ranko.autodark.core.DarkModeSettings.Companion.setForceDark
-import me.ranko.autodark.ui.MainViewModel
 import timber.log.Timber
 
 private const val PARAM_ALARM_TYPE = "ALARM_TYPE"
@@ -87,7 +86,7 @@ class DarkModeAlarmReceiver : BroadcastReceiver() {
             val nextAlarmTime = DarkTimeUtil.toNextDayAlarmMillis(time)
             pendingNextAlarm(context, type, nextAlarmTime)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Timber.i(e)
             Toast.makeText(context, R.string.dark_mode_permission_denied, Toast.LENGTH_SHORT).show()
         }
     }
@@ -103,8 +102,7 @@ class DarkModeAlarmReceiver : BroadcastReceiver() {
      * Active dark mode after boot complete
      * Set force-dark if needed
      *
-     * @see     MainViewModel.setForceDark
-     * @see     DarkModeSettings
+     * @see     DarkModeSettings.setForceDark
      * @see     DARK_PREFERENCE_FORCE
      * */
     private fun onBoot(context: Context) {

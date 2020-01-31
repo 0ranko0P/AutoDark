@@ -11,8 +11,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.preference.Preference
 import androidx.preference.Preference.OnPreferenceChangeListener
 import me.ranko.autodark.BuildConfig
-import me.ranko.autodark.Constant
-import me.ranko.autodark.Constant.COMMAND_GET_FORCE_DARK
+import me.ranko.autodark.Constant.*
 import me.ranko.autodark.Exception.CommandExecuteError
 import me.ranko.autodark.Receivers.DarkModeAlarmReceiver
 import me.ranko.autodark.Utils.DarkTimeUtil
@@ -24,12 +23,6 @@ import me.ranko.autodark.Utils.ShellJobUtil
 import me.ranko.autodark.ui.Preference.DarkDisplayPreference
 import timber.log.Timber
 import java.time.LocalTime
-
-const val SYSTEM_SECURE_PROP_DARK_MODE = "ui_night_mode"
-
-// Force-dark mode
-// Return null on some device while force-dark is false
-const val SYSTEM_PROP_FORCE_DARK = "debug.hwui.force_dark"
 
 const val DARK_PREFERENCE_START = "dark_mode_time_start"
 const val DARK_PREFERENCE_END = "dark_mode_time_end"
@@ -47,16 +40,16 @@ interface DarkPreferenceSupplier {
 
 /**
  *  Dark mode Controller
- *  <p>
- *  Listener on preference changes to set dark mode on/off time
  *
- * @author 0ranko0P
+ *  Listener on [DarkDisplayPreference]
  *
- * @see    DarkDisplayPreference
- * @see    UiModeManager
+ * @author  0ranko0P
+ *
+ * @see     onPreferenceChange
+ * @see     UiModeManager
  * */
-class DarkModeSettings(private val context: Context) :
-    OnPreferenceChangeListener, DefaultLifecycleObserver {
+class DarkModeSettings(private val context: Context) : OnPreferenceChangeListener,
+    DefaultLifecycleObserver {
 
     private val mAlarmManager: AlarmManager =
         context.getSystemService(Activity.ALARM_SERVICE) as AlarmManager
@@ -75,16 +68,16 @@ class DarkModeSettings(private val context: Context) :
 
         /**
          * Sets the system-wide night mode.
-         * <p>
-         * Direct call setNightMode requires <strong>MODIFY_DAY_NIGHT_MODE</strong> permission
-         * And that's a <strong>signature|privileged</strong> permission, can not get easily.
-         * <p>
-         * Modify secure system settings to by pass that permission,
-         * Requires WRITE_SECURE_SETTINGS, can provide by user.
          *
-         * @return false if error occurred or failed to set mode.
+         * Direct call [UiModeManager.setNightMode] requires **MODIFY_DAY_NIGHT_MODE**
+         * permission. And that is a __signature|privileged__ permission, can not get easily.
          *
-         * @see UiModeManager.setNightMode
+         * Modify secure system settings to bypass that permission,
+         * Requires **WRITE_SECURE_SETTINGS**, can provide by the user.
+         *
+         * @return  false if an error occurred or failed to set mode.
+         *
+         * @see     UiModeManager.setNightMode
          * */
         @JvmStatic
         fun setDarkMode(manager: UiModeManager, context: Context, enabled: Boolean): Boolean {
@@ -123,62 +116,65 @@ class DarkModeSettings(private val context: Context) :
         /**
          * Configure system force-dark mode
          *
-         * @return  false If failed to set value
+         * @return  false If failed to set dark mode
          *
          * @see     SYSTEM_PROP_FORCE_DARK
-         * @see     Constant.COMMAND_SET_FORCE_DARK_ON
+         * @see     COMMAND_SET_FORCE_DARK_ON
          * */
         suspend fun setForceDark(enabled: Boolean): Boolean {
-            try {
+            return try {
                 // Run: set force mode && get force mode
-                val setCMD = if (enabled) Constant.COMMAND_SET_FORCE_DARK_ON else Constant.COMMAND_SET_FORCE_DARK_OFF
+                val setCMD = if (enabled) COMMAND_SET_FORCE_DARK_ON else COMMAND_SET_FORCE_DARK_OFF
+
                 val command = "$setCMD && su -c $COMMAND_GET_FORCE_DARK"
 
                 val nowStatus = ShellJobUtil.runSudoJobForValue(command)!!.trim().toBoolean()
-                return nowStatus == enabled
+                // check return value
+                nowStatus == enabled
             } catch (e: Exception) {
                 Timber.e("Error: ${e.localizedMessage}")
-                return false
+                false
             }
         }
 
+        /**
+         * Same as [setForceDark] but implement by Shizuku api
+         * */
         suspend fun setForceDarkByShizuku(enabled: Boolean): Boolean {
-            try {
+            return try {
                 // Run: set force mode && get force mode
-                val setCMD = if (enabled) Constant.COMMAND_SET_FORCE_DARK_ON else Constant.COMMAND_SET_FORCE_DARK_OFF
+                val setCMD = if (enabled) COMMAND_SET_FORCE_DARK_ON else COMMAND_SET_FORCE_DARK_OFF
                 val command = "$setCMD && $COMMAND_GET_FORCE_DARK"
 
                 val nowStatus = ShizukuApi.runShizukuShellForValue(command)!!.trim().toBoolean()
-                return nowStatus == enabled
+                // check return value
+                nowStatus == enabled
             } catch (e: Exception) {
                 Timber.e("Error: ${e.localizedMessage}")
-                return false
+                false
             }
         }
 
         /**
          * @return  current force-dark mode status
          *
-         * @throws  CommandExecuteError permission denied when
-         *          do not have root access.
-         *
          * @see     COMMAND_GET_FORCE_DARK
          * */
         @Throws(CommandExecuteError::class)
         suspend fun getForceDark(): Boolean {
             val forceDark = ShellJobUtil.runJobForValue(COMMAND_GET_FORCE_DARK)
-            if (forceDark == null || forceDark.trim().isEmpty()) {
+            return if (forceDark == null || forceDark.trim().isEmpty()) {
                 Timber.v("Force-dark settings is untouched")
-                return false
+                false
             } else {
-                return forceDark.trim().toBoolean()
+                forceDark.trim().toBoolean()
             }
         }
 
         /**
-         * Adjust mode on/off now if current time at user selected range.
+         * Switch dark mode **on/off** if current time at the user-selected range.
          *
-         * @return  true if is in range now and dark mode is active
+         * @return  **True** if is in range
          *
          * @see     DarkTimeUtil.isInTime
          * */
@@ -190,23 +186,17 @@ class DarkModeSettings(private val context: Context) :
             Timber.d("User currently ${if (shouldActive) "in" else "not in"} mode range")
             return shouldActive
         }
-
-        /**
-         * @see UiModeManager.getNightMode
-         * */
-        @JvmStatic
-        fun isDarkModeOn(context: Context): Boolean {
-            val manager = ContextCompat.getSystemService(context, UiModeManager::class.java)!!
-            return manager.nightMode == UiModeManager.MODE_NIGHT_YES
-        }
     }
 
-    override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
+    /**
+     * Called when user selected new dark mode time, set new switch job alarm
+     * */
+    override fun onPreferenceChange(preference: Preference, newTime: Any): Boolean {
         val key = preference.key
         if (key != DARK_PREFERENCE_START && key != DARK_PREFERENCE_END)
             throw RuntimeException("Wtf are you listening? $key")
 
-        val time = newValue as LocalTime
+        val time = newTime as LocalTime
         var timeMillis = toAlarmMillis(time)
 
         // Set start alarm at tomorrow
@@ -217,11 +207,11 @@ class DarkModeSettings(private val context: Context) :
 
         pendingNextAlarm(timeMillis, key)
 
-        // Active dark mode now if needed to let user see the effect
+        // Adjust dark mode if needed
         if (key == DARK_PREFERENCE_START) {
-            adjustModeOnTime(time, getEndTime())
+            adjustModeOnTime(context, time, getEndTime())
         } else {
-            adjustModeOnTime(getStartTime(), time)
+            adjustModeOnTime(context, getStartTime(), time)
         }
 
         Timber.d(
@@ -231,32 +221,31 @@ class DarkModeSettings(private val context: Context) :
         return true
     }
 
-
-    private fun adjustModeOnTime(start: LocalTime, end: LocalTime): Boolean {
-        return adjustModeOnTime(context, start, end)
-    }
-
     /**
      * Set alarm to trigger dark mode
      *
-     * @param
+     * @param   type Turn the dark mode *ON/OFF*.  Either [DARK_PREFERENCE_START]
+     *          or [DARK_PREFERENCE_END]
      *
-     * @see DarkModeAlarmReceiver
+     * @see     DarkModeAlarmReceiver
      * */
-    private fun pendingNextAlarm(time: Long, type: String): Long {
+    private fun pendingNextAlarm(time: Long, type: String) {
         val intent = DarkModeAlarmReceiver.newPendingIntent(context, type, time)
         mAlarmManager.set(AlarmManager.RTC, time, intent)
         Timber.v("Pending %s alarm %s", type, time)
-        return time
     }
 
+    /**
+     * Pending the start/end alarm for dark mode switch
+     *
+     * @see getTodayOrNextDay
+     * */
     fun setAllAlarm() {
         val startTime = getStartTime()
         val endTime = getEndTime()
 
-        adjustModeOnTime(startTime, endTime)
+        adjustModeOnTime(context, startTime, endTime)
 
-        // check if job already done, cancel job on next day
         val startMillis = getTodayOrNextDay(startTime)
         val endMillis = getTodayOrNextDay(endTime)
 
@@ -271,10 +260,10 @@ class DarkModeSettings(private val context: Context) :
         val startTime = getStartTime()
         val endTime = getEndTime()
 
-        // DeActive dark mode now
+        // deactivate dark mode
         setDarkMode(context, false)
 
-        // check if job already done, cancel job on next day
+        // cancel job on next day
         val startMillis = getTodayOrNextDay(startTime)
         val endMillis = getTodayOrNextDay(endTime)
 

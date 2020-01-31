@@ -6,7 +6,6 @@ import android.app.UiModeManager
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
-import androidx.databinding.ObservableInt
 import androidx.lifecycle.*
 import kotlinx.coroutines.*
 import me.ranko.autodark.Constant
@@ -33,48 +32,50 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     /**
      * Control the main switch on/off
-     * <p>
-     * Set to Off, all the pending alarm will be canceled.
+     * Set to *false*, all the pending alarm will be canceled.
+     *
+     * @see     triggerMasterSwitch
      * */
     val switch = ObservableBoolean(false)
 
     /**
-     * Show summary text message wen main switch triggered
+     * Show summary text message when main switch triggered
      *
      * @see    onDarkSwitchChanged
      * */
     val summaryText = ObservableField<String>()
 
+    private val _forceDarkStatus = MutableLiveData<Int>()
     /**
-     * Progress that indicates change fore-dark job status
+     * The progress that indicates the status of fore-dark switching job
      *
      * @see  triggerForceDark
      * @see  JOB_STATUS_SUCCEED
      * @see  JOB_STATUS_FAILED
      * @see  JOB_STATUS_PENDING
      * */
-    private val _forceDarkStatus = MutableLiveData<Int>()
     val forceDarkStatus: LiveData<Int>
         get() = _forceDarkStatus
 
+    private val _forceDarkTile = MutableLiveData<Int>()
     /**
-     * Update preference if Shizuku available
+     * Holds a string res id for Update force-dark
+     * preference title when Shizuku is available
      *
-     * @see updateForceDarkTitle
+     * @see    updateForceDarkTitle
      * */
-    val _forceDarkTile = MutableLiveData<Int>()
     val forceDarkTile:LiveData<Int>
         get() = _forceDarkTile
 
+    private val _requireAdb = MutableLiveData<Boolean>()
     /**
      * Control permission dialog
      * */
-    private val _requireAdb = MutableLiveData<Boolean>()
     val requireAdb: LiveData<Boolean>
         get() = _requireAdb
 
-    private val sudoJob = Job()
-    private val uiScope = CoroutineScope(Dispatchers.Main.plus(sudoJob))
+    private val job = Job()
+    private val uiScope = CoroutineScope(Dispatchers.Main.plus(job))
 
     init {
         switch.set(sp.getBoolean(SP_KEY_MASTER_SWITCH, false))
@@ -99,7 +100,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val status = !switch.get()
         switch.set(status)
 
-        // delay 260L to let button animation finish
+        // delay 260ms to let button animation finish
         uiScope.launch {
             delay(260L)
             if (status) {
@@ -115,7 +116,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     /**
      * Update summary when dark mode triggered
-     * <p>
+     *
      * Show a summary text message to user
      *
      * */
@@ -211,7 +212,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     override fun onCleared() {
         super.onCleared()
-        sudoJob.cancel()
+        job.cancel()
     }
 
     companion object {
