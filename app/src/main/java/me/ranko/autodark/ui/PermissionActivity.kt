@@ -1,7 +1,6 @@
 package me.ranko.autodark.ui
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -43,6 +42,7 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
         viewModel.permissionResult.observe(this, Observer<Boolean> { result ->
             Timber.v("Access ${if (result) "granted" else "denied"}.")
             if (result) {
+                setResult(RESULT_OK)
                 finish()
             } else {
                 Snackbar.make(binding.coordRoot, R.string.permission_failed, Snackbar.LENGTH_SHORT)
@@ -104,16 +104,22 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
 
         private const val REQUEST_CODE_SHIZUKU_PERMISSION = 7
 
-        fun start(context: Context) {
-            val intent = Intent(context, PermissionActivity::class.java)
-            context.startActivity(intent)
-        }
+        const val REQUEST_CODE_PERMISSION = 2233
 
-        fun startWithAnimation(startView: View, activity: Activity) {
+        /**
+         * Launch this activity for requesting permission from user
+         *
+         * @return  RESULT_OK onActivityResult callback if user
+         *          granted permission
+         *
+         * @see     Activity.onActivityResult
+         * @see     REQUEST_CODE_PERMISSION
+         * */
+        fun startWithAnimationForResult(startView: View, activity: Activity) {
             val intent = Intent(activity, PermissionActivity::class.java)
             val coordinate = CircularAnimationUtil.getViewCenterCoordinate(startView)
             intent.putExtra(ARG_COORDINATE, coordinate)
-            activity.startActivity(intent)
+            activity.startActivityForResult(intent, REQUEST_CODE_PERMISSION)
         }
     }
 }

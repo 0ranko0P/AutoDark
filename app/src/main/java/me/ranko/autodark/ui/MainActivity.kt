@@ -1,5 +1,7 @@
 package me.ranko.autodark.ui
 
+import android.app.Activity
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
@@ -53,7 +55,7 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.requireAdb.observe(this, Observer { required ->
             if (required) {
-                PermissionActivity.startWithAnimation(binding.fab,this)
+                PermissionActivity.startWithAnimationForResult(binding.fab,this)
                 viewModel.onRequireAdbConsumed()
             }
         })
@@ -67,6 +69,16 @@ class MainActivity : AppCompatActivity() {
         }
 
         checkBootReceiver()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == PermissionActivity.REQUEST_CODE_PERMISSION) {
+            if (resultCode == Activity.RESULT_OK) {
+                viewModel.updateForceDarkTitle()
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
     }
 
     /**
