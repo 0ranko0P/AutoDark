@@ -2,6 +2,9 @@ package me.ranko.autodark;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.pm.PackageManager;
+
+import androidx.lifecycle.AndroidViewModel;
 
 import me.ranko.autodark.core.DebugTree;
 import me.ranko.autodark.core.ReleaseTree;
@@ -47,5 +50,13 @@ public final class AutoDarkApplication extends Application {
                 }
             }
         });
+    }
+
+    public static boolean checkSelfPermission(Context context, String permission) {
+        return context.checkCallingOrSelfPermission(permission) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    public static boolean checkSelfPermission(AndroidViewModel viewModel, String permission) {
+        return viewModel.getApplication().checkCallingOrSelfPermission(permission) == PackageManager.PERMISSION_GRANTED;
     }
 }

@@ -5,12 +5,12 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.view.View
 import android.widget.Toast
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.*
 import kotlinx.coroutines.*
+import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.ShellJobUtil
@@ -18,17 +18,11 @@ import me.ranko.autodark.core.ShizukuApi
 import moe.shizuku.api.ShizukuApiConstants
 import timber.log.Timber
 
-fun AndroidViewModel.checkPermissionGranted(): Boolean {
-    val context = getApplication<Application>()
-    val permission = context.checkCallingOrSelfPermission(PERMISSION_WRITE_SECURE_SETTINGS)
-    return PackageManager.PERMISSION_GRANTED == permission
-}
+fun AndroidViewModel.checkPermissionGranted(): Boolean =
+    AutoDarkApplication.checkSelfPermission(this, PERMISSION_WRITE_SECURE_SETTINGS)
 
-fun AndroidViewModel.checkShizukuPermission() :Boolean {
-    val context = getApplication<Application>()
-    val permission = context.checkCallingOrSelfPermission(ShizukuApiConstants.PERMISSION)
-    return PackageManager.PERMISSION_GRANTED == permission
-}
+fun AndroidViewModel.checkShizukuPermission(): Boolean =
+    AutoDarkApplication.checkSelfPermission(this, ShizukuApiConstants.PERMISSION)
 
 class PermissionViewModel(application: Application) : AndroidViewModel(application) {
 
