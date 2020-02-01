@@ -3,6 +3,7 @@ package me.ranko.autodark.ui
 import android.app.Activity
 import android.app.Application
 import android.app.UiModeManager
+import android.view.View
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
@@ -41,9 +42,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Show summary text message when main switch triggered
      *
-     * @see    onDarkSwitchChanged
+     * @see    makeSummary
      * */
-    val summaryText = ObservableField<String>()
+    val summaryText = ObservableField<Summary>()
+
+    /**
+     * A dark mode changes will cause configuration change.
+     * Tell UI to get the summary message
+     *
+     * @see     getDelayedSummary
+     * */
+    private var hasDelayedMessage: Boolean = false
+
+    private val summaryAction = View.OnClickListener { setDarkModeManually() }
 
     private val _forceDarkStatus = MutableLiveData<Int>()
     /**
@@ -73,8 +84,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * */
     val requireAdb: LiveData<Boolean>
         get() = _requireAdb
-
-    private var _delayedMessage: String? = null
 
     private val job = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main.plus(job))
@@ -110,61 +119,51 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             } else {
                 darkSettings.cancelAllAlarm()
             }
-            onDarkSwitchChanged(adjusted)
+
+            if (adjusted) {
+                // dark mode has changed
+                // prepare delayed summary message
+                hasDelayedMessage = true
+            } else {
+                // show summary message now
+                summaryText.set(makeSummary())
+            }
         }
 
         sp.edit().putBoolean(SP_KEY_MASTER_SWITCH, status).apply()
     }
 
     /**
-     * Update summary when dark mode triggered
-     *
-     * Show a summary text message to user
-     *
-     * @param   adjusted Is dark mode changed or not.
-     *          If parse *True*, means dark mode has changed and
-     *          a activity recreation will occur.
-     *          Snack bar not showing during the recreation.
-     *          new summary message will be stored in ViewModel
-     *          wait for the activity to get after recreation.
-     *
-     * @see     sendSummary
-     * @see     getDelayedSummary
+     * Summary message to show when dark mode triggered
      * */
-    private fun onDarkSwitchChanged(adjusted: Boolean) {
+    private fun makeSummary(): Summary? {
         val context = getApplication<Application>()
 
-        if (!switch.get()) { // master switch is off now
-            sendSummary(adjusted, context.getString(R.string.dark_mode_disabled))
+        return if (!switch.get()) {
+            // Show dark mode disabled summary
+            Summary(context.getString(R.string.dark_mode_disabled), null, null)
         } else {
             val time: LocalTime
             val textRes: Int = when (mUiManager.nightMode) {
                 UiModeManager.MODE_NIGHT_NO -> {
                     time = darkSettings.getStartTime()
-                    R.string.dark_mode_summary_off_start
+                    R.string.dark_mode_summary_will_on
                 }
 
                 UiModeManager.MODE_NIGHT_YES, UiModeManager.MODE_NIGHT_AUTO -> {
                     time = darkSettings.getEndTime()
-                    R.string.dark_mode_summary_on_start
+                    R.string.dark_mode_summary_will_off
                 }
 
                 else -> {
                     Timber.e("System ui manager returned error code.")
-                    return
+                    return null
                 }
             }
 
             val displayTime = DarkTimeUtil.getDisplayFormattedString(time)
-            sendSummary(adjusted, context.getString(textRes, displayTime))
-        }
-    }
-
-    private fun sendSummary(delayed: Boolean, text: String) {
-        if (delayed) {
-            _delayedMessage = text
-        } else {
-            summaryText.set(text)
+            val actionStr = context.getString(R.string.dark_mode_summary_action)
+            Summary(context.getString(textRes, displayTime), actionStr, summaryAction)
         }
     }
 
@@ -219,13 +218,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun getDelayedSummary(): String? {
-        return if (_delayedMessage == null) {
-            null
+    fun getDelayedSummary(): Summary? {
+        return if (hasDelayedMessage) {
+            hasDelayedMessage = false
+            makeSummary()
         } else {
-            val str = _delayedMessage
-            _delayedMessage = null
-            str
+            null
         }
     }
 
@@ -244,5 +242,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 throw IllegalArgumentException("Unable to construct viewModel")
             }
         }
+
+        /**
+         * Summary message to show when dark mode changed
+         * */
+        data class Summary(
+            val message: String,
+            var actionStr: String?,
+            var action: View.OnClickListener?
+        )
     }
 }

@@ -33,11 +33,9 @@ class MainActivity : AppCompatActivity() {
 
     private val summaryTextListener = object : Observable.OnPropertyChangedCallback() {
         override fun onPropertyChanged(sender: Observable, propertyId: Int) {
-            val text = (sender as ObservableField<*>).get().toString()
-
-            Snackbar.make(binding.coordinatorRoot, text, Snackbar.LENGTH_LONG)
-                .setAction(R.string.dark_mode_summary_action) { viewModel.setDarkModeManually() }
-                .show()
+            @Suppress("UNCHECKED_CAST")
+            val summary = (sender as ObservableField<MainViewModel.Companion.Summary>).get()!!
+            showSummary(summary)
         }
     }
 
@@ -55,7 +53,7 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.requireAdb.observe(this, Observer { required ->
             if (required) {
-                PermissionActivity.startWithAnimationForResult(binding.fab,this)
+                PermissionActivity.startWithAnimationForResult(binding.fab, this)
                 viewModel.onRequireAdbConsumed()
             }
         })
@@ -69,11 +67,20 @@ class MainActivity : AppCompatActivity() {
         }
 
         checkBootReceiver()
+    }
 
-        val summary = viewModel.getDelayedSummary()
-        if (summary != null) {
-            viewModel.summaryText.set(summary)
+    override fun onResumeFragments() {
+        super.onResumeFragments()
+        viewModel.getDelayedSummary()?.run {
+            // delayed summary exists, show summary
+            showSummary(this)
         }
+    }
+
+    private fun showSummary(summary: MainViewModel.Companion.Summary) {
+        val snack = Snackbar.make(binding.coordinatorRoot, summary.message, Snackbar.LENGTH_LONG)
+        summary.actionStr?.let { snack.setAction(it, summary.action) }
+        snack.show()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

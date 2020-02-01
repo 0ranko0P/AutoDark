@@ -22,8 +22,8 @@
     <string name="pref_force_dark_summary">Provide by android, force apps into dark mode \nNot recommend, will set some apps on fire.</string>
 
     <string name="dark_mode_disabled">Master switch is Off now.</string>
-    <string name="dark_mode_summary_on_start">Will turn off dark mode at <xliff:g name="time">%1$s</xliff:g></string>
-    <string name="dark_mode_summary_off_start">Will turn on dark mode at <xliff:g name="time">%1$s</xliff:g></string>
+    <string name="dark_mode_summary_will_off">Will turn off dark mode at <xliff:g name="time">%1$s</xliff:g></string>
+    <string name="dark_mode_summary_will_on">Will turn on dark mode at <xliff:g name="time">%1$s</xliff:g></string>
     <string name="dark_mode_summary_action">Trigger now</string>
     <string name="dark_mode_permission_denied">Failed to set darkMode: Permission denied!</string>
 

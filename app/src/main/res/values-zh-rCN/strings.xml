@@ -17,8 +17,8 @@
     <string name="app_about">关于 AutoDark</string>
     <string name="dark_mode_disabled">主开关已关闭</string>
     <string name="dark_mode_permission_denied">设置失败, 无权限!</string>
-    <string name="dark_mode_summary_off_start">将在 <xliff:g name="time">%1$s</xliff:g> 开启黑暗模式</string>
-    <string name="dark_mode_summary_on_start">将在 <xliff:g name="time">%1$s</xliff:g> 关闭黑暗模式</string>
+    <string name="dark_mode_summary_will_on">将在 <xliff:g name="time">%1$s</xliff:g> 开启黑暗模式</string>
+    <string name="dark_mode_summary_will_off">将在 <xliff:g name="time">%1$s</xliff:g> 关闭黑暗模式</string>
     <string name="main_title">自定义黑暗模式时间</string>
     <string name="pref_force_dark">Force-dark 模式 (Root)</string>
     <string name="pref_force_dark_summary">由 Android 提供, 强制应用显示黑暗模式, 不建议开启, 某些应用不兼容.</string>
