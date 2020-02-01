@@ -238,13 +238,16 @@ class DarkModeSettings(private val context: Context) : OnPreferenceChangeListene
     /**
      * Pending the start/end alarm for dark mode switch
      *
-     * @see getTodayOrNextDay
+     * @return  **True** if dark mode has changed
+     *
+     * @see     getTodayOrNextDay
+     * @see     adjustModeOnTime
      * */
-    fun setAllAlarm() {
+    fun setAllAlarm(): Boolean {
         val startTime = getStartTime()
         val endTime = getEndTime()
 
-        adjustModeOnTime(context, startTime, endTime)
+        val isAdjusted = adjustModeOnTime(context, startTime, endTime)
 
         val startMillis = getTodayOrNextDay(startTime)
         val endMillis = getTodayOrNextDay(endTime)
@@ -254,9 +257,10 @@ class DarkModeSettings(private val context: Context) : OnPreferenceChangeListene
 
         Timber.v("Set start job: %s: %s", getPersistFormattedString(startTime), startMillis)
         Timber.v("Set end job: %s: %s", getPersistFormattedString(endTime), endMillis)
+        return isAdjusted
     }
 
-    fun cancelAllAlarm() {
+    fun cancelAllAlarm():Boolean {
         val startTime = getStartTime()
         val endTime = getEndTime()
 
@@ -284,6 +288,7 @@ class DarkModeSettings(private val context: Context) : OnPreferenceChangeListene
 
         Timber.v("Cancel start job: %s: %s", getPersistFormattedString(startTime), startMillis)
         Timber.v("Cancel end job: %s: %s", getPersistFormattedString(endTime), endMillis)
+        return DarkTimeUtil.isInTime(startTime, endTime, LocalTime.now())
     }
 
     fun getStartTime(): LocalTime = getPreferenceTime(DARK_PREFERENCE_START)
