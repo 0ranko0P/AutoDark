@@ -64,7 +64,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      *
      * @see    updateForceDarkTitle
      * */
-    val forceDarkTile:LiveData<Int>
+    val forceDarkTile: LiveData<Int>
         get() = _forceDarkTile
 
     private val _requireAdb = MutableLiveData<Boolean>()
@@ -73,6 +73,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * */
     val requireAdb: LiveData<Boolean>
         get() = _requireAdb
+
+    private var _delayedMessage: String? = null
 
     private val job = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main.plus(job))
@@ -103,15 +105,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         // delay 260ms to let button animation finish
         uiScope.launch {
             delay(260L)
-            if (status) {
+            val adjusted = if (status) {
                 darkSettings.setAllAlarm()
             } else {
                 darkSettings.cancelAllAlarm()
             }
+            onDarkSwitchChanged(adjusted)
         }
 
         sp.edit().putBoolean(SP_KEY_MASTER_SWITCH, status).apply()
-        onDarkSwitchChanged()
     }
 
     /**
@@ -119,24 +121,32 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      *
      * Show a summary text message to user
      *
+     * @param   adjusted Is dark mode changed or not.
+     *          If parse *True*, means dark mode has changed and
+     *          a activity recreation will occur.
+     *          Snack bar not showing during the recreation.
+     *          new summary message will be stored in ViewModel
+     *          wait for the activity to get after recreation.
+     *
+     * @see     sendSummary
+     * @see     getDelayedSummary
      * */
-    private fun onDarkSwitchChanged() {
+    private fun onDarkSwitchChanged(adjusted: Boolean) {
         val context = getApplication<Application>()
 
         if (!switch.get()) { // master switch is off now
-            sendDelayText(context.getString(R.string.dark_mode_disabled))
+            sendSummary(adjusted, context.getString(R.string.dark_mode_disabled))
         } else {
             val time: LocalTime
-            val textRes: Int
-            when (mUiManager.nightMode) {
+            val textRes: Int = when (mUiManager.nightMode) {
                 UiModeManager.MODE_NIGHT_NO -> {
-                    textRes = R.string.dark_mode_summary_off_start
                     time = darkSettings.getStartTime()
+                    R.string.dark_mode_summary_off_start
                 }
 
                 UiModeManager.MODE_NIGHT_YES, UiModeManager.MODE_NIGHT_AUTO -> {
-                    textRes = R.string.dark_mode_summary_on_start
                     time = darkSettings.getEndTime()
+                    R.string.dark_mode_summary_on_start
                 }
 
                 else -> {
@@ -146,17 +156,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             val displayTime = DarkTimeUtil.getDisplayFormattedString(time)
-            sendDelayText(context.getString(textRes, displayTime))
+            sendSummary(adjusted, context.getString(textRes, displayTime))
         }
     }
 
-    /**
-     * A config change will recreate view
-     * delay the summary text a little while
-     * */
-    private fun sendDelayText(text: String) = uiScope.launch {
-        delay(700L)
-        summaryText.set(text)
+    private fun sendSummary(delayed: Boolean, text: String) {
+        if (delayed) {
+            _delayedMessage = text
+        } else {
+            summaryText.set(text)
+        }
     }
 
     /**
@@ -207,6 +216,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 _forceDarkTile.value = R.string.pref_force_dark_shizuku
             }
             _forceDarkStatus.value = JOB_STATUS_SUCCEED
+        }
+    }
+
+    fun getDelayedSummary(): String? {
+        return if (_delayedMessage == null) {
+            null
+        } else {
+            val str = _delayedMessage
+            _delayedMessage = null
+            str
         }
     }
 

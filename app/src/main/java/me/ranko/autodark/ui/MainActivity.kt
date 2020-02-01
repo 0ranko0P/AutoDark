@@ -69,6 +69,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         checkBootReceiver()
+
+        val summary = viewModel.getDelayedSummary()
+        if (summary != null) {
+            viewModel.summaryText.set(summary)
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
