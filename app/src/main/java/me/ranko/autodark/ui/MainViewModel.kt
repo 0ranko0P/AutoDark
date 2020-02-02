@@ -54,7 +54,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * */
     private var hasDelayedMessage: Boolean = false
 
-    private val summaryAction = View.OnClickListener { setDarkModeManually() }
+    /**
+     * Action button for user to trigger dark mode manually
+     * while showing summary message
+     * */
+    private val summaryAction = View.OnClickListener {
+        val state = mUiManager.nightMode == UiModeManager.MODE_NIGHT_NO
+        val succeed = DarkModeSettings.setDarkMode(mUiManager, getApplication(), state)
+        if (!succeed) {
+            val context = getApplication<Application>()
+            summaryText.set(Summary(context.getString(R.string.dark_mode_permission_denied), null, null))
+        }
+    }
 
     private val _forceDarkStatus = MutableLiveData<Int>()
     /**
@@ -183,19 +194,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
             // Show force-dark job result
             _forceDarkStatus.value = if (result) JOB_STATUS_SUCCEED else JOB_STATUS_FAILED
-        }
-    }
-
-    /**
-     * User want trigger dark mode manually
-     * switch mode now
-     * */
-    fun setDarkModeManually() {
-        if (!switch.get()) {
-            triggerMasterSwitch()
-        } else {
-            val state = mUiManager.nightMode == UiModeManager.MODE_NIGHT_NO
-            DarkModeSettings.setDarkMode(mUiManager, getApplication(), state)
         }
     }
 
