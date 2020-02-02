@@ -133,7 +133,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 hasDelayedMessage = true
             } else {
                 // show summary message now
-                summaryText.set(makeSummary())
+                makeSummary()?.apply { summaryText.set(this) }
             }
         }
 
@@ -142,6 +142,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     /**
      * Summary message to show when dark mode triggered
+     *
+     * @return  A Summary message shows to the user.
+     *          **Null** when UIModeManager returned error
+     *
+     * @see     UiModeManager.getNightMode
      * */
     private fun makeSummary(): Summary? {
         val context = getApplication<Application>()
