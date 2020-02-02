@@ -200,7 +200,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun onRequireAdbConsumed() {
-        _requirePermission.postValue(false)
+        _requirePermission.value = false
     }
 
     fun updateForceDarkTitle() = uiScope.launch {
