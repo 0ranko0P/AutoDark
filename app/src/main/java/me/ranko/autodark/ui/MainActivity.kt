@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.summaryText.addOnPropertyChangedCallback(summaryTextListener)
 
-        viewModel.requireAdb.observe(this, Observer { required ->
+        viewModel.requirePermission.observe(this, Observer { required ->
             if (required) {
                 PermissionActivity.startWithAnimationForResult(binding.fab, this)
                 viewModel.onRequireAdbConsumed()

@@ -78,12 +78,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val forceDarkTile: LiveData<Int>
         get() = _forceDarkTile
 
-    private val _requireAdb = MutableLiveData<Boolean>()
+    private val _requirePermission = MutableLiveData<Boolean>()
     /**
      * Control permission dialog
      * */
-    val requireAdb: LiveData<Boolean>
-        get() = _requireAdb
+    val requirePermission: LiveData<Boolean>
+        get() = _requirePermission
 
     private val job = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main.plus(job))
@@ -94,17 +94,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     /**
      * Turn main switch on or off
-     * <p>
-     * Set <strong>on</strong> will recreate all the pending alarm
-     * <p>
-     * Set <strong>off</strong> will cancel all current alarm
      *
      * @see    DarkModeSettings.setAllAlarm
      * @see    DarkModeSettings.cancelAllAlarm
      * */
     fun triggerMasterSwitch() {
         if (!checkPermissionGranted()) {
-            _requireAdb.value = true
+            _requirePermission.value = true
             return
         }
 
@@ -204,7 +200,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun onRequireAdbConsumed() {
-        _requireAdb.postValue(false)
+        _requirePermission.postValue(false)
     }
 
     fun updateForceDarkTitle() = uiScope.launch {
@@ -249,6 +245,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         data class Summary(
             val message: String,
             var actionStr: String?,
+            /**
+             * Action button for snack bar
+             * */
             var action: View.OnClickListener?
         )
     }
