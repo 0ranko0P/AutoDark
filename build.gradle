@@ -15,6 +15,7 @@ buildscript {
         ver_material = "1.1.0-alpha10"
         ver_navigation = '2.1.0-beta02'
         ver_preference = "1.1.0"
+        ver_rikka_design = "3.1.8"
         ver_shizuku = "3.1.0-alpha1"
         ver_support = "1.0.0"
         ver_timber = "4.7.1"
@@ -39,6 +40,7 @@ allprojects {
         google()
         jcenter()
         maven { url 'https://dl.bintray.com/rikkaw/Shizuku' }
+        maven { url 'https://dl.bintray.com/rikkaw/Libraries' }
     }
 }
 

@@ -73,4 +73,7 @@ dependencies {
 
     // Shizuku
     implementation "moe.shizuku.privilege:api:$ver_shizuku"
+
+    // Rikka design library
+    implementation "moe.shizuku.support:design:$ver_rikka_design"
 }
