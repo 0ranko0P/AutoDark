@@ -11,6 +11,7 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightNavigationBar">true</item>
         <item name="materialCircleIconViewStyle">@style/MaterialCircleIconView</item>
+        <item name="homeCardStyle">@style/CardStyle</item>
     </style>
 
     <style name="AppTransparentTheme" parent="AppTheme">
@@ -34,6 +35,38 @@
         <item name="android:textColor">?attr/colorOnSurface</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:drawablePadding">@dimen/into_icon_padding_start</item>
+    </style>
+
+    <style name="CardBaseStyle">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginBottom">4dp</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:foreground">@drawable/material_button_outline_foreground</item>
+        <item name="android:background">@drawable/material_button_outline_background_dark</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingTop">24dp</item>
+        <item name="android:paddingBottom">24dp</item>
+    </style>
+
+    <style name="CardStyle">
+        <item name="android:background">@drawable/material_button_outline_background</item>
+    </style>
+
+    <style name="CardButton">
+        <item name="android:background">@drawable/card_btn_background</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">28dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:drawablePadding">24dp</item>
+        <item name="android:textColor">?colorPrimary</item>
+        <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
     <style name="PermissionButton" parent="AppTheme">
