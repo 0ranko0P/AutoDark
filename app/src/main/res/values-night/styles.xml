@@ -4,4 +4,13 @@
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar">false</item>
     </style>
+
+    <style name="MaterialCircleIconView">
+        <item name="iconForegroundChroma">100</item>
+        <item name="iconBackgroundChroma">600</item>
+        <item name="android:background">@drawable/shape_circle_icon_background</item>
+        <item name="android:tintMode">src_in</item>
+        <item name="android:backgroundTintMode">src_in</item>
+    </style>
+
 </resources>

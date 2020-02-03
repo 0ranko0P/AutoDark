@@ -10,6 +10,7 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightNavigationBar">true</item>
+        <item name="materialCircleIconViewStyle">@style/MaterialCircleIconView</item>
     </style>
 
     <style name="AppTransparentTheme" parent="AppTheme">
@@ -43,4 +44,13 @@
         <item name="android:gravity">center_vertical</item>
         <item name="android:background">?attr/selectableItemBackground</item>
     </style>
+
+    <style name="MaterialCircleIconView">
+        <item name="iconForegroundChroma">600</item>
+        <item name="iconBackgroundChroma">50</item>
+        <item name="android:background">@drawable/shape_circle_icon_background</item>
+        <item name="android:tintMode">src_in</item>
+        <item name="android:backgroundTintMode">src_in</item>
+    </style>
+
 </resources>
