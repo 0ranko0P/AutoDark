@@ -59,7 +59,7 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
             showRootView()
         }
 
-        binding.shizukuRoot.btnShizuku.setOnClickListener {
+        binding.content.btnShizuku.setOnClickListener {
             if (!ShizukuClientHelper.isManagerV3Installed(this)) {
                 Snackbar.make(binding.coordRoot, R.string.shizuku_not_install, Snackbar.LENGTH_SHORT)
                     .show()

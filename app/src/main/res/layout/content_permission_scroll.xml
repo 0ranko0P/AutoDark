@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="me.ranko.autodark.ui.PermissionViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingTop="?attr/actionBarSize"
+        android:paddingBottom="@dimen/scroll_content_padding_bottom"
+        app:setLinearViewPadding="@{viewModel}">
+
+        <me.ranko.autodark.ui.widget.PermissionLayout
+            style="@style/CardStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:description="@string/adb_description"
+            app:src="@drawable/ic_adb"
+            app:iconColor="teal"
+            app:title="@string/adb_title">
+
+            <TextView
+                style="@style/CardButton"
+                android:drawableStart="@drawable/ic_restart"
+                android:onClick="@{() -> viewModel.onAdbCheck()}"
+                android:text="@string/adb_check" />
+
+            <TextView android:id="@+id/btnSend"
+                style="@style/CardButton"
+                android:clickable="true"
+                android:onClick="@{viewModel.shareAdbCommand}"
+                android:text="@string/adb_send" />
+
+            <TextView android:id="@+id/btnCopy"
+                style="@style/CardButton"
+                android:onClick="@{viewModel.copyAdbCommand}"
+                android:text="@string/adb_copy" />
+        </me.ranko.autodark.ui.widget.PermissionLayout>
+
+        <me.ranko.autodark.ui.widget.PermissionLayout
+            style="@style/CardStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:description="@string/root_description"
+            app:src="@drawable/ic_root"
+            app:iconColor="red"
+            app:title="@string/root_title">
+
+            <TextView android:id="@+id/btnRoot"
+                style="@style/CardButton"
+                android:onClick="@{() -> viewModel.grantWithRoot()}"
+                android:text="@string/root_grant"
+                app:onButtonSuProgress="@{viewModel.sudoJobStatus}" />
+
+            <ProgressBar android:id="@+id/progressRoot"
+                style="@style/CardProgress"
+                app:onSuProgress="@{viewModel.sudoJobStatus}"
+                tools:visibility="visible" />
+        </me.ranko.autodark.ui.widget.PermissionLayout>
+
+        <me.ranko.autodark.ui.widget.PermissionLayout
+            style="@style/CardStyle"
+            android:orientation="vertical"
+            app:description="@string/shizuku_description"
+            app:normalIcon="true"
+            app:src="@drawable/ic_shizuku"
+            app:title="@string/shizuku_title">
+
+            <TextView android:id="@+id/btnShizuku"
+                style="@style/CardButton"
+                android:text="@string/root_grant"
+                app:onButtonSuProgress="@{viewModel.shizukuJobStatus}" />
+
+            <ProgressBar android:id="@+id/progressShizuku"
+                style="@style/CardProgress"
+                app:onSuProgress="@{viewModel.shizukuJobStatus}"
+                tools:visibility="visible" />
+        </me.ranko.autodark.ui.widget.PermissionLayout>
+    </LinearLayout>
+</layout>

@@ -42,27 +42,10 @@
             android:elevation="@dimen/app_bar_transparent_sibling_elevation"
             android:fitsSystemWindows="true">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingTop="?attr/actionBarSize"
-                android:paddingBottom="@dimen/scroll_content_padding_bottom"
-                app:setLinearViewPadding="@{viewModel}">
+            <include android:id="@+id/content"
+                layout="@layout/content_permission_scroll"
+                app:viewModel="@{viewModel}"/>
 
-                <!-- TODO: Replace with recycler view -->
-                <include
-                    layout="@layout/card_permission_adb"
-                    app:viewModel="@{viewModel}" />
-
-                <include
-                    layout="@layout/card_permission_root"
-                    app:viewModel="@{viewModel}" />
-
-                <include android:id="@+id/shizuku_root"
-                    layout="@layout/card_permission_shizuku"
-                    app:viewModel="@{viewModel}" />
-            </LinearLayout>
         </androidx.core.widget.NestedScrollView>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

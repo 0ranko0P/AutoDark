@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout android:id="@+id/titleRoot"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <me.ranko.autodark.ui.widget.MaterialCircleIconView
+            android:id="@+id/icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:duplicateParentState="true"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_adb" />
+
+        <TextView android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/permission_margin_title_start"
+            android:layout_weight="1"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/adb_title"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="@dimen/permission_title_text_size" />
+
+        <me.ranko.autodark.ui.widget.CheckedImageView
+            android:id="@+id/button"
+            android:layout_width="@dimen/permission_padding_expand_icon_size"
+            android:layout_height="@dimen/permission_padding_expand_icon_size"
+            android:layout_marginStart="@dimen/permission_padding_expand_icon_margin"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:scaleType="centerInside"
+            android:src="@drawable/btn_expand_material_anim_24dp"
+            android:tint="?android:textColorSecondary"
+            android:tintMode="src_in" />
+    </LinearLayout>
+
+    <me.ranko.autodark.ui.widget.ExpandableLayout
+        android:id="@+id/expandable"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/permission_margin_description_vertical"
+        android:layout_marginBottom="@dimen/permission_margin_description_vertical"
+        app:isExpanded="true">
+
+        <TextView android:id="@+id/description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="?android:textColorSecondary"
+            android:fontFamily="sans-serif-medium"
+            tools:text="@string/adb_description" />
+    </me.ranko.autodark.ui.widget.ExpandableLayout>
+</merge>

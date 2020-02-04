@@ -13,4 +13,13 @@
     <declare-styleable name="ExpandableLayout">
         <attr name="isExpanded" format="boolean"/>
     </declare-styleable>
+
+    <declare-styleable name="PermissionLayout">
+        <attr name="src" format="reference|color"/>
+        <attr name="normalIcon" format="boolean" />
+        <attr name="iconColor" format="string"/>
+        <attr name="expandDescription" format="boolean" />
+        <attr name="title" format="string" localization="suggested" />
+        <attr name="description" format="string" localization="suggested" />
+    </declare-styleable>
 </resources>
