@@ -18,6 +18,7 @@ import me.ranko.autodark.R
 import me.ranko.autodark.Utils.CircularAnimationUtil
 import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.databinding.PermissionActivityBinding
+import me.ranko.autodark.ui.widget.PermissionLayout
 import moe.shizuku.api.ShizukuApiConstants
 import moe.shizuku.api.ShizukuClientHelper
 import timber.log.Timber
@@ -100,11 +101,8 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
         animator.doOnEnd {
             // Expand description
             // to let user know it is expandable
-            if (moveShizukuToTop()) {
-                binding.content.shizuku.onClick(null)
-            } else {
-                binding.content.adb.onClick(null)
-            }
+            val permissionCard = (binding.content.getRoot() as ViewGroup).getChildAt(0)
+            (permissionCard as PermissionLayout).onClick(null);
         }
         animator.start()
     }
