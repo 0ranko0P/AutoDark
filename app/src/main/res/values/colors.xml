@@ -5,4 +5,5 @@
     <color name="secondary">#03DAC6</color>
     <color name="surface">#BDBDBD</color>
     <color name="appbar_background">#E6FFFFFF</color>
+    <color name="color_ripple">#516200EE</color>
 </resources>
