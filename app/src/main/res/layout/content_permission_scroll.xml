@@ -59,6 +59,7 @@
 
             <TextView android:id="@+id/btnRoot"
                 style="@style/CardButton"
+                android:drawableStart="@drawable/ic_grant"
                 android:onClick="@{() -> viewModel.grantWithRoot()}"
                 android:text="@string/root_grant"
                 app:onButtonSuProgress="@{viewModel.sudoJobStatus}" />
@@ -80,6 +81,7 @@
 
             <TextView android:id="@+id/btnShizuku"
                 style="@style/CardButton"
+                android:drawableStart="@drawable/ic_grant"
                 android:text="@string/root_grant"
                 app:onButtonSuProgress="@{viewModel.shizukuJobStatus}" />
 
