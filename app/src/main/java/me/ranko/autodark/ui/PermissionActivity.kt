@@ -95,7 +95,15 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
         val animator = CircularAnimationUtil.buildAnimator(coordinate, binding.coordRoot)
         showRootView()
         animator.duration = resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
-        animator.doOnEnd { moveShizukuToTop() }
+        animator.doOnEnd {
+            // Expand description
+            // to let user know it is expandable
+            if (moveShizukuToTop()) {
+                binding.content.shizuku.onClick(null)
+            } else {
+                binding.content.adb.onClick(null)
+            }
+        }
         animator.start()
     }
 

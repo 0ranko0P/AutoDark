@@ -82,7 +82,7 @@ public class PermissionLayout extends LinearLayout implements View.OnClickListen
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(@Nullable View v) {
         isExpanded = !isExpanded;
         mExpandableButton.setChecked(isExpanded);
         mExpandableLayout.setExpanded(isExpanded);
