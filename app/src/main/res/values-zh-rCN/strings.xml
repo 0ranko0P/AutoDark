@@ -3,7 +3,6 @@
     <string name="app_name">AutoDark</string>
     <string name="app_confirm">好的</string>
     <string name="adb_check_failed">失败! 请输入正确的指令</string>
-    <string name="adb_copy">复制</string>
     <string name="adb_description">使用你的 PC/Mac 来授予 ADB 权限."
         "\n 请阅读这份 <a href="https://greenify.uservoice.com/knowledgebase/articles/749142-how-to-grant-permissions-required-by-some-features"> 指南</a> (虽然是为绿色守护写的, 但步骤基本相同)."
         "\n 当您已阅读指南并且知道如何使用 ADB 后, 点击下方的 分享/复制 按钮将指令发送到您的 PC/Mac 上."
@@ -31,7 +30,6 @@
     <string name="root_title">使用 Root 授权</string>
     <string name="settings_category_dev">试验性功能</string>
     <string name="settings_category_timer">设置开始与结束时间</string>
-    <string name="app_copy_adb">指令代码已复制到剪切板</string>
     <string name="permission_failed">获取权限失败!</string>
     <string name="app_receiver_disabled_title">App接收器已被禁用</string>
     <string name="app_receiver_disabled_msg">该接收器确保AutoDark 在正确的时间醒来并且为您切换夜间模式"

@@ -40,11 +40,6 @@
                 android:clickable="true"
                 android:onClick="@{viewModel.shareAdbCommand}"
                 android:text="@string/adb_send" />
-
-            <TextView android:id="@+id/btnCopy"
-                style="@style/CardButton"
-                android:onClick="@{viewModel.copyAdbCommand}"
-                android:text="@string/adb_copy" />
         </me.ranko.autodark.ui.widget.PermissionLayout>
 
         <me.ranko.autodark.ui.widget.PermissionLayout

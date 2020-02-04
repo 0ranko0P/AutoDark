@@ -110,15 +110,6 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
         }
 
         @JvmStatic
-        val copyAdbCommand = View.OnClickListener { v ->
-            val clipboard =
-                v.context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clip: ClipData = ClipData.newPlainText("command", COMMAND_GRANT_ADB)
-            clipboard.setPrimaryClip(clip)
-            Toast.makeText(v.context, R.string.app_copy_adb, Toast.LENGTH_SHORT).show()
-        }
-
-        @JvmStatic
         val shareAdbCommand = View.OnClickListener { v ->
             val sharingIntent = Intent(Intent.ACTION_SEND)
             sharingIntent.type = "text/plain"
