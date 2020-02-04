@@ -75,6 +75,8 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
                 requestPermissions(arrayOf(ShizukuApiConstants.PERMISSION), REQUEST_CODE_SHIZUKU_PERMISSION)
             }
         }
+
+        moveShizukuToTop()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -107,7 +109,7 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
         animator.start()
     }
 
-    private fun moveShizukuToTop(): Boolean {
+    private fun moveShizukuToTop() {
         if (ShizukuClientHelper.isManagerV3Installed(this)) {
             val shizukuView = binding.content.shizuku
             (shizukuView.parent as ViewGroup).apply {
@@ -116,9 +118,6 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
             }
             val rotate = AnimationUtils.loadAnimation(this, R.anim.rotate_infinite)
             shizukuView.titleIcon.startAnimation(rotate)
-            return true
-        } else {
-            return false
         }
     }
 
