@@ -36,6 +36,7 @@
 
             <TextView android:id="@+id/btnSend"
                 style="@style/CardButton"
+                android:drawableStart="@drawable/ic_send"
                 android:clickable="true"
                 android:onClick="@{viewModel.shareAdbCommand}"
                 android:text="@string/adb_send" />
