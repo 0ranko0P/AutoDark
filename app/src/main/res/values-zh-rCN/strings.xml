@@ -10,7 +10,7 @@
         "\n 最后, 点击测试按钮即可完成授权步骤.
     </string>
     <string name="adb_check">测试</string>
-    <string name="adb_send">发送到</string>
+    <string name="adb_send">发送指令</string>
     <string name="adb_share_text">分享给</string>
     <string name="adb_title">使用 ADB 授权</string>
     <string name="app_about">关于 AutoDark</string>

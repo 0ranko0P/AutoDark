@@ -34,7 +34,7 @@
         "\n Finally, you can click the check button to finish this grant procedure."
     </string>
 
-    <string name="adb_send">Send</string>
+    <string name="adb_send">Send Command</string>
     <string name="adb_check">Check</string>
     <string name="adb_share_text">Share with</string>
     <string name="adb_check_failed">Failed! make sure you typed right command.</string>
