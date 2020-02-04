@@ -5,8 +5,10 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.animation.doOnEnd
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -92,7 +94,21 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
         val animator = CircularAnimationUtil.buildAnimator(coordinate, binding.coordRoot)
         showRootView()
         animator.duration = resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
+        animator.doOnEnd { moveShizukuToTop() }
         animator.start()
+    }
+
+    private fun moveShizukuToTop(): Boolean {
+        if (ShizukuClientHelper.isManagerV3Installed(this)) {
+            val shizukuView = binding.content.shizuku
+            (shizukuView.parent as ViewGroup).apply {
+                removeView(shizukuView)
+                addView(shizukuView, 0)
+            }
+            return true
+        } else {
+            return false
+        }
     }
 
     private fun showRootView() {
