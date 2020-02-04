@@ -18,6 +18,7 @@
         app:setLinearViewPadding="@{viewModel}">
 
         <me.ranko.autodark.ui.widget.PermissionLayout
+            android:id="@+id/adb"
             style="@style/CardStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -46,6 +47,7 @@
         </me.ranko.autodark.ui.widget.PermissionLayout>
 
         <me.ranko.autodark.ui.widget.PermissionLayout
+            android:id="@+id/root"
             style="@style/CardStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -68,6 +70,7 @@
         </me.ranko.autodark.ui.widget.PermissionLayout>
 
         <me.ranko.autodark.ui.widget.PermissionLayout
+            android:id="@+id/shizuku"
             style="@style/CardStyle"
             android:orientation="vertical"
             app:description="@string/shizuku_description"
