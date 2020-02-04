@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.animation.doOnEnd
 import androidx.databinding.DataBindingUtil
@@ -105,6 +106,8 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
                 removeView(shizukuView)
                 addView(shizukuView, 0)
             }
+            val rotate = AnimationUtils.loadAnimation(this, R.anim.rotate_infinite)
+            shizukuView.titleIcon.startAnimation(rotate)
             return true
         } else {
             return false
