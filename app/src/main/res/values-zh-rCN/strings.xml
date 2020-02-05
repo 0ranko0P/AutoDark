@@ -30,6 +30,8 @@
     <string name="root_title">使用 Root 授权</string>
     <string name="settings_category_dev">试验性功能</string>
     <string name="settings_category_timer">设置开始与结束时间</string>
+    <string name="permission_title">授予权限</string>
+    <string name="permission_description">AutoDark 需要您的授权以更改系统黑暗模式. 使用下列三种方式之一来授予该权限.</string>
     <string name="permission_granted">权限已授予</string>
     <string name="permission_failed">获取权限失败!</string>
     <string name="app_receiver_disabled_title">App接收器已被禁用</string>

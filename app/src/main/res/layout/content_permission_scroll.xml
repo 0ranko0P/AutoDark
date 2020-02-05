@@ -18,6 +18,15 @@
         app:setLinearViewPadding="@{viewModel}">
 
         <me.ranko.autodark.ui.widget.PermissionLayout
+            style="@style/CardStyle"
+            android:orientation="vertical"
+            app:description="@string/permission_description"
+            app:src="@drawable/ic_attention"
+            app:expandable="false"
+            app:expandDescription="true"
+            app:title="@string/permission_title"/>
+
+        <me.ranko.autodark.ui.widget.PermissionLayout
             android:id="@+id/adb"
             style="@style/CardStyle"
             android:layout_width="match_parent"

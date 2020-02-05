@@ -99,9 +99,9 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
         showRootView()
         animator.duration = resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
         animator.doOnEnd {
-            // Expand description
-            // to let user know it is expandable
-            val permissionCard = (binding.content.getRoot() as ViewGroup).getChildAt(0)
+            // Expand description to let user know it is expandable
+            // first child is description card
+            val permissionCard = (binding.content.getRoot() as ViewGroup).getChildAt(1)
             (permissionCard as PermissionLayout).onClick(null);
         }
         animator.start()
@@ -112,7 +112,7 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
             val shizukuView = binding.content.shizuku
             (shizukuView.parent as ViewGroup).apply {
                 removeView(shizukuView)
-                addView(shizukuView, 0)
+                addView(shizukuView, 1)
             }
             val rotate = AnimationUtils.loadAnimation(this, R.anim.rotate_infinite)
             shizukuView.titleIcon.startAnimation(rotate)
