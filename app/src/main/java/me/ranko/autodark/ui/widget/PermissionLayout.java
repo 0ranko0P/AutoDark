@@ -14,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import me.ranko.autodark.R;
+import timber.log.Timber;
 
 public class PermissionLayout extends LinearLayout implements View.OnClickListener {
 
@@ -41,7 +42,11 @@ public class PermissionLayout extends LinearLayout implements View.OnClickListen
             mTitle.setText(a.getText(R.styleable.PermissionLayout_title));
 
         mExpandableButton = findViewById(R.id.button);
-        mExpandableButton.setOnClickListener(this);
+        if (a.getBoolean(R.styleable.PermissionLayout_expandable, true)) {
+            mExpandableButton.setOnClickListener(this);
+        } else {
+            mExpandableButton.setVisibility(View.GONE);
+        }
 
         mExpandableLayout = findViewById(R.id.expandable);
         if (a.hasValue(R.styleable.PermissionLayout_expandDescription)) {
