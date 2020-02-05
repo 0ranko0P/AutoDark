@@ -87,6 +87,8 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == PermissionActivity.REQUEST_CODE_PERMISSION) {
             if (resultCode == Activity.RESULT_OK) {
                 viewModel.updateForceDarkTitle()
+                Snackbar.make(binding.coordinatorRoot, R.string.permission_granted, Snackbar.LENGTH_SHORT)
+                    .show()
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data)

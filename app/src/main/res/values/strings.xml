@@ -48,5 +48,6 @@
     <string name="shizuku_description">Grant permission directly by Shizuku.</string>
     <string name="shizuku_not_install">Shizuku is not installed!</string>
 
+    <string name="permission_granted">Permission granted</string>
     <string name="permission_failed">Failed to grant permission!</string>
 </resources>

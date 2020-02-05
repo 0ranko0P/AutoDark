@@ -30,6 +30,7 @@
     <string name="root_title">使用 Root 授权</string>
     <string name="settings_category_dev">试验性功能</string>
     <string name="settings_category_timer">设置开始与结束时间</string>
+    <string name="permission_granted">权限已授予</string>
     <string name="permission_failed">获取权限失败!</string>
     <string name="app_receiver_disabled_title">App接收器已被禁用</string>
     <string name="app_receiver_disabled_msg">该接收器确保AutoDark 在正确的时间醒来并且为您切换夜间模式"
