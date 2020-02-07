@@ -22,12 +22,9 @@
         <TextView android:id="@+id/title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/permission_margin_title_start"
+            style="@style/CardTitle"
             android:layout_weight="1"
-            android:fontFamily="sans-serif-medium"
-            android:text="@string/adb_title"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="@dimen/permission_title_text_size" />
+            android:text="@string/adb_title" />
 
         <me.ranko.autodark.ui.widget.CheckedImageView
             android:id="@+id/button"

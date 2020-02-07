@@ -17,14 +17,37 @@
         android:paddingBottom="@dimen/scroll_content_padding_bottom"
         app:setLinearViewPadding="@{viewModel}">
 
-        <me.ranko.autodark.ui.widget.PermissionLayout
+        <RelativeLayout
             style="@style/CardStyle"
-            android:orientation="vertical"
-            app:description="@string/permission_description"
-            app:src="@drawable/ic_attention"
-            app:expandable="false"
-            app:expandDescription="true"
-            app:title="@string/permission_title"/>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <me.ranko.autodark.ui.widget.MaterialCircleIconView
+                android:id="@+id/icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_attention" />
+
+            <TextView android:id="@+id/title"
+                style="@style/CardTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_toEndOf="@id/icon"
+                android:text="@string/permission_title" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/title"
+                android:layout_alignStart="@id/title"
+                android:layout_alignParentEnd="true"
+                android:fontFamily="sans-serif-medium"
+                android:text="@string/permission_description"
+                android:textColor="?android:textColorSecondary" />
+        </RelativeLayout>
 
         <me.ranko.autodark.ui.widget.PermissionLayout
             android:id="@+id/adb"

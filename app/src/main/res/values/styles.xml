@@ -45,6 +45,13 @@
         <item name="android:paddingBottom">24dp</item>
     </style>
 
+    <style name="CardTitle">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textSize">@dimen/permission_title_text_size</item>
+        <item name="android:layout_marginStart">@dimen/permission_margin_title_start</item>
+    </style>
+
     <style name="CardStyle" parent="CardBaseStyle">
         <item name="android:background">@drawable/material_button_outline_background</item>
     </style>
