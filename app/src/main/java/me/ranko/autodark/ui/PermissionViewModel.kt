@@ -71,8 +71,6 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
     fun grantWithShizuku()  = uiScope.launch{
         shizukuJobStatus.set(JOB_STATUS_PENDING)
 
-        delay(800L)
-
         val result = try {
             val isAvailable = ShizukuApi.checkShizuku()
             if (isAvailable) {

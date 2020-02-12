@@ -15,7 +15,7 @@ object ShizukuApi {
 
         // Wait a few seconds here for binder
 
-        delay(2000L)
+        delay(1000L)
         return if (!ShizukuService.pingBinder()) {
             if (isShizukuV3Failed()) {
                 // provider started with no binder included, binder calls blocked by SELinux or server dead, should never happened
