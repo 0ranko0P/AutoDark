@@ -1,10 +1,13 @@
 package me.ranko.autodark.Utils
 
+import android.location.Location
+import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 /**
  * Time formatter for dark settings
@@ -97,5 +100,44 @@ object DarkTimeUtil {
             return true
         }
         return !start.isBefore(end)
+    }
+
+    /**
+     * Use [SunriseSunsetCalculator] to calculate dark mode time
+     *
+     * @return  pair of sunrise and sunset String time in HH:MM (24-hour clock) form
+     *
+     * @see     SunriseSunsetCalculator.getOfficialSunriseForDate
+     * @see     SunriseSunsetCalculator.getOfficialSunsetForDate
+     * */
+    fun getDarkTimeString(location: Location): Pair<String, String> {
+        val calendar = Calendar.getInstance()
+        val calculator = SunriseSunsetCalculator(
+            com.luckycatlabs.sunrisesunset.dto.Location(
+                location.latitude,
+                location.longitude
+            ), calendar.timeZone
+        )
+        val sunrise = calculator.getOfficialSunriseForDate(calendar)
+        val sunset = calculator.getOfficialSunsetForDate(calendar)
+
+        return Pair(sunrise, sunset)
+    }
+
+    /**
+     * Use [SunriseSunsetCalculator] to calculate dark mode time
+     *
+     * @return  pair of sunrise and sunset LocalTime in HH:MM (24-hour clock) form
+     *
+     * @see     SunriseSunsetCalculator.getOfficialSunriseForDate
+     * @see     SunriseSunsetCalculator.getOfficialSunsetForDate
+     * */
+    fun getDarkTime(location: Location): Pair<LocalTime, LocalTime> {
+        val darkString = getDarkTimeString(location)
+        return Pair(getPersistLocalTime(darkString.first), getPersistLocalTime(darkString.second))
+    }
+
+    fun getDarkTime(time: Pair<String, String>): Pair<LocalTime, LocalTime> {
+        return Pair(getPersistLocalTime(time.first), getPersistLocalTime(time.second))
     }
 }

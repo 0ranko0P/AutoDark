@@ -4,14 +4,17 @@ import android.app.Activity
 import android.app.Application
 import android.app.UiModeManager
 import android.view.View
+import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.lifecycle.*
 import kotlinx.coroutines.*
+import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.R
+import me.ranko.autodark.Utils.DarkLocationUtil
 import me.ranko.autodark.Utils.DarkTimeUtil
 import me.ranko.autodark.core.DarkModeSettings
 import me.ranko.autodark.core.DarkModeSettings.Companion.setForceDark
@@ -38,6 +41,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * @see     triggerMasterSwitch
      * */
     val switch = ObservableBoolean(false)
+
+    val _autoMode = MutableLiveData<Boolean>()
+    /**
+     * Control the auto mode switch
+     * */
+    val autoMode: LiveData<Boolean>
+        get() = _autoMode
 
     /**
      * Show summary text message when main switch triggered
@@ -101,6 +111,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         switch.set(sp.getBoolean(SP_KEY_MASTER_SWITCH, false))
+        _autoMode.value = darkSettings.isAutoMode()
     }
 
     /**
@@ -177,6 +188,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val actionStr = context.getString(R.string.dark_mode_summary_action)
             Summary(context.getString(textRes, displayTime), actionStr, summaryAction)
         }
+    }
+
+    /**
+     * Called when auto mode is clicked
+     * */
+    @RequiresPermission(allOf = [android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION])
+    fun onAutoModeClicked() = uiScope.launch(Dispatchers.Main) {
+        val application = getApplication<AutoDarkApplication>()
+        val locationUtil = DarkLocationUtil.getInstance(application)
+
+        // notify user turn location on
+        if (!darkSettings.isAutoMode() && !locationUtil.isEnabled()) {
+            summaryText.set(Summary(application.getString(R.string.app_location_disabled), null, null))
+        } else {
+            if (!darkSettings.triggerAutoMode()) {
+                summaryText.set(Summary(application.getString(R.string.app_location_failed), null, null))
+            }
+        }
+
+        // send auto mode status as result
+        _autoMode.value = darkSettings.isAutoMode()
     }
 
     /**

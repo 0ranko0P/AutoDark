@@ -2,6 +2,8 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">AutoDark</string>
     <string name="app_confirm">好的</string>
+    <string name="app_location_failed">获取当前位置失败, 请手动设置时间.</string>
+    <string name="app_location_disabled">定位服务已关闭.</string>
     <string name="adb_check_failed">失败! 请输入正确的指令</string>
     <string name="adb_description">使用你的 PC/Mac 来授予 ADB 权限."
         "\n 请阅读这份 <a href="https://greenify.uservoice.com/knowledgebase/articles/749142-how-to-grant-permissions-required-by-some-features"> 指南</a> (虽然是为绿色守护写的, 但步骤基本相同)."

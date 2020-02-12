@@ -3,6 +3,8 @@
     <string name="app_name">AutoDark</string>
     <string name="app_about">About AutoDark</string>
     <string name="app_confirm">OK</string>
+    <string name="app_location_failed">Location is not available now, Please configure time manually.</string>
+    <string name="app_location_disabled">Location is disabled.</string>
     <string name="main_title">Schedule dark mode</string>
 
     <string name="settings_category_dev">Experimental feature</string>

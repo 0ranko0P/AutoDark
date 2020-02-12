@@ -5,6 +5,7 @@ import android.app.AlarmManager
 import android.app.UiModeManager
 import android.content.Context
 import android.provider.Settings
+import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -14,6 +15,7 @@ import me.ranko.autodark.BuildConfig
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.Exception.CommandExecuteError
 import me.ranko.autodark.Receivers.DarkModeAlarmReceiver
+import me.ranko.autodark.Utils.DarkLocationUtil
 import me.ranko.autodark.Utils.DarkTimeUtil
 import me.ranko.autodark.Utils.DarkTimeUtil.getPersistFormattedString
 import me.ranko.autodark.Utils.DarkTimeUtil.getTodayOrNextDay
@@ -21,9 +23,11 @@ import me.ranko.autodark.Utils.DarkTimeUtil.toAlarmMillis
 import me.ranko.autodark.Utils.DarkTimeUtil.toNextDayAlarmMillis
 import me.ranko.autodark.Utils.ShellJobUtil
 import me.ranko.autodark.ui.Preference.DarkDisplayPreference
+import me.ranko.autodark.ui.SP_MAIN_FILE_NAME
 import timber.log.Timber
 import java.time.LocalTime
 
+const val DARK_PREFERENCE_AUTO = "dark_mode_auto"
 const val DARK_PREFERENCE_START = "dark_mode_time_start"
 const val DARK_PREFERENCE_END = "dark_mode_time_end"
 
@@ -55,6 +59,10 @@ class DarkModeSettings(private val context: Context) : OnPreferenceChangeListene
         context.getSystemService(Activity.ALARM_SERVICE) as AlarmManager
 
     private var mSupplier: DarkPreferenceSupplier? = null
+
+    private val sp = context.getSharedPreferences(SP_MAIN_FILE_NAME, Activity.MODE_PRIVATE)
+
+    private var isAutoMode = sp.getBoolean(SP_AUTO_mode, false)
 
     override fun onStart(owner: LifecycleOwner) {
         mSupplier = owner as DarkPreferenceSupplier
@@ -235,6 +243,15 @@ class DarkModeSettings(private val context: Context) : OnPreferenceChangeListene
         Timber.v("Pending %s alarm %s", type, time)
     }
 
+    fun setAllAlarm(): Boolean = setAllAlarm(getStartTime(), getEndTime())
+
+    fun setAllAlarm(startTime: String, endTime: String): Boolean {
+        return setAllAlarm(
+            DarkTimeUtil.getPersistLocalTime(startTime),
+            DarkTimeUtil.getPersistLocalTime(endTime)
+        )
+    }
+
     /**
      * Pending the start/end alarm for dark mode switch
      *
@@ -243,10 +260,7 @@ class DarkModeSettings(private val context: Context) : OnPreferenceChangeListene
      * @see     getTodayOrNextDay
      * @see     adjustModeOnTime
      * */
-    fun setAllAlarm(): Boolean {
-        val startTime = getStartTime()
-        val endTime = getEndTime()
-
+    fun setAllAlarm(startTime: LocalTime, endTime: LocalTime): Boolean {
         val isAdjusted = adjustModeOnTime(context, startTime, endTime)
 
         val startMillis = getTodayOrNextDay(startTime)
@@ -260,9 +274,20 @@ class DarkModeSettings(private val context: Context) : OnPreferenceChangeListene
         return isAdjusted
     }
 
-    fun cancelAllAlarm():Boolean {
+    fun cancelAllAlarm(): Boolean {
         val startTime = getStartTime()
         val endTime = getEndTime()
+        return cancelAllAlarm(startTime, endTime)
+    }
+
+    fun cancelAllAlarm(startTime: String, endTime: String): Boolean {
+        return cancelAllAlarm(
+            DarkTimeUtil.getPersistLocalTime(startTime),
+            DarkTimeUtil.getPersistLocalTime(endTime)
+        )
+    }
+
+    fun cancelAllAlarm(startTime: LocalTime, endTime: LocalTime): Boolean {
 
         // deactivate dark mode
         setDarkMode(context, false)
@@ -291,12 +316,65 @@ class DarkModeSettings(private val context: Context) : OnPreferenceChangeListene
         return DarkTimeUtil.isInTime(startTime, endTime, LocalTime.now())
     }
 
+    /**
+     * Turns auto mode ON/OFF
+     *
+     * @return  **True** if mode switched successfully
+     * */
+    @RequiresPermission(allOf = [android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION])
+    suspend fun triggerAutoMode(): Boolean {
+        if (isAutoMode) {
+            isAutoMode = false
+            // replace with custom alarm
+            setAllAlarm()
+            saveAutoMode(false)
+            return true
+        }
+
+        val locationUtil = DarkLocationUtil.getInstance(context)
+        val location = locationUtil.getLastLocation()
+        if (location != null) {
+            val darkTimeStr = DarkTimeUtil.getDarkTimeString(location)
+            Timber.d("Sunrise at ${darkTimeStr.first}, sunset at ${darkTimeStr.second}")
+            // save dark time for master switch
+            saveAutoTime(darkTimeStr)
+            saveAutoMode(true)
+
+            isAutoMode = true
+            setAllAlarm(darkTimeStr.second, darkTimeStr.first)
+            return true
+        }
+
+        Timber.d("Location is unavailable")
+        return false
+    }
+
+    fun isAutoMode():Boolean = isAutoMode
+
+    private fun saveAutoTime(timePair: Pair<String, String>) {
+        sp.edit().putString(SP_AUTO_TIME_SUNRISE, timePair.first)
+            .putString(SP_AUTO_TIME_SUNSET, timePair.second)
+            .apply()
+    }
+
+    private fun saveAutoMode(isAutoMode: Boolean) {
+        sp.edit().putBoolean(SP_AUTO_mode, isAutoMode).apply()
+    }
+
     fun getStartTime(): LocalTime = getPreferenceTime(DARK_PREFERENCE_START)
 
     fun getEndTime(): LocalTime = getPreferenceTime(DARK_PREFERENCE_END)
 
     private fun getPreferenceTime(type: String): LocalTime {
         requireNotNull(mSupplier) { "Exception call: Preference has been detached." }
-        return mSupplier!!.get(type).time
+        if (isAutoMode) {
+            val darkStr = if (type == DARK_PREFERENCE_START)
+                sp.getString(SP_AUTO_TIME_SUNSET, "19:20")!!
+            else
+                sp.getString(SP_AUTO_TIME_SUNRISE, "06:15")!!
+            return DarkTimeUtil.getPersistLocalTime(darkStr)
+        } else {
+            return mSupplier!!.get(type).time
+        }
     }
 }

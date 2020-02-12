@@ -7,6 +7,12 @@ public final class Constant {
     public static final String COMMAND_GRANT_PM = "pm grant "+ BuildConfig.APPLICATION_ID + " " + PERMISSION_WRITE_SECURE_SETTINGS;
     public static final String COMMAND_GRANT_ADB = "adb -d shell " + COMMAND_GRANT_PM;
 
+    public static final String SP_AUTO_TIME_SUNRISE = "sunrise";
+
+    public static final String SP_AUTO_TIME_SUNSET = "sunset";
+
+    public static final String SP_AUTO_mode = "dark_mode_auto";
+
     // Force-dark mode
     // Return <strong>null</strong> on some device while force-dark is false
     public static final String SYSTEM_PROP_FORCE_DARK = "debug.hwui.force_dark";
