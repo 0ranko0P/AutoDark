@@ -7,6 +7,7 @@ import androidx.databinding.ObservableBoolean
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.Preference.OnPreferenceChangeListener
+import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
 import kotlinx.coroutines.CoroutineStart
@@ -15,17 +16,17 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import me.ranko.autodark.Constant
 import me.ranko.autodark.R
-import me.ranko.autodark.core.DARK_PREFERENCE_END
-import me.ranko.autodark.core.DARK_PREFERENCE_FORCE
-import me.ranko.autodark.core.DARK_PREFERENCE_START
-import me.ranko.autodark.core.DarkPreferenceSupplier
+import me.ranko.autodark.core.*
 import me.ranko.autodark.ui.Preference.DarkDisplayPreference
 import timber.log.Timber
 
 class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
+
+    private lateinit var darkTimeCategory: PreferenceCategory
     private lateinit var startPreference: DarkDisplayPreference
     private lateinit var endPreference: DarkDisplayPreference
     private lateinit var forcePreference: SwitchPreference
+    private lateinit var autoPreference: SwitchPreference
 
     /**
      * Sync master switch status to preferences
@@ -51,8 +52,10 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        startPreference = findPreference(DARK_PREFERENCE_START)!!
-        endPreference = findPreference(DARK_PREFERENCE_END)!!
+        darkTimeCategory = findPreference<PreferenceCategory>("dark_mode_category")!!
+        startPreference = darkTimeCategory.findPreference(DARK_PREFERENCE_START)!!
+        endPreference = darkTimeCategory.findPreference(DARK_PREFERENCE_END)!!
+        autoPreference = darkTimeCategory.findPreference<SwitchPreference>(DARK_PREFERENCE_AUTO)!!
         forcePreference = findPreference(DARK_PREFERENCE_FORCE)!!
 
         startPreference.onPreferenceChangeListener = viewModel.darkSettings

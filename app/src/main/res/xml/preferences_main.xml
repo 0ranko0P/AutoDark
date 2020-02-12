@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="@string/settings_category_timer">
+    <PreferenceCategory android:title="@string/settings_category_timer"
+        android:key="dark_mode_category">
         <me.ranko.autodark.ui.Preference.DarkDisplayPreference
             android:key="dark_mode_time_start"
             android:title="@string/pref_time_start"
@@ -10,6 +11,13 @@
             android:key="dark_mode_time_end"
             android:title="@string/pref_time_end"
             android:defaultValue="06:15"/>
+
+        <SwitchPreference
+            android:key="dark_mode_auto"
+            android:title="@string/pref_time_auto"
+            android:summary="@string/pref_time_auto_summary"
+            android:defaultValue="false"
+            android:persistent="false"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/settings_category_dev">
