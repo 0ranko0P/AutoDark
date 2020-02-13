@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
+import androidx.preference.PreferenceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -106,7 +107,7 @@ class DarkModeAlarmReceiver : BroadcastReceiver() {
      * @see     DARK_PREFERENCE_FORCE
      * */
     private fun onBoot(context: Context) {
-        val sp = context.getSharedPreferences(DARK_PREFERENCE_FILE_NAME, Activity.MODE_PRIVATE)
+        val sp = PreferenceManager.getDefaultSharedPreferences(context)
         val startStr = sp.getString(DARK_PREFERENCE_START, null)
         val endStr = sp.getString(DARK_PREFERENCE_END, null)
         val forceDark = sp.getBoolean(DARK_PREFERENCE_FORCE, false)

@@ -11,6 +11,7 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.preference.Preference
 import androidx.preference.Preference.OnPreferenceChangeListener
+import androidx.preference.PreferenceManager
 import me.ranko.autodark.BuildConfig
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.Exception.CommandExecuteError
@@ -23,7 +24,6 @@ import me.ranko.autodark.Utils.DarkTimeUtil.toAlarmMillis
 import me.ranko.autodark.Utils.DarkTimeUtil.toNextDayAlarmMillis
 import me.ranko.autodark.Utils.ShellJobUtil
 import me.ranko.autodark.ui.Preference.DarkDisplayPreference
-import me.ranko.autodark.ui.SP_MAIN_FILE_NAME
 import timber.log.Timber
 import java.time.LocalTime
 
@@ -60,7 +60,7 @@ class DarkModeSettings(private val context: Context) : OnPreferenceChangeListene
 
     private var mSupplier: DarkPreferenceSupplier? = null
 
-    private val sp = context.getSharedPreferences(SP_MAIN_FILE_NAME, Activity.MODE_PRIVATE)
+    private val sp = PreferenceManager.getDefaultSharedPreferences(context)
 
     private var isAutoMode = sp.getBoolean(SP_AUTO_mode, false)
 

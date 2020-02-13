@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.lifecycle.*
+import androidx.preference.PreferenceManager;
 import kotlinx.coroutines.*
 import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant
@@ -23,13 +24,12 @@ import me.ranko.autodark.core.ShizukuApi
 import timber.log.Timber
 import java.time.LocalTime
 
-const val SP_MAIN_FILE_NAME = "audoDark"
 const val SP_KEY_MASTER_SWITCH = "switch"
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     val darkSettings = DarkModeSettings(application)
 
-    private var sp = application.getSharedPreferences(SP_MAIN_FILE_NAME, Activity.MODE_PRIVATE)
+    private var sp = PreferenceManager.getDefaultSharedPreferences(application)
 
     private var mUiManager: UiModeManager =
         getSystemService(getApplication(), UiModeManager::class.java)!!
