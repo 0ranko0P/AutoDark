@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="viewModel"
             type="me.ranko.autodark.ui.PermissionViewModel" />
@@ -56,8 +57,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:description="@string/adb_description"
-            app:src="@drawable/ic_adb"
             app:iconColor="teal"
+            app:src="@drawable/ic_adb"
             app:title="@string/adb_title">
 
             <TextView
@@ -68,8 +69,8 @@
 
             <TextView android:id="@+id/btnSend"
                 style="@style/CardButton"
-                android:drawableStart="@drawable/ic_send"
                 android:clickable="true"
+                android:drawableStart="@drawable/ic_send"
                 android:onClick="@{viewModel.shareAdbCommand}"
                 android:text="@string/adb_send" />
         </me.ranko.autodark.ui.widget.PermissionLayout>
@@ -81,8 +82,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:description="@string/root_description"
-            app:src="@drawable/ic_root"
             app:iconColor="red"
+            app:src="@drawable/ic_root"
             app:title="@string/root_title">
 
             <TextView android:id="@+id/btnRoot"

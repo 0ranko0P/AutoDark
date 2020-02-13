@@ -1,7 +1,9 @@
 package me.ranko.autodark.ui
 
 import android.app.Activity
+import android.content.ComponentName
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
@@ -15,7 +17,6 @@ import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.snackbar.Snackbar
 import me.ranko.autodark.R
 import me.ranko.autodark.Receivers.DarkModeAlarmReceiver
-import me.ranko.autodark.Utils.ComponentUtil
 import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.databinding.MainActivityBinding
 import timber.log.Timber
@@ -59,7 +60,8 @@ class MainActivity : AppCompatActivity() {
         })
 
         if (ViewUtil.isLandscape(window)) {
-            val collapsingToolbar = binding.appbar.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbar)!!
+            val collapsingToolbar =
+                binding.appbar.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbar)!!
             val transparent = ColorStateList.valueOf(getColor(android.R.color.transparent))
             collapsingToolbar.setExpandedTitleTextColor(transparent)
         } else {
@@ -101,7 +103,7 @@ class MainActivity : AppCompatActivity() {
      *
      * */
     private fun checkBootReceiver() {
-        if (!ComponentUtil.isEnabled(this, DarkModeAlarmReceiver::class.java)) {
+        if (!isComponentEnabled(DarkModeAlarmReceiver::class.java)) {
             Timber.e("checkBootReceiver: receiver disabled!")
             if (receiverDialog == null) {
                 receiverDialog = AlertDialog.Builder(this)
@@ -126,5 +128,11 @@ class MainActivity : AppCompatActivity() {
         viewModel.summaryText.removeOnPropertyChangedCallback(summaryTextListener)
 
         super.onDestroy()
+    }
+
+    private fun isComponentEnabled(receiver: Class<*>): Boolean {
+        val component = ComponentName(this, receiver)
+        val status = packageManager.getComponentEnabledSetting(component)
+        return status <= PackageManager.COMPONENT_ENABLED_STATE_ENABLED
     }
 }

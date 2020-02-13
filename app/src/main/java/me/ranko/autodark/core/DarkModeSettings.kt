@@ -2,9 +2,12 @@ package me.ranko.autodark.core
 
 import android.app.Activity
 import android.app.AlarmManager
+import android.app.PendingIntent
 import android.app.UiModeManager
 import android.content.Context
+import android.content.Intent
 import android.provider.Settings
+import android.widget.Toast
 import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
@@ -12,31 +15,24 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.preference.Preference
 import androidx.preference.Preference.OnPreferenceChangeListener
 import androidx.preference.PreferenceManager
-import me.ranko.autodark.BuildConfig
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.Exception.CommandExecuteError
+import me.ranko.autodark.R
 import me.ranko.autodark.Receivers.DarkModeAlarmReceiver
 import me.ranko.autodark.Utils.DarkLocationUtil
 import me.ranko.autodark.Utils.DarkTimeUtil
 import me.ranko.autodark.Utils.DarkTimeUtil.getPersistFormattedString
 import me.ranko.autodark.Utils.DarkTimeUtil.getTodayOrNextDay
-import me.ranko.autodark.Utils.DarkTimeUtil.toAlarmMillis
-import me.ranko.autodark.Utils.DarkTimeUtil.toNextDayAlarmMillis
 import me.ranko.autodark.Utils.ShellJobUtil
 import me.ranko.autodark.ui.Preference.DarkDisplayPreference
+import moe.shizuku.api.ShizukuApiConstants
+import moe.shizuku.api.ShizukuClientHelper
 import timber.log.Timber
 import java.time.LocalTime
-
-const val DARK_PREFERENCE_AUTO = "dark_mode_auto"
-const val DARK_PREFERENCE_START = "dark_mode_time_start"
-const val DARK_PREFERENCE_END = "dark_mode_time_end"
-
-/**
- * Experimental feature
- * System will reset this flag after reboot
- * */
-const val DARK_PREFERENCE_FORCE = "dark_mode_force"
-const val DARK_PREFERENCE_FILE_NAME = "${BuildConfig.APPLICATION_ID}_preferences"
 
 interface DarkPreferenceSupplier {
     fun get(type: String): DarkDisplayPreference
@@ -48,9 +44,6 @@ interface DarkPreferenceSupplier {
  *  Listener on [DarkDisplayPreference]
  *
  * @author  0ranko0P
- *
- * @see     onPreferenceChange
- * @see     UiModeManager
  * */
 class DarkModeSettings(private val context: Context) : OnPreferenceChangeListener,
     DefaultLifecycleObserver {
@@ -73,6 +66,11 @@ class DarkModeSettings(private val context: Context) : OnPreferenceChangeListene
     }
 
     companion object {
+        private const val PARAM_ALARM_TYPE = "ALARM_TYPE"
+        private const val PARAM_ALARM_TIME = "ALARM_TIME"
+
+        private const val REQUEST_ALARM_START = 0x00B0
+        private const val REQUEST_ALARM_END = REQUEST_ALARM_START.shl(1)
 
         /**
          * Sets the system-wide night mode.
@@ -123,6 +121,8 @@ class DarkModeSettings(private val context: Context) : OnPreferenceChangeListene
 
         /**
          * Configure system force-dark mode
+         *
+         * Experimental feature, System will reset this mode after reboot.
          *
          * @return  false If failed to set dark mode
          *
@@ -199,21 +199,14 @@ class DarkModeSettings(private val context: Context) : OnPreferenceChangeListene
     /**
      * Called when user selected new dark mode time, set new switch job alarm
      * */
-    override fun onPreferenceChange(preference: Preference, newTime: Any): Boolean {
+    override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
         val key = preference.key
         if (key != DARK_PREFERENCE_START && key != DARK_PREFERENCE_END)
             throw RuntimeException("Wtf are you listening? $key")
 
-        val time = newTime as LocalTime
-        var timeMillis = toAlarmMillis(time)
-
+        val time = newValue as LocalTime
         // Set start alarm at tomorrow
-        val isNextDay = DarkTimeUtil.isNextDay(LocalTime.now(), time)
-        if (isNextDay) {
-            timeMillis = toNextDayAlarmMillis(timeMillis)
-        }
-
-        pendingNextAlarm(timeMillis, key)
+        setNextAlarm(time, key)
 
         // Adjust dark mode if needed
         if (key == DARK_PREFERENCE_START) {
@@ -221,36 +214,51 @@ class DarkModeSettings(private val context: Context) : OnPreferenceChangeListene
         } else {
             adjustModeOnTime(context, getStartTime(), time)
         }
-
-        Timber.d(
-            "Pending alarm at ${if (isNextDay) "NextDay" else ""} %s, epoch: %s",
-            getPersistFormattedString(time), timeMillis
-        )
         return true
     }
 
     /**
-     * Set alarm to trigger dark mode
+     * Returns a pending alarm for trigger dark mode at future
      *
+     * @param   time Time in milliseconds for set alarm
      * @param   type Turn the dark mode *ON/OFF*.  Either [DARK_PREFERENCE_START]
-     *          or [DARK_PREFERENCE_END]
+     *          or [DARK_PREFERENCE_END].
      *
-     * @see     DarkModeAlarmReceiver
+     *          If same type intent created, the old one will be replaced.
+     *
+     * @see     PendingIntent.getBroadcast
      * */
-    private fun pendingNextAlarm(time: Long, type: String) {
-        val intent = DarkModeAlarmReceiver.newPendingIntent(context, type, time)
-        mAlarmManager.set(AlarmManager.RTC, time, intent)
-        Timber.v("Pending %s alarm %s", type, time)
+    private fun pendingDarkAlarm(time: Long, @DARK_JOB_TYPE type: String): PendingIntent {
+        val intent = Intent(context, DarkModeAlarmReceiver::class.java)
+        intent.putExtra(PARAM_ALARM_TYPE, type)
+        intent.putExtra(PARAM_ALARM_TIME, time)
+
+        return PendingIntent.getBroadcast(
+            context,
+            if (type == DARK_PREFERENCE_START) REQUEST_ALARM_START else REQUEST_ALARM_END,
+            intent,
+            PendingIntent.FLAG_CANCEL_CURRENT
+        )
+    }
+
+    /**
+     * Set a pending alarm for trigger dark mode at future
+     *
+     * @param   time Time in milliseconds for set alarm
+     * @param   type Turn the dark mode *ON/OFF*.  Either [DARK_PREFERENCE_START]
+     *          or [DARK_PREFERENCE_END].
+     *
+     * @see     pendingNextAlarm
+     * @see     AlarmManager.set
+     * @see     DarkModeSettings.onAlarm
+     * */
+    private fun setNextAlarm(time: LocalTime, @DARK_JOB_TYPE type: String) {
+        val alarmTime = getTodayOrNextDay(time)
+        mAlarmManager.set(AlarmManager.RTC, alarmTime, pendingDarkAlarm(alarmTime, type))
+        Timber.v("Set %s alarm: %s : %s", type, getPersistFormattedString(time), alarmTime)
     }
 
     fun setAllAlarm(): Boolean = setAllAlarm(getStartTime(), getEndTime())
-
-    fun setAllAlarm(startTime: String, endTime: String): Boolean {
-        return setAllAlarm(
-            DarkTimeUtil.getPersistLocalTime(startTime),
-            DarkTimeUtil.getPersistLocalTime(endTime)
-        )
-    }
 
     /**
      * Pending the start/end alarm for dark mode switch
@@ -263,30 +271,18 @@ class DarkModeSettings(private val context: Context) : OnPreferenceChangeListene
     fun setAllAlarm(startTime: LocalTime, endTime: LocalTime): Boolean {
         val isAdjusted = adjustModeOnTime(context, startTime, endTime)
 
-        val startMillis = getTodayOrNextDay(startTime)
-        val endMillis = getTodayOrNextDay(endTime)
-
-        pendingNextAlarm(startMillis, DARK_PREFERENCE_START)
-        pendingNextAlarm(endMillis, DARK_PREFERENCE_END)
-
-        Timber.v("Set start job: %s: %s", getPersistFormattedString(startTime), startMillis)
-        Timber.v("Set end job: %s: %s", getPersistFormattedString(endTime), endMillis)
+        setNextAlarm(startTime, DARK_PREFERENCE_START)
+        setNextAlarm(endTime, DARK_PREFERENCE_END)
         return isAdjusted
     }
 
-    fun cancelAllAlarm(): Boolean {
-        val startTime = getStartTime()
-        val endTime = getEndTime()
-        return cancelAllAlarm(startTime, endTime)
-    }
+    fun cancelAllAlarm(): Boolean = cancelAllAlarm(getStartTime(), getEndTime())
 
-    fun cancelAllAlarm(startTime: String, endTime: String): Boolean {
-        return cancelAllAlarm(
-            DarkTimeUtil.getPersistLocalTime(startTime),
-            DarkTimeUtil.getPersistLocalTime(endTime)
-        )
-    }
-
+    /**
+     * Cancel all the pending alarm
+     *
+     * @see     pendingNextAlarm
+     * */
     fun cancelAllAlarm(startTime: LocalTime, endTime: LocalTime): Boolean {
 
         // deactivate dark mode
@@ -296,17 +292,8 @@ class DarkModeSettings(private val context: Context) : OnPreferenceChangeListene
         val startMillis = getTodayOrNextDay(startTime)
         val endMillis = getTodayOrNextDay(endTime)
 
-        val startJob = DarkModeAlarmReceiver.newPendingIntent(
-            context,
-            DARK_PREFERENCE_START,
-            startMillis
-        )
-
-        val endJob = DarkModeAlarmReceiver.newPendingIntent(
-            context,
-            DARK_PREFERENCE_END,
-            endMillis
-        )
+        val startJob = pendingDarkAlarm(startMillis, DARK_PREFERENCE_START)
+        val endJob = pendingDarkAlarm(endMillis, DARK_PREFERENCE_END)
 
         mAlarmManager.cancel(startJob)
         mAlarmManager.cancel(endJob)
@@ -341,7 +328,8 @@ class DarkModeSettings(private val context: Context) : OnPreferenceChangeListene
             saveAutoMode(true)
 
             isAutoMode = true
-            setAllAlarm(darkTimeStr.second, darkTimeStr.first)
+            val darkTime = DarkTimeUtil.getDarkTime(darkTimeStr)
+            setAllAlarm(darkTime.second, darkTime.first)
             return true
         }
 
@@ -349,7 +337,99 @@ class DarkModeSettings(private val context: Context) : OnPreferenceChangeListene
         return false
     }
 
-    fun isAutoMode():Boolean = isAutoMode
+    /**
+     * Called when receiving dark mode job at the scheduled time
+     * Adjust dark mode now
+     *
+     * */
+    fun onAlarm(intent: Intent) {
+        Timber.v("Dark alarm broadcast Received")
+        val type = intent.getStringExtra(PARAM_ALARM_TYPE)!!
+
+        val switch = type == DARK_PREFERENCE_START
+        val time = intent.getLongExtra(PARAM_ALARM_TIME, -1)
+        val nextAlarm = DarkTimeUtil.toNextDayAlarmMillis(time)
+        val pendingIntent = pendingDarkAlarm(nextAlarm, type)
+
+        try {
+            setDarkMode(context, switch)
+
+            // pending next alarm if no error occurred
+            (context.getSystemService(Activity.ALARM_SERVICE) as AlarmManager)
+                .set(AlarmManager.RTC, nextAlarm, pendingIntent)
+            Timber.v("Dark job $type finished, pending next alarm: $nextAlarm")
+        } catch (e: Exception) {
+            Timber.i(e)
+            Toast.makeText(context, R.string.dark_mode_permission_denied, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    /**
+     * Active dark mode after boot complete
+     * Set force-dark if needed
+     *
+     * @see     DarkModeSettings.setForceDark
+     * @see     DARK_PREFERENCE_FORCE
+     * */
+    fun onBoot() {
+        val masterSwitch = sp.getBoolean(SP_KEY_MASTER_SWITCH, false)
+        val autoMode = sp.getBoolean(SP_AUTO_mode, false)
+        val forceDark = sp.getBoolean(DARK_PREFERENCE_FORCE, false)
+
+        val startTime =
+            sp.getString(if (autoMode) SP_AUTO_TIME_SUNSET else DARK_PREFERENCE_START, null)
+
+        val endTime =
+            sp.getString(if (autoMode) SP_AUTO_TIME_SUNRISE else DARK_PREFERENCE_END, null)
+
+        Timber.v("Dark boot broadcast Received, is auto mode: $autoMode")
+
+        // no boot job to do.
+        if (!masterSwitch || startTime == null || endTime == null) {
+            Timber.v("No job to do.")
+            return
+        }
+
+        // adjust dark mode if need after boot up
+        // renew alarm
+        setAllAlarm(
+            DarkTimeUtil.getPersistLocalTime(startTime),
+            DarkTimeUtil.getPersistLocalTime(endTime)
+        )
+
+        if (forceDark) {
+            val useShizuku = ShizukuClientHelper.isManagerV3Installed(context) &&
+                    AutoDarkApplication.checkSelfPermission(context, ShizukuApiConstants.PERMISSION)
+
+            Timber.v("Start Force-dark job ${if (useShizuku) "with Shizuku" else "with SU"}")
+
+            CoroutineScope(Dispatchers.IO).launch {
+                val result = if (useShizuku) {
+                    // Shizuku mode
+                    if (ShizukuApi.checkShizuku()) {
+                        setForceDarkByShizuku(true)
+                    } else {
+                        Timber.d("Shizuku was grant with ADB or dead, abort Force-dark job")
+                        Toast.makeText(context, R.string.shizuku_service_not_running, Toast.LENGTH_SHORT).show()
+                        false
+                    }
+                } else {
+                    // Root mode
+                    setForceDark(true)
+                }
+
+                // Check set job result
+                if (result)
+                    Timber.v("force-dark job succeed.")
+                else
+                    Timber.d("Failed to execute force-dark job")
+            }
+        } else {
+            Timber.v("Force-dark is off")
+        }
+    }
+
+    fun isAutoMode(): Boolean = isAutoMode
 
     private fun saveAutoTime(timePair: Pair<String, String>) {
         sp.edit().putString(SP_AUTO_TIME_SUNRISE, timePair.first)

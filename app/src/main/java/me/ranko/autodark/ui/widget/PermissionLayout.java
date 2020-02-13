@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import me.ranko.autodark.R;
-import timber.log.Timber;
 
 public class PermissionLayout extends LinearLayout implements View.OnClickListener {
 
@@ -75,7 +74,7 @@ public class PermissionLayout extends LinearLayout implements View.OnClickListen
         }
 
         if (!notMaterial && a.hasValue(R.styleable.PermissionLayout_iconColor)) {
-            ((MaterialCircleIconView)icon).setColorName(a.getString(R.styleable.PermissionLayout_iconColor));
+            ((MaterialCircleIconView) icon).setColorName(a.getString(R.styleable.PermissionLayout_iconColor));
         }
 
         icon.setImageResource(a.getResourceId(R.styleable.PermissionLayout_src, android.R.drawable.ic_btn_speak_now));

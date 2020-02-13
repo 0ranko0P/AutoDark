@@ -1,15 +1,15 @@
 package me.ranko.autodark.ui
 
-import android.app.Activity
 import android.app.Application
 import android.app.UiModeManager
 import android.view.View
 import androidx.annotation.RequiresPermission
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.lifecycle.*
-import androidx.preference.PreferenceManager;
+import androidx.preference.PreferenceManager
 import kotlinx.coroutines.*
 import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant
@@ -24,9 +24,10 @@ import me.ranko.autodark.core.ShizukuApi
 import timber.log.Timber
 import java.time.LocalTime
 
-const val SP_KEY_MASTER_SWITCH = "switch"
-
 class MainViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val application = getApplication<AutoDarkApplication>()
+
     val darkSettings = DarkModeSettings(application)
 
     private var sp = PreferenceManager.getDefaultSharedPreferences(application)
@@ -40,9 +41,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      *
      * @see     triggerMasterSwitch
      * */
-    val switch = ObservableBoolean(false)
+    val switch = ObservableBoolean(sp.getBoolean(SP_KEY_MASTER_SWITCH, false))
 
-    val _autoMode = MutableLiveData<Boolean>()
+    val _autoMode = MutableLiveData<Boolean>(darkSettings.isAutoMode())
     /**
      * Control the auto mode switch
      * */
@@ -50,9 +51,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         get() = _autoMode
 
     /**
-     * Show summary text message when main switch triggered
+     * An observable summary text message
+     * Allow UI receive messages from the view model
      *
-     * @see    makeSummary
+     * @see     hasDelayedMessage
      * */
     val summaryText = ObservableField<Summary>()
 
@@ -109,11 +111,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val job = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main.plus(job))
 
-    init {
-        switch.set(sp.getBoolean(SP_KEY_MASTER_SWITCH, false))
-        _autoMode.value = darkSettings.isAutoMode()
-    }
-
     /**
      * Turn main switch on or off
      *
@@ -122,6 +119,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * */
     fun triggerMasterSwitch() {
         if (!checkPermissionGranted()) {
+            // start permission activity
             _requirePermission.value = true
             return
         }
@@ -144,7 +142,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 hasDelayedMessage = true
             } else {
                 // show summary message now
-                makeSummary()?.apply { summaryText.set(this) }
+                makeTriggeredSummary()?.apply { summaryText.set(this) }
             }
         }
 
@@ -152,19 +150,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * Summary message to show when dark mode triggered
+     * Returns Summary message to show when dark mode triggered
      *
      * @return  A Summary message shows to the user.
      *          **Null** when UIModeManager returned error
      *
      * @see     UiModeManager.getNightMode
      * */
-    private fun makeSummary(): Summary? {
-        val context = getApplication<Application>()
-
+    private fun makeTriggeredSummary(): Summary? {
         return if (!switch.get()) {
             // Show dark mode disabled summary
-            Summary(context.getString(R.string.dark_mode_disabled), null, null)
+            newSummary(R.string.dark_mode_disabled)
         } else {
             val time: LocalTime
             val textRes: Int = when (mUiManager.nightMode) {
@@ -185,8 +181,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             val displayTime = DarkTimeUtil.getDisplayFormattedString(time)
-            val actionStr = context.getString(R.string.dark_mode_summary_action)
-            Summary(context.getString(textRes, displayTime), actionStr, summaryAction)
+            val actionStr = application.getString(R.string.dark_mode_summary_action)
+            Summary(application.getString(textRes, displayTime), actionStr, summaryAction)
         }
     }
 
@@ -200,10 +196,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         // notify user turn location on
         if (!darkSettings.isAutoMode() && !locationUtil.isEnabled()) {
-            summaryText.set(Summary(application.getString(R.string.app_location_disabled), null, null))
+            summaryText.set(newSummary(R.string.app_location_disabled))
         } else {
             if (!darkSettings.triggerAutoMode()) {
-                summaryText.set(Summary(application.getString(R.string.app_location_failed), null, null))
+                summaryText.set(newSummary(R.string.app_location_failed))
             }
         }
 
@@ -215,9 +211,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Control force-dark mode on/off
      * This experimental feature will be removed on further android version
      *
-     * @see Constant.COMMAND_GET_FORCE_DARK
-     * @see Constant.COMMAND_SET_FORCE_DARK_OFF
-     * @see Constant.COMMAND_SET_FORCE_DARK_ON
+     * @see     Constant.COMMAND_GET_FORCE_DARK
+     * @see     Constant.COMMAND_SET_FORCE_DARK_OFF
+     * @see     Constant.COMMAND_SET_FORCE_DARK_ON
      * */
     suspend fun triggerForceDark(enabled: Boolean) = uiScope.launch {
         _forceDarkStatus.value = JOB_STATUS_PENDING
@@ -252,11 +248,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun getDelayedSummary(): Summary? {
         return if (hasDelayedMessage) {
             hasDelayedMessage = false
-            makeSummary()
+            makeTriggeredSummary()
         } else {
             null
         }
     }
+
+    private fun newSummary(@StringRes message: Int) = Summary(application.getString(message), null, null)
 
     override fun onCleared() {
         super.onCleared()

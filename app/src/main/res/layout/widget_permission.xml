@@ -20,9 +20,9 @@
             android:src="@drawable/ic_adb" />
 
         <TextView android:id="@+id/title"
+            style="@style/CardTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            style="@style/CardTitle"
             android:layout_weight="1"
             android:text="@string/adb_title" />
 
@@ -49,8 +49,8 @@
         <TextView android:id="@+id/description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="?android:textColorSecondary"
             android:fontFamily="sans-serif-medium"
+            android:textColor="?android:textColorSecondary"
             tools:text="@string/adb_description" />
     </me.ranko.autodark.ui.widget.ExpandableLayout>
 </merge>

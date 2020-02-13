@@ -1,12 +1,8 @@
 package me.ranko.autodark.ui
 
 import android.app.Application
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.view.View
-import android.widget.Toast
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.*
 import kotlinx.coroutines.*
@@ -68,7 +64,7 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
         Timber.d("Root job finished, result: %s", isRooted)
     }
 
-    fun grantWithShizuku()  = uiScope.launch{
+    fun grantWithShizuku() = uiScope.launch {
         shizukuJobStatus.set(JOB_STATUS_PENDING)
 
         val result = try {
@@ -76,7 +72,7 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
             if (isAvailable) {
                 ShizukuApi.runShizukuShell(COMMAND_GRANT_PM)
                 true
-            }else {
+            } else {
                 false
             }
         } catch (e: Throwable) {

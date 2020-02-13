@@ -76,7 +76,7 @@ object ShellJobUtil {
 
             if (process.waitFor() != 0)
                 throw CommandExecuteError(readStdout(process.errorStream, false))
-        }  catch (e: Exception) {
+        } catch (e: Exception) {
             throw CommandExecuteError(e)
         } finally {
             process?.destroy()
@@ -114,7 +114,7 @@ object ShellJobUtil {
         }
         // remove last LF char
         if (sb.isNotEmpty())
-            sb.deleteCharAt(sb.length -1)
+            sb.deleteCharAt(sb.length - 1)
         return sb.toString()
     }
 }

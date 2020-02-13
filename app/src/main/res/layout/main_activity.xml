@@ -5,7 +5,9 @@
     tools:context=".ui.MainActivity">
 
     <data>
-        <variable name="viewModel" type="me.ranko.autodark.ui.MainViewModel" />
+        <variable
+            name="viewModel"
+            type="me.ranko.autodark.ui.MainViewModel" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -14,7 +16,8 @@
         android:layout_height="match_parent"
         android:fitsSystemWindows="true">
 
-        <include layout="@layout/appbar_main" android:id="@+id/appbar"/>
+        <include android:id="@+id/appbar"
+            layout="@layout/appbar_main" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"

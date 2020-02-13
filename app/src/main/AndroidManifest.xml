@@ -47,7 +47,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.PermissionActivity"
-            android:theme="@style/AppTheme.TransparentActionBar"/>
+        <activity
+            android:name=".ui.PermissionActivity"
+            android:theme="@style/AppTheme.TransparentActionBar" />
     </application>
 </manifest>

@@ -105,7 +105,7 @@ object DarkTimeUtil {
     /**
      * Use [SunriseSunsetCalculator] to calculate dark mode time
      *
-     * @return  pair of sunrise and sunset String time in HH:MM (24-hour clock) form
+     * @return  pair of sunrise and sunset String time in HH:mm (24-hour clock) form
      *
      * @see     SunriseSunsetCalculator.getOfficialSunriseForDate
      * @see     SunriseSunsetCalculator.getOfficialSunsetForDate
@@ -127,7 +127,7 @@ object DarkTimeUtil {
     /**
      * Use [SunriseSunsetCalculator] to calculate dark mode time
      *
-     * @return  pair of sunrise and sunset LocalTime in HH:MM (24-hour clock) form
+     * @return  pair of sunrise and sunset LocalTime in HH:mm (24-hour clock) form
      *
      * @see     SunriseSunsetCalculator.getOfficialSunriseForDate
      * @see     SunriseSunsetCalculator.getOfficialSunsetForDate

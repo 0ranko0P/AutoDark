@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="viewModel"
             type="me.ranko.autodark.ui.PermissionViewModel" />
@@ -44,7 +45,7 @@
 
             <include android:id="@+id/content"
                 layout="@layout/content_permission_scroll"
-                app:viewModel="@{viewModel}"/>
+                app:viewModel="@{viewModel}" />
 
         </androidx.core.widget.NestedScrollView>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

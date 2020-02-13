@@ -20,7 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import me.ranko.autodark.AutoDarkApplication
-import me.ranko.autodark.Constant
+import me.ranko.autodark.Constant.*
 import me.ranko.autodark.R
 import me.ranko.autodark.core.*
 import me.ranko.autodark.ui.Preference.DarkDisplayPreference
@@ -83,15 +83,15 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier,
 
         viewModel.forceDarkStatus.observe(this, Observer<Int> { status ->
             when (status) {
-                Constant.JOB_STATUS_SUCCEED -> Timber.v("Set force job successful")
+                JOB_STATUS_SUCCEED -> Timber.v("Set force job successful")
 
-                Constant.JOB_STATUS_FAILED -> {
+                JOB_STATUS_FAILED -> {
                     forcePreference.isChecked = !forcePreference.isChecked
                     Toast.makeText(context, R.string.root_check_failed, Toast.LENGTH_SHORT).show()
                     Timber.v("Set force job failed")
                 }
             }
-            forcePreference.isEnabled = status != Constant.JOB_STATUS_PENDING
+            forcePreference.isEnabled = status != JOB_STATUS_PENDING
         })
 
         viewModel.forceDarkTile.observe(this, Observer<Int> { strId ->
@@ -115,7 +115,6 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier,
 
         viewModel.autoMode.observe(this, Observer<Boolean> { result ->
             autoPreference.isChecked = result
-            Timber.e("OnObserveResutl: $result")
             // hide custom time preferences when using auto mode
             startPreference.isVisible = !result
             endPreference.isVisible = !result

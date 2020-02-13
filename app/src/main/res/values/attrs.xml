@@ -5,19 +5,19 @@
     <attr name="materialCircleIconViewStyle" format="reference" />
 
     <declare-styleable name="MaterialCircleIconView">
-        <attr name="iconBackgroundChroma" format="string"/>
-        <attr name="iconForegroundChroma" format="string"/>
-        <attr name="iconColorName" format="string"/>
+        <attr name="iconBackgroundChroma" format="string" />
+        <attr name="iconForegroundChroma" format="string" />
+        <attr name="iconColorName" format="string" />
     </declare-styleable>
 
     <declare-styleable name="ExpandableLayout">
-        <attr name="isExpanded" format="boolean"/>
+        <attr name="isExpanded" format="boolean" />
     </declare-styleable>
 
     <declare-styleable name="PermissionLayout">
-        <attr name="src" format="reference|color"/>
+        <attr name="src" format="reference|color" />
         <attr name="normalIcon" format="boolean" />
-        <attr name="iconColor" format="string"/>
+        <attr name="iconColor" format="string" />
         <attr name="expandable" format="boolean" />
         <attr name="expandDescription" format="boolean" />
         <attr name="title" format="string" localization="suggested" />
