@@ -161,6 +161,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         return if (!switch.get()) {
             // Show dark mode disabled summary
             newSummary(R.string.dark_mode_disabled)
+        } else if (darkSettings.isAutoMode()) {
+            newSummary(R.string.dark_mode_summary_auto_on)
         } else {
             val time: LocalTime
             val textRes: Int = when (mUiManager.nightMode) {
@@ -198,9 +200,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (!darkSettings.isAutoMode() && !locationUtil.isEnabled()) {
             summaryText.set(newSummary(R.string.app_location_disabled))
         } else {
-            if (!darkSettings.triggerAutoMode()) {
-                summaryText.set(newSummary(R.string.app_location_failed))
-            }
+            val result = darkSettings.triggerAutoMode()
+            val message = if(result) R.string.dark_mode_summary_auto_on else R.string.app_location_failed
+            summaryText.set(newSummary(message))
         }
 
         // send auto mode status as result
