@@ -44,4 +44,5 @@
     <string name="pref_force_dark_shizuku">Force-dark 模式</string>
     <string name="shizuku_description">由Shizuku 直接授权</string>
     <string name="shizuku_not_install">Shizuku 并未安装!</string>
+    <string name="shizuku_service_not_running">Shizuku 服务未运行</string>
 </resources>

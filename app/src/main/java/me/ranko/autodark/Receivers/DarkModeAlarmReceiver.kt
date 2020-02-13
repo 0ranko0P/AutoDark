@@ -10,12 +10,16 @@ import android.widget.Toast
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.DarkTimeUtil
 import me.ranko.autodark.core.*
 import me.ranko.autodark.core.DarkModeSettings.Companion.setForceDark
+import me.ranko.autodark.core.DarkModeSettings.Companion.setForceDarkByShizuku
+import moe.shizuku.api.ShizukuApiConstants
+import moe.shizuku.api.ShizukuClientHelper
 import timber.log.Timber
 
 private const val PARAM_ALARM_TYPE = "ALARM_TYPE"
@@ -128,16 +132,33 @@ class DarkModeAlarmReceiver : BroadcastReceiver() {
         pendingNextAlarm(context, DARK_PREFERENCE_END, DarkTimeUtil.getTodayOrNextDay(end))
 
         if (forceDark) {
+            val useShizuku = ShizukuClientHelper.isManagerV3Installed(context) &&
+                    AutoDarkApplication.checkSelfPermission(context, ShizukuApiConstants.PERMISSION)
+
+            Timber.d("Start Force-dark job ${if(useShizuku) "with Shizuku" else "with SU"}")
+
             CoroutineScope(Dispatchers.Main).launch {
-                Timber.d("Start force dark job")
+                val result = async (Dispatchers.IO) {
+                    if (useShizuku) {
+                        // Shizuku mode
+                        if (ShizukuApi.checkShizuku()) {
+                            return@async setForceDarkByShizuku(true)
+                        } else {
+                            Timber.d("Shizuku was grant with ADB or dead, abort Force-dark job")
+                            Toast.makeText(context, R.string.shizuku_service_not_running, Toast.LENGTH_SHORT).show()
+                            return@async false
+                        }
+                    } else {
+                        // Root mode
+                        return@async setForceDark(true)
+                    }
+                }.await()
+
                 // Check set job result
-                withContext(Dispatchers.Default) {
-                    val result = setForceDark(true)
-                    if (result)
-                        Timber.d("force-dark job succeed.")
-                    else
-                        Timber.e("Failed to execute force-dark job")
-                }
+                if (result)
+                    Timber.d("force-dark job succeed.")
+                else
+                    Timber.i("Failed to execute force-dark job")
             }
         } else {
             Timber.v("Force-dark is off")

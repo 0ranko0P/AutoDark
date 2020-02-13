@@ -51,6 +51,7 @@
     <string name="shizuku_title">Shizuku</string>
     <string name="shizuku_description">Grant permission directly by Shizuku.</string>
     <string name="shizuku_not_install">Shizuku is not installed!</string>
+    <string name="shizuku_service_not_running">Shizuku service is not running</string>
 
     <string name="permission_title">Grant permission</string>
     <string name="permission_description">AutoDark need your permission to changing the system dark mode. Use one of three ways below to grant that permission.</string>
