@@ -81,7 +81,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier,
         viewModel.switch.addOnPropertyChangedCallback(onSwitchChangedCallback)
         onSwitchChangedCallback.onPropertyChanged(viewModel.switch, 0)
 
-        viewModel.forceDarkStatus.observe(this, Observer<Int> { status ->
+        viewModel.forceDarkStatus.observe(viewLifecycleOwner, Observer<Int> { status ->
             when (status) {
                 JOB_STATUS_SUCCEED -> Timber.v("Set force job successful")
 
@@ -94,7 +94,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier,
             forcePreference.isEnabled = status != JOB_STATUS_PENDING
         })
 
-        viewModel.forceDarkTile.observe(this, Observer<Int> { strId ->
+        viewModel.forceDarkTile.observe(viewLifecycleOwner, Observer<Int> { strId ->
             forcePreference.setTitle(strId)
         })
 
@@ -113,7 +113,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier,
 
         autoPreference.onPreferenceClickListener = this
 
-        viewModel.autoMode.observe(this, Observer<Boolean> { result ->
+        viewModel.autoMode.observe(viewLifecycleOwner, Observer<Boolean> { result ->
             autoPreference.isChecked = result
             // hide custom time preferences when using auto mode
             startPreference.isVisible = !result
