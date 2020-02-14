@@ -2,6 +2,7 @@ package me.ranko.autodark.ui.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.text.method.LinkMovementMethod;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,6 +58,7 @@ public class PermissionLayout extends LinearLayout implements View.OnClickListen
         if (a.hasValue(R.styleable.PermissionLayout_description)) {
             mDescription.setText(a.getText(R.styleable.PermissionLayout_description));
         }
+        mDescription.setMovementMethod(LinkMovementMethod.getInstance());
 
         a.recycle();
     }
