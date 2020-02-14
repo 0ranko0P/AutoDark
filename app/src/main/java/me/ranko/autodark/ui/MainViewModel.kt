@@ -220,16 +220,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     suspend fun triggerForceDark(enabled: Boolean) = uiScope.launch {
         _forceDarkStatus.value = JOB_STATUS_PENDING
 
-        withContext(Dispatchers.Main) {
-            // Use shizuku if available
-            val result = if (R.string.pref_force_dark_shizuku == forceDarkTile.value) {
-                setForceDarkByShizuku(enabled)
-            } else {
-                setForceDark(enabled)
-            }
-            // Show force-dark job result
-            _forceDarkStatus.value = if (result) JOB_STATUS_SUCCEED else JOB_STATUS_FAILED
+        // Use shizuku if available
+        val result = if (R.string.pref_force_dark_shizuku == forceDarkTile.value) {
+            setForceDarkByShizuku(enabled)
+        } else {
+            setForceDark(enabled)
         }
+        // Show force-dark job result
+        _forceDarkStatus.value = if (result) JOB_STATUS_SUCCEED else JOB_STATUS_FAILED
     }
 
     fun onRequireAdbConsumed() {
@@ -237,14 +235,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun updateForceDarkTitle() = uiScope.launch {
-        withContext(Dispatchers.Main) {
-            _forceDarkStatus.value = JOB_STATUS_PENDING
+        _forceDarkStatus.value = JOB_STATUS_PENDING
 
-            if (ShizukuApi.checkShizuku() && checkShizukuPermission()) {
-                _forceDarkTile.value = R.string.pref_force_dark_shizuku
-            }
-            _forceDarkStatus.value = JOB_STATUS_SUCCEED
+        if (ShizukuApi.checkShizuku() && checkShizukuPermission()) {
+            _forceDarkTile.value = R.string.pref_force_dark_shizuku
         }
+        _forceDarkStatus.value = JOB_STATUS_SUCCEED
     }
 
     fun getDelayedSummary(): Summary? {
