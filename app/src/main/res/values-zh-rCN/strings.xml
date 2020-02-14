@@ -2,6 +2,8 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">AutoDark</string>
     <string name="app_confirm">好的</string>
+    <string name="app_later">稍后提醒我</string>
+    <string name="app_do_not_show">不再显示</string>
     <string name="app_location_failed">获取当前位置失败, 请手动设置时间.</string>
     <string name="app_location_disabled">定位服务已关闭.</string>
     <string name="adb_check_failed">失败! 请输入正确的指令</string>
@@ -16,6 +18,12 @@
     <string name="adb_share_text">分享给</string>
     <string name="adb_title">使用 ADB 授权</string>
     <string name="app_about">关于 AutoDark</string>
+
+    <string name="app_restricted_title">某些设备上会出现问题</string>
+    <string name="app_restricted">一些厂商(比如一加)会为了优化电池而限制应用后台."
+        "\n这会让AutoDark 无法在正确的时间醒来并且为您切换夜间模式. 请参考 <a href='https://dontkillmyapp.com/'>dontkillmyapp.com</a>获取解决方案."
+        "\n如果您使用了某种优化软件/电池优化大师之类的, 请将AutoDark 添加到他们的白名单中.</string>
+
     <string name="dark_mode_disabled">主开关已关闭</string>
     <string name="dark_mode_permission_denied">设置失败, 无权限!</string>
     <string name="dark_mode_summary_auto_on">将在日落到日出期间开启黑暗模式.</string>
@@ -39,9 +47,7 @@
     <string name="permission_description">AutoDark 需要您的授权以更改系统黑暗模式. 使用下列三种方式之一来授予该权限.</string>
     <string name="permission_granted">权限已授予</string>
     <string name="permission_failed">获取权限失败!</string>
-    <string name="app_receiver_disabled_title">App接收器已被禁用</string>
-    <string name="app_receiver_disabled_msg">该接收器确保AutoDark 在正确的时间醒来并且为您切换夜间模式"
-        "\n 如果您使用了某种优化软件例如电池管家, 请将AutoDark 添加到他们的白名单中.</string>
+
     <string name="pref_force_dark_shizuku">Force-dark 模式</string>
     <string name="shizuku_description">由Shizuku 直接授权</string>
     <string name="shizuku_not_install">Shizuku 并未安装!</string>

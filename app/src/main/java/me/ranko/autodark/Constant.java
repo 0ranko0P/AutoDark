@@ -14,6 +14,8 @@ public final class Constant {
 
     public static final String SP_AUTO_mode = "dark_mode_auto";
 
+    public static final String SP_RESTRICTED_SILENCE = "silence";
+
     public static final String PERMISSION_WRITE_SECURE_SETTINGS = "android.permission.WRITE_SECURE_SETTINGS";
 
     public static final String COMMAND_GRANT_PM = "pm grant " + BuildConfig.APPLICATION_ID + " " + PERMISSION_WRITE_SECURE_SETTINGS;

@@ -3,6 +3,8 @@
     <string name="app_name">AutoDark</string>
     <string name="app_about">About AutoDark</string>
     <string name="app_confirm">OK</string>
+    <string name="app_later">Remind me later</string>
+    <string name="app_do_not_show">Do not show this again</string>
     <string name="app_location_failed">Location is not available now, Please configure time manually.</string>
     <string name="app_location_disabled">Location is disabled.</string>
     <string name="main_title">Schedule dark mode</string>
@@ -10,10 +12,10 @@
     <string name="settings_category_dev">Experimental feature</string>
     <string name="settings_category_timer">Schedule start and end time.</string>
 
-    <string name="app_receiver_disabled_title">App receiver has been disabled</string>
-    <string name="app_receiver_disabled_msg">AutoDark need this receiver to wake up in time and do the switch job"
-        "\n If you are using some kind of optimizer/battery saver app or something like that, please add AutoDark to their white list."
-    </string>
+    <string name="app_restricted_title">Problems on some device</string>
+    <string name="app_restricted">Some vendors(like Oneplus) are restricting app background works to optimize their battery."
+        "\nThis makes AutoDark can not wake up in time and do the switch dark mode for you. Please refer to <a href='https://dontkillmyapp.com/'>dontkillmyapp.com</a> for solution."
+        "\nAlso, if you are using some kind of optimizer/battery saver app, please add AutoDark to their white list.</string>
 
     <string name="pref_master_switch">Master switch</string>
     <string name="pref_time_start">Start time</string>

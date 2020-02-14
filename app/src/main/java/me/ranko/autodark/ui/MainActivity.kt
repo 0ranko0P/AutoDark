@@ -5,16 +5,22 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
+import android.graphics.Paint
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
 import androidx.databinding.ObservableField
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.preference.PreferenceManager
 import com.google.android.material.appbar.CollapsingToolbarLayout
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
+import me.ranko.autodark.Constant
+import me.ranko.autodark.Constant.SP_RESTRICTED_SILENCE
 import me.ranko.autodark.R
 import me.ranko.autodark.Receivers.DarkModeAlarmReceiver
 import me.ranko.autodark.Utils.ViewUtil
@@ -30,7 +36,7 @@ class MainActivity : AppCompatActivity() {
      *
      * @see     checkBootReceiver
      * */
-    private var receiverDialog: AlertDialog? = null
+    private var restrictedDialog: BottomSheetDialog? = null
 
     private val summaryTextListener = object : Observable.OnPropertyChangedCallback() {
         override fun onPropertyChanged(sender: Observable, propertyId: Int) {
@@ -103,24 +109,44 @@ class MainActivity : AppCompatActivity() {
      *
      * */
     private fun checkBootReceiver() {
-        if (!isComponentEnabled(DarkModeAlarmReceiver::class.java)) {
-            Timber.e("checkBootReceiver: receiver disabled!")
-            if (receiverDialog == null) {
-                receiverDialog = AlertDialog.Builder(this)
-                    .setTitle(R.string.app_receiver_disabled_title)
-                    .setMessage(R.string.app_receiver_disabled_msg)
-                    .setPositiveButton(R.string.app_confirm) { _, _ -> finish() }
-                    .create()
-            }
+        val sp = PreferenceManager.getDefaultSharedPreferences(this)
+        val restricted = !isComponentEnabled(DarkModeAlarmReceiver::class.java)
+        val silence = sp.getBoolean(SP_RESTRICTED_SILENCE, false)
 
-            receiverDialog!!.show()
-        } else {
-            Timber.d("checkBootReceiver: receiver enabled")
+        if (silence && !restricted) return
+
+        if (restrictedDialog == null) {
+            restrictedDialog = BottomSheetDialog(this).apply {
+                setContentView(R.layout.dialog_bottom_resstricted)
+
+                // button show later
+                findViewById<MaterialButton>(R.id.btnLater)!!.setOnClickListener { dismiss() }
+
+                // button do not show again
+                findViewById<MaterialButton>(R.id.btnShutup)!!.run {
+                    // add strike font style when restricted
+                    paintFlags = if (restricted) {
+                        Timber.d("Receiver is disabled!")
+                        paintFlags.or(Paint.STRIKE_THRU_TEXT_FLAG)
+                    } else {
+                        paintFlags.and(Paint.STRIKE_THRU_TEXT_FLAG.inv())
+                    }
+                    // disable shut up button when restricted
+                    isEnabled = !restricted
+
+                    setOnClickListener {
+                        sp.edit().putBoolean(Constant.SP_RESTRICTED_SILENCE, true).apply()
+                        dismiss()
+                    }
+                }
+            }
         }
+
+        restrictedDialog!!.show()
     }
 
     override fun onStop() {
-        receiverDialog?.run { if (isShowing) dismiss() }
+        restrictedDialog?.run { if (isShowing) dismiss() }
         super.onStop()
     }
 
