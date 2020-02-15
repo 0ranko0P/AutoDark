@@ -5,7 +5,7 @@ apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+    buildToolsVersion "29.0.3"
 
     defaultConfig {
         applicationId "me.ranko.autodark"
@@ -49,7 +49,6 @@ dependencies {
 
     // Support libraries
     implementation "androidx.appcompat:appcompat:$ver_appcompat"
-    implementation "androidx.constraintlayout:constraintlayout:$ver_constraint_layout"
     implementation "androidx.legacy:legacy-support-v4:$ver_support"
     implementation "androidx.preference:preference:$ver_preference"
     implementation "com.google.android.material:material:$ver_material"
