@@ -72,7 +72,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * */
     private val summaryAction = View.OnClickListener {
         val state = mUiManager.nightMode == UiModeManager.MODE_NIGHT_NO
-        val succeed = DarkModeSettings.setDarkMode(mUiManager, getApplication(), state)
+        val succeed = darkSettings.setDarkMode(state)
         if (!succeed) {
             val context = getApplication<Application>()
             summaryText.set(Summary(context.getString(R.string.dark_mode_permission_denied), null, null))

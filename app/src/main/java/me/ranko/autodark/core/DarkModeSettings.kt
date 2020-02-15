@@ -9,7 +9,6 @@ import android.content.Intent
 import android.provider.Settings
 import android.widget.Toast
 import androidx.annotation.RequiresPermission
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.preference.Preference
@@ -49,6 +48,8 @@ class DarkModeSettings private constructor(private val context: Context) :
     OnPreferenceChangeListener,
     DefaultLifecycleObserver {
 
+    private val mManager:UiModeManager by lazy { context.getSystemService(UiModeManager::class.java)!! }
+
     private val mAlarmManager: AlarmManager =
         context.getSystemService(Activity.ALARM_SERVICE) as AlarmManager
 
@@ -84,53 +85,6 @@ class DarkModeSettings private constructor(private val context: Context) :
                 }
             }
             return INSTANCE!!
-        }
-
-        /**
-         * Sets the system-wide night mode.
-         *
-         * Direct call [UiModeManager.setNightMode] requires **MODIFY_DAY_NIGHT_MODE**
-         * permission. And that is a __signature|privileged__ permission, can not get easily.
-         *
-         * Modify secure system settings to bypass that permission,
-         * Requires **WRITE_SECURE_SETTINGS**, can provide by the user.
-         *
-         * @return  false if an error occurred or failed to set mode.
-         *
-         * @see     UiModeManager.setNightMode
-         * */
-        @JvmStatic
-        fun setDarkMode(manager: UiModeManager, context: Context, enabled: Boolean): Boolean {
-            val newMode = if (enabled) UiModeManager.MODE_NIGHT_YES else UiModeManager.MODE_NIGHT_NO
-
-            if (manager.nightMode == newMode) {
-                Timber.v("Already in %s mode", newMode)
-                return true
-            }
-
-            try {
-                Timber.d("Current mode: ${manager.currentModeType} change to $newMode")
-                Settings.Secure.putInt(
-                    context.contentResolver,
-                    SYSTEM_SECURE_PROP_DARK_MODE,
-                    newMode
-                )
-
-                // Manually trigger car mode
-                // UiManager will call setNightMode() after carMode
-                manager.enableCarMode(0)
-                manager.disableCarMode(0)
-                return manager.nightMode == newMode
-            } catch (e: SecurityException) {
-                Timber.e(e.localizedMessage)
-                return false
-            }
-        }
-
-        @JvmStatic
-        fun setDarkMode(context: Context, enabled: Boolean) {
-            val manager = ContextCompat.getSystemService(context, UiModeManager::class.java)!!
-            setDarkMode(manager, context, enabled)
         }
 
         /**
@@ -192,22 +146,61 @@ class DarkModeSettings private constructor(private val context: Context) :
                 forceDark.trim().toBoolean()
             }
         }
+    }
 
-        /**
-         * Switch dark mode **on/off** if current time at the user-selected range.
-         *
-         * @return  **True** if is in range
-         *
-         * @see     DarkTimeUtil.isInTime
-         * */
-        @JvmStatic
-        fun adjustModeOnTime(context: Context, start: LocalTime, end: LocalTime): Boolean {
-            val shouldActive = DarkTimeUtil.isInTime(start, end, LocalTime.now())
+    /**
+     * Sets the system-wide night mode.
+     *
+     * Direct call [UiModeManager.setNightMode] requires **MODIFY_DAY_NIGHT_MODE**
+     * permission. And that is a __signature|privileged__ permission, can not get easily.
+     *
+     * Modify secure system settings to bypass that permission,
+     * Requires **WRITE_SECURE_SETTINGS**, can provide by the user.
+     *
+     * @return  false if an error occurred or failed to set mode.
+     *
+     * @see     UiModeManager.setNightMode
+     * */
+    fun setDarkMode(enabled: Boolean): Boolean {
+        val newMode = if (enabled) UiModeManager.MODE_NIGHT_YES else UiModeManager.MODE_NIGHT_NO
 
-            setDarkMode(context, shouldActive)
-            Timber.d("User currently ${if (shouldActive) "in" else "not in"} mode range")
-            return shouldActive
+        if (mManager.nightMode == newMode) {
+            Timber.v("Already in %s mode", newMode)
+            return true
         }
+
+        Timber.d("Current mode: ${mManager.currentModeType} change to $newMode")
+        try {
+            Settings.Secure.putInt(
+                context.contentResolver,
+                SYSTEM_SECURE_PROP_DARK_MODE,
+                newMode
+            )
+
+            // Manually trigger car mode
+            // UiManager will call setNightMode() after carMode
+            mManager.enableCarMode(0)
+            mManager.disableCarMode(0)
+            return mManager.nightMode == newMode
+        } catch (e: SecurityException) {
+            Timber.e(e.localizedMessage)
+            return false
+        }
+    }
+
+    /**
+     * Switch dark mode **on/off** if current time at the user-selected range.
+     *
+     * @return  **True** if is in range
+     *
+     * @see     DarkTimeUtil.isInTime
+     * */
+    private fun adjustModeOnTime(start: LocalTime, end: LocalTime): Boolean {
+        val shouldActive = DarkTimeUtil.isInTime(start, end, LocalTime.now())
+        setDarkMode(shouldActive)
+
+        Timber.v("User currently ${if (shouldActive) "in" else "not in"} mode range")
+        return shouldActive
     }
 
     /**
@@ -224,9 +217,9 @@ class DarkModeSettings private constructor(private val context: Context) :
 
         // Adjust dark mode if needed
         if (key == DARK_PREFERENCE_START) {
-            adjustModeOnTime(context, time, getEndTime())
+            adjustModeOnTime(time, getEndTime())
         } else {
-            adjustModeOnTime(context, getStartTime(), time)
+            adjustModeOnTime(getStartTime(), time)
         }
         return true
     }
@@ -283,7 +276,7 @@ class DarkModeSettings private constructor(private val context: Context) :
      * @see     adjustModeOnTime
      * */
     fun setAllAlarm(startTime: LocalTime, endTime: LocalTime): Boolean {
-        val isAdjusted = adjustModeOnTime(context, startTime, endTime)
+        val isAdjusted = adjustModeOnTime(startTime, endTime)
 
         setNextAlarm(startTime, DARK_PREFERENCE_START)
         setNextAlarm(endTime, DARK_PREFERENCE_END)
@@ -300,7 +293,7 @@ class DarkModeSettings private constructor(private val context: Context) :
     fun cancelAllAlarm(startTime: LocalTime, endTime: LocalTime): Boolean {
 
         // deactivate dark mode
-        setDarkMode(context, false)
+        setDarkMode(false)
 
         // cancel job on next day
         val startMillis = getTodayOrNextDay(startTime)
@@ -366,7 +359,7 @@ class DarkModeSettings private constructor(private val context: Context) :
         val pendingIntent = pendingDarkAlarm(nextAlarm, type)
 
         try {
-            setDarkMode(context, switch)
+            setDarkMode(switch)
 
             // pending next alarm if no error occurred
             (context.getSystemService(Activity.ALARM_SERVICE) as AlarmManager)
