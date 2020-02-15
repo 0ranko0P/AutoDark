@@ -50,8 +50,7 @@ class DarkModeSettings private constructor(private val context: Context) :
 
     private val mManager:UiModeManager by lazy { context.getSystemService(UiModeManager::class.java)!! }
 
-    private val mAlarmManager: AlarmManager =
-        context.getSystemService(Activity.ALARM_SERVICE) as AlarmManager
+    private val mAlarmManager: AlarmManager by lazy { context.getSystemService(Activity.ALARM_SERVICE) as AlarmManager }
 
     private var mSupplier: DarkPreferenceSupplier? = null
 
