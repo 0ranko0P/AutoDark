@@ -2,11 +2,14 @@ package me.ranko.autodark.ui
 
 import android.app.Activity
 import android.content.ComponentName
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Paint
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
@@ -15,6 +18,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.google.android.material.appbar.CollapsingToolbarLayout
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
@@ -116,13 +120,22 @@ class MainActivity : AppCompatActivity() {
 
         if (restrictedDialog == null) {
             restrictedDialog = BottomSheetDialog(this, R.style.AppTheme_BottomSheetDialogDayNight).apply {
-                setContentView(R.layout.dialog_bottom_resstricted)
+                val root = LayoutInflater.from(context).inflate(
+                    R.layout.dialog_bottom_resstricted,
+                    this.window!!.decorView.rootView as ViewGroup,
+                    false
+                )
+                setContentView(root)
+
+                val mBehavior = BottomSheetBehavior.from(root.parent as ViewGroup)
+
+                setOnShowListener { mBehavior.peekHeight = root.height }
 
                 // button show later
-                findViewById<MaterialButton>(R.id.btnLater)!!.setOnClickListener { dismiss() }
+                root.findViewById<MaterialButton>(R.id.btnLater)!!.setOnClickListener { dismiss() }
 
                 // button do not show again
-                findViewById<MaterialButton>(R.id.btnShutup)!!.run {
+                root.findViewById<MaterialButton>(R.id.btnShutup)!!.run {
                     // add strike font style when restricted
                     paintFlags = if (restricted) {
                         Timber.d("Receiver is disabled!")
