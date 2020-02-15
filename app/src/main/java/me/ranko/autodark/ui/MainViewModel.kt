@@ -28,7 +28,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val application = getApplication<AutoDarkApplication>()
 
-    val darkSettings = DarkModeSettings(application)
+    val darkSettings = DarkModeSettings.getInstance(application)
 
     private var sp = PreferenceManager.getDefaultSharedPreferences(application)
 

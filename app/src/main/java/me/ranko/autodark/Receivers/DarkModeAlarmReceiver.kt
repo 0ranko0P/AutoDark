@@ -18,10 +18,11 @@ import me.ranko.autodark.core.DarkModeSettings
 class DarkModeAlarmReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action.equals(Intent.ACTION_BOOT_COMPLETED)) {
-            DarkModeSettings(context).onBoot()
-        } else {
-            DarkModeSettings(context).onAlarm(intent)
+        DarkModeSettings.getInstance(context).run {
+            if (intent.action.equals(Intent.ACTION_BOOT_COMPLETED))
+                onBoot()
+            else
+                onAlarm(intent)
         }
     }
 }

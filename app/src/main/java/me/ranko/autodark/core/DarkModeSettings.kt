@@ -45,7 +45,8 @@ interface DarkPreferenceSupplier {
  *
  * @author  0ranko0P
  * */
-class DarkModeSettings(private val context: Context) : OnPreferenceChangeListener,
+class DarkModeSettings private constructor(private val context: Context) :
+    OnPreferenceChangeListener,
     DefaultLifecycleObserver {
 
     private val mAlarmManager: AlarmManager =
@@ -71,6 +72,19 @@ class DarkModeSettings(private val context: Context) : OnPreferenceChangeListene
 
         private const val REQUEST_ALARM_START = 0x00B0
         private const val REQUEST_ALARM_END = REQUEST_ALARM_START.shl(1)
+
+        @Volatile
+        private var INSTANCE: DarkModeSettings? = null
+
+        @JvmStatic
+        fun getInstance(context: Context): DarkModeSettings {
+            if (INSTANCE == null) {
+                synchronized(DarkLocationUtil::class.java) {
+                    if (INSTANCE == null) INSTANCE = DarkModeSettings(context)
+                }
+            }
+            return INSTANCE!!
+        }
 
         /**
          * Sets the system-wide night mode.
