@@ -5,7 +5,6 @@ import android.app.UiModeManager
 import android.view.View
 import androidx.annotation.RequiresPermission
 import androidx.annotation.StringRes
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.lifecycle.*
@@ -21,7 +20,6 @@ import me.ranko.autodark.core.DarkModeSettings
 import me.ranko.autodark.core.DarkModeSettings.Companion.setForceDark
 import me.ranko.autodark.core.DarkModeSettings.Companion.setForceDarkByShizuku
 import me.ranko.autodark.core.ShizukuApi
-import timber.log.Timber
 import java.time.LocalTime
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -31,9 +29,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val darkSettings = DarkModeSettings.getInstance(application)
 
     private var sp = PreferenceManager.getDefaultSharedPreferences(application)
-
-    private var mUiManager: UiModeManager =
-        getSystemService(getApplication(), UiModeManager::class.java)!!
 
     /**
      * Control the main switch on/off
@@ -71,9 +66,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * while showing summary message
      * */
     private val summaryAction = View.OnClickListener {
-        val state = mUiManager.nightMode == UiModeManager.MODE_NIGHT_NO
-        val succeed = darkSettings.setDarkMode(state)
-        if (!succeed) {
+        val state = darkSettings.isDarkMode() ?: return@OnClickListener
+        if (!darkSettings.setDarkMode(state)) {
             val context = getApplication<Application>()
             summaryText.set(Summary(context.getString(R.string.dark_mode_permission_denied), null, null))
         }
@@ -165,21 +159,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             newSummary(R.string.dark_mode_summary_auto_on)
         } else {
             val time: LocalTime
-            val textRes: Int = when (mUiManager.nightMode) {
-                UiModeManager.MODE_NIGHT_NO -> {
-                    time = darkSettings.getStartTime()
-                    R.string.dark_mode_summary_will_on
-                }
-
-                UiModeManager.MODE_NIGHT_YES, UiModeManager.MODE_NIGHT_AUTO -> {
-                    time = darkSettings.getEndTime()
-                    R.string.dark_mode_summary_will_off
-                }
-
-                else -> {
-                    Timber.e("System ui manager returned error code.")
-                    return null
-                }
+            val isDarkMode = darkSettings.isDarkMode() ?: return null
+            val textRes: Int = if (isDarkMode) {
+                time = darkSettings.getEndTime()
+                R.string.dark_mode_summary_will_off
+            } else {
+                time = darkSettings.getStartTime()
+                R.string.dark_mode_summary_will_on
             }
 
             val displayTime = DarkTimeUtil.getDisplayFormattedString(time)
@@ -201,7 +187,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             summaryText.set(newSummary(R.string.app_location_disabled))
         } else {
             val result = darkSettings.triggerAutoMode()
-            val message = if(result) R.string.dark_mode_summary_auto_on else R.string.app_location_failed
+            val message =
+                if (result) R.string.dark_mode_summary_auto_on else R.string.app_location_failed
             summaryText.set(newSummary(message))
         }
 
@@ -252,7 +239,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun newSummary(@StringRes message: Int) = Summary(application.getString(message), null, null)
+    private fun newSummary(@StringRes message: Int) =
+        Summary(application.getString(message), null, null)
 
     override fun onCleared() {
         super.onCleared()

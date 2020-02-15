@@ -437,6 +437,19 @@ class DarkModeSettings private constructor(private val context: Context) :
 
     fun isAutoMode(): Boolean = isAutoMode
 
+    /**
+     * Returns system-wide night mode state
+     *
+     * @return  **True** if dark mode is currently in use,
+     *          *Null** when error happened.
+     *
+     * @see     UiModeManager.getNightMode
+     * */
+    fun isDarkMode():Boolean? {
+        val current = mManager.nightMode
+        return if(current == -1) null else current != UiModeManager.MODE_NIGHT_NO
+    }
+
     private fun saveAutoTime(timePair: Pair<String, String>) {
         sp.edit().putString(SP_AUTO_TIME_SUNRISE, timePair.first)
             .putString(SP_AUTO_TIME_SUNSET, timePair.second)
