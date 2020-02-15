@@ -65,11 +65,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Action button for user to trigger dark mode manually
      * while showing summary message
      * */
-    private val summaryAction = View.OnClickListener {
-        val state = darkSettings.isDarkMode() ?: return@OnClickListener
-        if (!darkSettings.setDarkMode(state)) {
-            val context = getApplication<Application>()
-            summaryText.set(Summary(context.getString(R.string.dark_mode_permission_denied), null, null))
+    private val summaryAction by lazy {
+        View.OnClickListener {
+            val state = darkSettings.isDarkMode() ?: return@OnClickListener
+            if (!darkSettings.setDarkMode(state))
+                summaryText.set(newSummary(R.string.dark_mode_permission_denied))
         }
     }
 
