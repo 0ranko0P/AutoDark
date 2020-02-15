@@ -29,6 +29,13 @@
         <item name="android:windowLightNavigationBar">true</item>
     </style>
 
+    <style name="AppTheme.BottomSheetDialogDayNight" parent="Theme.MaterialComponents.DayNight.BottomSheetDialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="colorOnBackground">@color/bottom_sheet_background</item>
+        <item name="android:navigationBarColor">@color/bottom_sheet_background</item>
+    </style>
+
     <style name="Widget.ActionBar" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
 
     <style name="CardBaseStyle">

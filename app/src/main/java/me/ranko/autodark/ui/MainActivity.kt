@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Paint
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
@@ -116,7 +115,7 @@ class MainActivity : AppCompatActivity() {
         if (silence && !restricted) return
 
         if (restrictedDialog == null) {
-            restrictedDialog = BottomSheetDialog(this).apply {
+            restrictedDialog = BottomSheetDialog(this, R.style.AppTheme_BottomSheetDialogDayNight).apply {
                 setContentView(R.layout.dialog_bottom_resstricted)
 
                 // button show later

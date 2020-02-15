@@ -6,4 +6,6 @@
     <color name="surface">#BDBDBD</color>
     <color name="appbar_background">#E6FFFFFF</color>
     <color name="color_ripple">#516200EE</color>
+    
+    <color name="bottom_sheet_background">@color/material_white_1000</color>
 </resources>
