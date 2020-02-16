@@ -57,8 +57,6 @@ class MainActivity : AppCompatActivity() {
             isDialogShowed = savedInstanceState.getBoolean(ARG_IS_DIALOG_SHOWED, false)
         }
 
-        checkBootReceiver()
-
         viewModel = ViewModelProvider(this, MainViewModel.Companion.Factory(application))
             .get(MainViewModel::class.java)
 
@@ -91,6 +89,10 @@ class MainActivity : AppCompatActivity() {
             // delayed summary exists, show summary
             showSummary(this)
         }
+
+        // check on resume
+        // so user won't ignore the receiver problem
+        checkBootReceiver()
     }
 
     private fun showSummary(summary: MainViewModel.Companion.Summary) {
