@@ -1,5 +1,6 @@
 package me.ranko.autodark.Utils
 
+import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.view.Window
@@ -11,8 +12,8 @@ import android.view.WindowManager
  * @author  0ranko0P
  * */
 object ViewUtil {
-    fun isLandscape(window: Window) =
-        window.context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    fun isLandscape(context: Context) =
+        context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     fun setImmersiveNavBar(window: Window) {
         window.setFlags(

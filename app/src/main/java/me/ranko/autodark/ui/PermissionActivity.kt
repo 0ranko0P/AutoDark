@@ -34,7 +34,7 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (!ViewUtil.isLandscape(window)) ViewUtil.setImmersiveNavBar(window)
+        if (!ViewUtil.isLandscape(this)) ViewUtil.setImmersiveNavBar(window)
 
         // replace default transition
         overridePendingTransition(R.anim.do_not_move, R.anim.do_not_move)

@@ -30,7 +30,11 @@ fun onSuProgress(v: ProgressBar, process: Int) {
 @BindingAdapter("setAppBarPadding")
 fun setAppBarPadding(v: AppBarLayout, viewModel: PermissionViewModel) {
     val statusBar = ViewUtil.getStatusBarHeight(v.resources)
-    v.setPadding(v.paddingLeft, statusBar, v.paddingRight, v.paddingBottom)
+    if (ViewUtil.isLandscape(v.context)) {
+        v.setPadding(v.paddingLeft, statusBar / 2, v.paddingRight, statusBar / 2)
+    } else {
+        v.setPadding(v.paddingLeft, statusBar, v.paddingRight, v.paddingBottom)
+    }
 }
 
 @BindingAdapter("setLinearViewPadding")

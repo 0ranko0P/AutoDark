@@ -2,7 +2,6 @@ package me.ranko.autodark.ui
 
 import android.app.Activity
 import android.content.ComponentName
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
@@ -68,7 +67,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        if (ViewUtil.isLandscape(window)) {
+        if (ViewUtil.isLandscape(this)) {
             val collapsingToolbar =
                 binding.appbar.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbar)!!
             val transparent = ColorStateList.valueOf(getColor(android.R.color.transparent))
