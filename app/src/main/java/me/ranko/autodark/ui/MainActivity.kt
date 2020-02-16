@@ -5,7 +5,6 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
-import android.graphics.Paint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -144,12 +143,11 @@ class MainActivity : AppCompatActivity() {
                 // button do not show again
                 root.findViewById<MaterialButton>(R.id.btnShutup)!!.run {
                     // add strike font style when restricted
-                    paintFlags = if (restricted) {
+                    if (restricted) {
                         Timber.d("Receiver is disabled!")
-                        paintFlags.or(Paint.STRIKE_THRU_TEXT_FLAG)
-                    } else {
-                        paintFlags.and(Paint.STRIKE_THRU_TEXT_FLAG.inv())
+                        ViewUtil.setStrikeFontStyle(this, true)
                     }
+
                     // disable shut up button when restricted
                     isEnabled = !restricted
 
