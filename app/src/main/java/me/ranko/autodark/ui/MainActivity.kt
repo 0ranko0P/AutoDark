@@ -1,47 +1,27 @@
 package me.ranko.autodark.ui
 
 import android.app.Activity
-import android.content.ComponentName
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.ViewGroup
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
 import androidx.databinding.ObservableField
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.preference.PreferenceManager
 import com.google.android.material.appbar.CollapsingToolbarLayout
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.snackbar.Snackbar
-import me.ranko.autodark.Constant
-import me.ranko.autodark.Constant.SP_RESTRICTED_SILENCE
 import me.ranko.autodark.R
-import me.ranko.autodark.Receivers.DarkModeAlarmReceiver
 import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.databinding.MainActivityBinding
-import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
     private lateinit var viewModel: MainViewModel
     private lateinit var binding: MainActivityBinding
 
-    /**
-     * Show this dialog if boot receiver is disabled
-     *
-     * @see     checkBootReceiver
-     * */
     private var restrictedDialog: BottomSheetDialog? = null
-
-    private companion object val ARG_IS_DIALOG_SHOWED = "arg_dialog"
-    private var isDialogShowed = false
 
     private val summaryTextListener = object : Observable.OnPropertyChangedCallback() {
         override fun onPropertyChanged(sender: Observable, propertyId: Int) {
@@ -53,9 +33,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (savedInstanceState != null) {
-            isDialogShowed = savedInstanceState.getBoolean(ARG_IS_DIALOG_SHOWED, false)
-        }
 
         viewModel = ViewModelProvider(this, MainViewModel.Companion.Factory(application))
             .get(MainViewModel::class.java)
@@ -92,7 +69,8 @@ class MainActivity : AppCompatActivity() {
 
         // check on resume
         // so user won't ignore the receiver problem
-        checkBootReceiver()
+        restrictedDialog = viewModel.getRestrictedDialog(this)
+        restrictedDialog?.show()
     }
 
     private fun showSummary(summary: MainViewModel.Companion.Summary) {
@@ -113,66 +91,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Some optimize app or OEM performance boost function can disable boot receiver
-     * Notify user if this happened and disable __do not show again__ button.
-     *
-     * */
-    private fun checkBootReceiver() {
-        val restricted = !isComponentEnabled(DarkModeAlarmReceiver::class.java)
-        val sp = PreferenceManager.getDefaultSharedPreferences(this)
-        val silence = sp.getBoolean(SP_RESTRICTED_SILENCE, isDialogShowed)
-        if (silence && !restricted) return
-
-        if (restrictedDialog == null) {
-            restrictedDialog = BottomSheetDialog(this, R.style.AppTheme_BottomSheetDialogDayNight).apply {
-                val root = LayoutInflater.from(context).inflate(
-                    R.layout.dialog_bottom_resstricted,
-                    this.window!!.decorView.rootView as ViewGroup,
-                    false
-                )
-                setContentView(root)
-
-                val mBehavior = BottomSheetBehavior.from(root.parent as ViewGroup)
-
-                setOnShowListener { mBehavior.peekHeight = root.height }
-
-                // button show later
-                root.findViewById<MaterialButton>(R.id.btnLater)!!.setOnClickListener { dismiss() }
-
-                // button do not show again
-                root.findViewById<MaterialButton>(R.id.btnShutup)!!.run {
-                    // add strike font style when restricted
-                    if (restricted) {
-                        Timber.d("Receiver is disabled!")
-                        ViewUtil.setStrikeFontStyle(this, true)
-                    }
-
-                    // disable shut up button when restricted
-                    isEnabled = !restricted
-
-                    setOnClickListener {
-                        sp.edit().putBoolean(Constant.SP_RESTRICTED_SILENCE, true).apply()
-                        dismiss()
-                    }
-                }
-
-                // show warning title when restricted
-                if (restricted) {
-                    root.findViewById<TextView>(R.id.title).setText(R.string.app_restricted_warning)
-                }
-            }
-        }
-
-        isDialogShowed = true
-        restrictedDialog!!.show()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putBoolean(ARG_IS_DIALOG_SHOWED, isDialogShowed)
-    }
-
     override fun onStop() {
         restrictedDialog?.run { if (isShowing) dismiss() }
         super.onStop()
@@ -182,11 +100,5 @@ class MainActivity : AppCompatActivity() {
         viewModel.summaryText.removeOnPropertyChangedCallback(summaryTextListener)
 
         super.onDestroy()
-    }
-
-    private fun isComponentEnabled(receiver: Class<*>): Boolean {
-        val component = ComponentName(this, receiver)
-        val status = packageManager.getComponentEnabledSetting(component)
-        return status <= PackageManager.COMPONENT_ENABLED_STATE_ENABLED
     }
 }

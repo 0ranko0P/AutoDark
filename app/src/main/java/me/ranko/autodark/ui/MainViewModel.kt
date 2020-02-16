@@ -2,24 +2,36 @@ package me.ranko.autodark.ui
 
 import android.app.Application
 import android.app.UiModeManager
+import android.content.ComponentName
+import android.content.Context
+import android.content.pm.PackageManager
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.RequiresPermission
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.*
 import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.R
+import me.ranko.autodark.Receivers.DarkModeAlarmReceiver
 import me.ranko.autodark.Utils.DarkLocationUtil
 import me.ranko.autodark.Utils.DarkTimeUtil
+import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.core.DarkModeSettings
 import me.ranko.autodark.core.DarkModeSettings.Companion.setForceDark
 import me.ranko.autodark.core.DarkModeSettings.Companion.setForceDarkByShizuku
 import me.ranko.autodark.core.ShizukuApi
+import me.ranko.autodark.databinding.DialogBottomResstrictedBinding
+import timber.log.Timber
 import java.time.LocalTime
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -101,6 +113,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * */
     val requirePermission: LiveData<Boolean>
         get() = _requirePermission
+
+    val isRestricted = !isComponentEnabled(application, DarkModeAlarmReceiver::class.java)
+
+    private var isDialogShowed = false
 
     private val job = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main.plus(job))
@@ -242,6 +258,46 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun newSummary(@StringRes message: Int) =
         Summary(application.getString(message), null, null)
 
+    /**
+     * Some optimize app or OEM performance boost function can disable boot receiver
+     * Notify user if this happened and disable __do not show again__ button.
+     *
+     * */
+    fun getRestrictedDialog(activity: AppCompatActivity): BottomSheetDialog? {
+        val silence = sp.getBoolean(SP_RESTRICTED_SILENCE, isDialogShowed)
+        if (silence && !isRestricted) return null
+
+        isDialogShowed = true
+
+        return BottomSheetDialog(activity, R.style.AppTheme_BottomSheetDialogDayNight).apply {
+            val binding = DialogBottomResstrictedBinding.inflate(
+                LayoutInflater.from(context),
+                activity.window!!.decorView.rootView as ViewGroup,
+                false
+            )
+
+            binding.viewModel = this@MainViewModel
+
+            binding.btnLater.setOnClickListener { dismiss() }
+
+            // add strike font style when restricted
+            if (isRestricted) {
+                Timber.d("Receiver is disabled!")
+                ViewUtil.setStrikeFontStyle(binding.btnShutup, true)
+            }
+
+            binding.btnShutup.setOnClickListener {
+                sp.edit().putBoolean(SP_RESTRICTED_SILENCE, true).apply()
+                dismiss()
+            }
+
+            setContentView(binding.root)
+            // workaround on landscape mode
+            val mBehavior = BottomSheetBehavior.from(binding.root.parent as ViewGroup)
+            setOnShowListener { mBehavior.peekHeight = binding.root.height }
+        }
+    }
+
     override fun onCleared() {
         super.onCleared()
         job.cancel()
@@ -269,5 +325,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
              * */
             var action: View.OnClickListener?
         )
+
+        fun isComponentEnabled(context: Context, receiver: Class<*>): Boolean {
+            val component = ComponentName(context, receiver)
+            val status = context.packageManager.getComponentEnabledSetting(component)
+            return status <= PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+        }
     }
 }
