@@ -9,6 +9,7 @@ import android.graphics.Paint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
@@ -156,6 +157,11 @@ class MainActivity : AppCompatActivity() {
                         sp.edit().putBoolean(Constant.SP_RESTRICTED_SILENCE, true).apply()
                         dismiss()
                     }
+                }
+
+                // show warning title when restricted
+                if (restricted) {
+                    root.findViewById<TextView>(R.id.title).setText(R.string.app_restricted_warning)
                 }
             }
         }

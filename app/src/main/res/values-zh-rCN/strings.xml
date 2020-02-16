@@ -23,6 +23,7 @@
     <string name="app_restricted">一些厂商(比如一加)会为了优化电池而限制应用后台."
         "\n这会让AutoDark 无法在正确的时间醒来并且为您切换夜间模式. 请参考 <a href='https://dontkillmyapp.com/'>dontkillmyapp.com</a>获取解决方案."
         "\n如果您使用了某种优化软件/电池优化大师之类的, 请将AutoDark 添加到他们的白名单中.</string>
+    <string name="app_restricted_warning">发现问题</string>
 
     <string name="dark_mode_disabled">主开关已关闭</string>
     <string name="dark_mode_permission_denied">设置失败, 无权限!</string>

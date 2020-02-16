@@ -16,6 +16,7 @@
     <string name="app_restricted">Some vendors(like Oneplus) are restricting app background works to optimize their battery."
         "\nThis makes AutoDark can not wake up in time and do the switch dark mode for you. Please refer to <a href='https://dontkillmyapp.com/'>dontkillmyapp.com</a> for solution."
         "\nAlso, if you are using some kind of optimizer/battery saver app, please add AutoDark to their white list.</string>
+    <string name="app_restricted_warning">Problem detected</string>
 
     <string name="pref_master_switch">Master switch</string>
     <string name="pref_time_start">Start time</string>
