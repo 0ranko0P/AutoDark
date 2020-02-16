@@ -40,6 +40,9 @@ class MainActivity : AppCompatActivity() {
      * */
     private var restrictedDialog: BottomSheetDialog? = null
 
+    private companion object val ARG_IS_DIALOG_SHOWED = "arg_dialog"
+    private var isDialogShowed = false
+
     private val summaryTextListener = object : Observable.OnPropertyChangedCallback() {
         override fun onPropertyChanged(sender: Observable, propertyId: Int) {
             @Suppress("UNCHECKED_CAST")
@@ -50,6 +53,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (savedInstanceState != null) {
+            isDialogShowed = savedInstanceState.getBoolean(ARG_IS_DIALOG_SHOWED, false)
+        }
+
+        checkBootReceiver()
 
         viewModel = ViewModelProvider(this, MainViewModel.Companion.Factory(application))
             .get(MainViewModel::class.java)
@@ -75,8 +83,6 @@ class MainActivity : AppCompatActivity() {
         } else {
             ViewUtil.setImmersiveNavBar(window)
         }
-
-        checkBootReceiver()
     }
 
     override fun onResumeFragments() {
@@ -107,14 +113,13 @@ class MainActivity : AppCompatActivity() {
 
     /**
      * Some optimize app or OEM performance boost function can disable boot receiver
-     * Notify user if this happened
+     * Notify user if this happened and disable __do not show again__ button.
      *
      * */
     private fun checkBootReceiver() {
-        val sp = PreferenceManager.getDefaultSharedPreferences(this)
         val restricted = !isComponentEnabled(DarkModeAlarmReceiver::class.java)
-        val silence = sp.getBoolean(SP_RESTRICTED_SILENCE, false)
-
+        val sp = PreferenceManager.getDefaultSharedPreferences(this)
+        val silence = sp.getBoolean(SP_RESTRICTED_SILENCE, isDialogShowed)
         if (silence && !restricted) return
 
         if (restrictedDialog == null) {
@@ -153,7 +158,13 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        isDialogShowed = true
         restrictedDialog!!.show()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putBoolean(ARG_IS_DIALOG_SHOWED, isDialogShowed)
     }
 
     override fun onStop() {
