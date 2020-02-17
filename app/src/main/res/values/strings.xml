@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name">AutoDark</string>
+    <string name="app_name" translatable="false">AutoDark</string>
     <string name="app_about">About AutoDark</string>
     <string name="app_confirm">OK</string>
     <string name="app_later">Remind me later</string>
@@ -25,7 +25,7 @@
     <string name="pref_time_auto_summary">Use your GPS coordinates to calculate sunset/sunrise time, this requires location permission.</string>
     <string name="pref_force_dark_shizuku">Force-dark mode</string>
     <string name="pref_force_dark">Force-dark mode (Root)</string>
-    <string name="pref_force_dark_summary">Provide by android, force apps into dark mode \nNot recommend, will set some apps on fire.</string>
+    <string name="pref_force_dark_summary">Provided by Android, force apps into dark mode \nNot recommended, will set some apps on fire.</string>
 
     <string name="dark_mode_disabled">Master switch is Off now.</string>
     <string name="dark_mode_summary_auto_on">Will turn on dark mode from sunset to sunrise.</string>
@@ -52,7 +52,7 @@
     <string name="root_grant">Grant Permission</string>
     <string name="root_check_failed">Failed to get root permission!</string>
 
-    <string name="shizuku_title">Shizuku</string>
+    <string name="shizuku_title" translatable="false">Shizuku</string>
     <string name="shizuku_description">Grant permission directly by Shizuku.</string>
     <string name="shizuku_not_install">Shizuku is not installed!</string>
     <string name="shizuku_service_not_running">Shizuku service is not running</string>
