@@ -1,32 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginBottom="?attr/actionBarSize"
+    android:orientation="vertical"
     app:behavior_overlapTop="@dimen/scroll_card_overlap"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".ui.MainActivity"
     tools:showIn="@layout/main_activity">
 
-    <LinearLayout
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/scroll_card_margin_side"
+        android:layout_marginTop="@dimen/scroll_card_margin"
+        android:layout_marginEnd="@dimen/scroll_card_margin_side"
+        android:layout_marginBottom="@dimen/scroll_card_margin">
 
-        <com.google.android.material.card.MaterialCardView
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/scroll_card_margin_side"
-            android:layout_marginTop="@dimen/scroll_card_margin"
-            android:layout_marginEnd="@dimen/scroll_card_margin_side"
-            android:layout_marginBottom="@dimen/scroll_card_margin">
-
-            <androidx.fragment.app.FragmentContainerView android:id="@+id/container"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:layout="@android:layout/activity_list_item" />
-        </com.google.android.material.card.MaterialCardView>
-    </LinearLayout>
-</androidx.core.widget.NestedScrollView>
+            android:layout_height="match_parent"
+            tools:layout="@android:layout/activity_list_item" />
+    </com.google.android.material.card.MaterialCardView>
+</LinearLayout>
