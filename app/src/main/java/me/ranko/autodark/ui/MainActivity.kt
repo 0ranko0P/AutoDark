@@ -58,6 +58,10 @@ class MainActivity : AppCompatActivity() {
         } else {
             ViewUtil.setImmersiveNavBar(window)
         }
+
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.replace(R.id.container, MainFragment())
+        transaction.commit()
     }
 
     override fun onResumeFragments() {

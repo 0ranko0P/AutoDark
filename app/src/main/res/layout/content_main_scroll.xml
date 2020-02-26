@@ -8,8 +8,7 @@
     tools:context=".ui.MainActivity"
     tools:showIn="@layout/main_activity">
 
-    <fragment android:id="@+id/container"
-        android:name="me.ranko.autodark.ui.MainFragment"
+    <androidx.fragment.app.FragmentContainerView android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:layout="@android:layout/activity_list_item" />

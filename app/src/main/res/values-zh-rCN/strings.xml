@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name">AutoDark</string>
     <string name="app_confirm">好的</string>
     <string name="app_later">稍后提醒我</string>
     <string name="app_do_not_show">不再显示</string>
@@ -31,6 +30,16 @@
     <string name="dark_mode_summary_will_on">将在 <xliff:g name="time">%1$s</xliff:g> 开启黑暗模式</string>
     <string name="dark_mode_summary_will_off">将在 <xliff:g name="time">%1$s</xliff:g> 关闭黑暗模式</string>
     <string name="main_title">自定义黑暗模式时间</string>
+
+    <string name="feedback_send">发送邮件</string>
+    <string name="feedback_subject">AutoDark 反馈</string>
+
+    <string name="pref_bug_title">报告bug</string>
+    <string name="pref_contact">联系我</string>
+    <string name="pref_feedback_title">反馈</string>
+    <string name="pref_feedback_summary">欢迎提出任何建议</string>
+    <string name="pref_license_title">开放源代码许可</string>
+    <string name="pref_license_summary">开放源代码软件的许可详情</string>
     <string name="pref_force_dark">Force-dark 模式 (Root)</string>
     <string name="pref_force_dark_summary">由 Android 提供, 强制应用显示黑暗模式, 不建议开启, 某些应用不兼容.</string>
     <string name="pref_master_switch">主开关</string>
@@ -38,6 +47,12 @@
     <string name="pref_time_start">开启时间</string>
     <string name="pref_time_auto">在日落到日出期间开启</string>
     <string name="pref_time_auto_summary">用当前GPS 坐标计算出日落/日出时间, 需要位置服务权限.</string>
+    <string name="pref_share_title">分享</string>
+    <string name="pref_share_summary">如果你喜欢这个应用请分享给您的朋友</string>
+    <string name="pref_source_title">开源</string>
+    <string name="pref_source_summary">在Github 查看源代码</string>
+    <string name="pref_version">版本号</string>
+
     <string name="root_check_failed">获取 Root 权限失败</string>
     <string name="root_description">如果你的设备拥有 Root 权限, 现在就可授权.</string>
     <string name="root_grant">授权</string>

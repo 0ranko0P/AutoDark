@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/app_about">
+
+        <Preference
+            android:key="pref_share"
+            android:summary="@string/pref_share_summary"
+            android:title="@string/pref_share_title" />
+
+        <Preference
+            android:summary="@string/pref_source_summary"
+            android:title="@string/pref_source_title">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="@string/app_github_page" />
+        </Preference>
+
+        <Preference
+            android:key="pref_license"
+            android:summary="@string/pref_license_summary"
+            android:title="@string/pref_license_title" />
+
+        <Preference
+            android:key="pref_ver"
+            android:title="@string/pref_version" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_contact">
+        <Preference
+            android:key="pref_feedback"
+            android:summary="@string/pref_feedback_summary"
+            android:title="@string/pref_feedback_title" />
+
+        <Preference android:title="@string/pref_bug_title">
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:data="@string/app_github_issue_page" />
+        </Preference>
+    </PreferenceCategory>
+</PreferenceScreen>

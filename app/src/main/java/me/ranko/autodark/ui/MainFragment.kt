@@ -143,6 +143,15 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier,
         return true
     }
 
+    override fun onPreferenceTreeClick(preference: Preference): Boolean {
+        return if (preference.key == "pref_about") {
+            AboutFragment.replace(activity!!.supportFragmentManager, R.id.container, "about")
+            true
+        } else {
+            super.onPreferenceTreeClick(preference)
+        }
+    }
+
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == REQUEST_LOCATION_PERMISSION) {
             if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {

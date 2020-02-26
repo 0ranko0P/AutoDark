@@ -30,9 +30,6 @@
             android:title="@string/pref_force_dark" />
     </PreferenceCategory>
 
-    <Preference android:title="@string/app_about">
-        <intent
-            android:action="android.intent.action.VIEW"
-            android:data="https://github.com/0ranko0P/AutoDark" />
-    </Preference>
+    <Preference android:title="@string/app_about"
+        android:key="pref_about"/>
 </PreferenceScreen>
