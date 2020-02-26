@@ -36,9 +36,9 @@
     <string name="adb_title">Przyznaj uprawnienia z użyciem ADB</string>
     <string name="adb_description">Użyj swojego komputera by przyznać uprawnienia."
         "\n Na początku proszę przeczytać tę instrukcję: <a href="https://greenify.uservoice.com/knowledgebase/articles/749142-how-to-grant-permissions-required-by-some-features">guide</a> (jest napisana dla Greenify, lecz działanie jest takie same)."
-        "\n Po przeczytaniu instrukcji i zapoznaniu się z ADB, naciśnij przycisk 'Wyślij komendę' i prześlij (bądź przepisz) ją na swój komputer."
-        "\n Następnie wykonaj komendę by przyznać uprawnienia aplikacji.
-        "\n Pod koniec naciśnij przycisk 'Sprawdź' by zakończyć proces."
+        "\n Po przeczytaniu instrukcji i zapoznaniu się z ADB, naciśnij przycisk \'Wyślij komendę\' i prześlij (bądź przepisz) ją na swój komputer."
+        "\n Następnie wykonaj komendę by przyznać uprawnienia aplikacji."
+        "\n Pod koniec naciśnij przycisk \'Sprawdź\' by zakończyć proces."
     </string>
 
     <string name="adb_send">Wyślij komendę</string>
