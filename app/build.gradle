@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.android.gms.oss-licenses-plugin'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'kotlin-android-extensions'
@@ -62,6 +63,9 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$ver_kotlin_coroutines"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$ver_kotlin_coroutines"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$ver_kotlin_coroutines"
+
+    // oss-licenses
+    implementation "com.google.android.gms:play-services-oss-licenses:$ver_oss"
 
     // ViewModel
     implementation "androidx.lifecycle:lifecycle-common-java8:$ver_lifecycle_extensions"
