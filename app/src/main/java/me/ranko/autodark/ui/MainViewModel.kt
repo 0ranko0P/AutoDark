@@ -124,9 +124,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private var isDialogShowed = false
 
-    private val job = Job()
-    private val uiScope = CoroutineScope(Dispatchers.Main.plus(job))
-
     /**
      * Called when fab on main activity has been clicked
      * */
@@ -156,7 +153,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         switch.set(if (status) DarkSwitch.ON else DarkSwitch.OFF)
 
         // delay 260ms to let button animation finish
-        uiScope.launch {
+        viewModelScope.launch {
             delay(260L)
             val adjusted = if (status) {
                 darkSettings.setAllAlarm()
@@ -220,7 +217,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Called when auto mode is clicked
      * */
     @RequiresPermission(allOf = [android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION])
-    fun onAutoModeClicked() = uiScope.launch(Dispatchers.Main) {
+    fun onAutoModeClicked() = viewModelScope.launch(Dispatchers.Main) {
         val application = getApplication<AutoDarkApplication>()
         val locationUtil = DarkLocationUtil.getInstance(application)
 
@@ -246,7 +243,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * @see     Constant.COMMAND_SET_FORCE_DARK_OFF
      * @see     Constant.COMMAND_SET_FORCE_DARK_ON
      * */
-    suspend fun triggerForceDark(enabled: Boolean) = uiScope.launch {
+     fun triggerForceDark(enabled: Boolean) = viewModelScope.launch {
         _forceDarkStatus.value = JOB_STATUS_PENDING
 
         // Use shizuku if available
@@ -263,7 +260,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _requirePermission.value = false
     }
 
-    fun updateForceDarkTitle() = uiScope.launch {
+    fun updateForceDarkTitle() = viewModelScope.launch {
         _forceDarkStatus.value = JOB_STATUS_PENDING
 
         if (ShizukuApi.checkShizuku() && checkShizukuPermission()) {
@@ -330,11 +327,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private fun saveSwitch(status: Boolean) {
         sp.edit().putBoolean(SP_KEY_MASTER_SWITCH, status).apply()
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        job.cancel()
     }
 
     companion object {

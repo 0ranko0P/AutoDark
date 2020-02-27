@@ -22,9 +22,6 @@ fun AndroidViewModel.checkShizukuPermission(): Boolean =
 
 class PermissionViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val sudoJob = Job()
-    private val uiScope = CoroutineScope(Dispatchers.Main.plus(sudoJob))
-
     /**
      * Progress that indicates grant with root permission job status
      *
@@ -44,7 +41,7 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
         _permissionResult.value = checkPermissionGranted()
     }
 
-    fun grantWithRoot() = uiScope.launch {
+    fun grantWithRoot() = viewModelScope.launch {
         sudoJobStatus.set(JOB_STATUS_PENDING)
 
         delay(800L) // Show progress longer
@@ -64,7 +61,7 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
         Timber.d("Root job finished, result: %s", isRooted)
     }
 
-    fun grantWithShizuku() = uiScope.launch {
+    fun grantWithShizuku() = viewModelScope.launch {
         shizukuJobStatus.set(JOB_STATUS_PENDING)
 
         val result = try {
@@ -85,11 +82,6 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
         // dismiss dialog if rooted
         _permissionResult.value = result
         Timber.d("Shizuku job finished, result: %s", result)
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        sudoJob.cancel()
     }
 
     companion object {

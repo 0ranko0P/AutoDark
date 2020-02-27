@@ -71,6 +71,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-common-java8:$ver_lifecycle_extensions"
     implementation "androidx.lifecycle:lifecycle-extensions:$ver_lifecycle_extensions"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$ver_lifecycle_extensions"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$ver_lifecycle_extensions"
 
     // Logging
     implementation "com.jakewharton.timber:timber:$ver_timber"
