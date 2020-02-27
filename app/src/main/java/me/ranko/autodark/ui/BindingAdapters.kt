@@ -12,8 +12,12 @@ import me.ranko.autodark.R
 import me.ranko.autodark.Utils.ViewUtil
 
 @BindingAdapter("setActiveImg")
-fun setActiveImg(fab: FloatingActionButton, enabled: Boolean) {
-    val icon = if (enabled) R.drawable.ic_on else R.drawable.ic_off
+fun setActiveImg(fab: FloatingActionButton, status: DarkSwitch) {
+    val icon = when (status) {
+        DarkSwitch.ON -> R.drawable.ic_on
+        DarkSwitch.OFF -> R.drawable.ic_off
+        DarkSwitch.SHARE -> R.drawable.ic_send
+    }
     fab.setImageResource(icon)
 }
 

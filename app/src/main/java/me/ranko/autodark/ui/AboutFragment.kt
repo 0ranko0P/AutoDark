@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import androidx.annotation.IdRes
 import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.ViewModelProvider
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
@@ -19,6 +20,13 @@ import me.ranko.autodark.R
  * @author  0ranko0P
  * */
 class AboutFragment : PreferenceFragmentCompat() {
+
+    private val viewModel: MainViewModel by lazy {
+        val context = requireNotNull(activity) { "Call after activity created!" }
+        ViewModelProvider(context, MainViewModel.Companion.Factory(context.application)).get(
+            MainViewModel::class.java
+        )
+    }
 
     companion object {
         const val PREFERENCE_KEY_FEEDBACK = "pref_feedback"
@@ -51,7 +59,14 @@ class AboutFragment : PreferenceFragmentCompat() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        viewModel.onAboutPageChanged(true)
+
         findPreference<Preference>(PREFERENCE_KEY_VERSION)!!.summary = BuildConfig.VERSION_NAME
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        viewModel.onAboutPageChanged(false)
     }
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {

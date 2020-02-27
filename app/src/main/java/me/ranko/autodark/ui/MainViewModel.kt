@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import androidx.annotation.RequiresPermission
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.ObservableBoolean
 import androidx.databinding.ObservableField
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
@@ -34,6 +33,12 @@ import me.ranko.autodark.databinding.DialogBottomResstrictedBinding
 import timber.log.Timber
 import java.time.LocalTime
 
+enum class DarkSwitch {
+    ON,
+    OFF,
+    SHARE,
+}
+
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val application = getApplication<AutoDarkApplication>()
@@ -44,11 +49,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     /**
      * Control the main switch on/off
-     * Set to *false*, all the pending alarm will be canceled.
+     * Set to [DarkSwitch.OFF], all the pending alarm will be canceled.
      *
      * @see     triggerMasterSwitch
+     * @see     DarkSwitch
      * */
-    val switch = ObservableBoolean(sp.getBoolean(SP_KEY_MASTER_SWITCH, false))
+    val switch = ObservableField<DarkSwitch>(getSwitchInSP())
 
     val _autoMode = MutableLiveData<Boolean>(darkSettings.isAutoMode())
     /**
@@ -122,20 +128,32 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val uiScope = CoroutineScope(Dispatchers.Main.plus(job))
 
     /**
+     * Called when fab on main activity has been clicked
+     * */
+    fun onFabClicked() {
+        when (switch.get()) {
+            DarkSwitch.ON -> triggerMasterSwitch(false)
+
+            DarkSwitch.OFF -> triggerMasterSwitch(true)
+
+            DarkSwitch.SHARE -> AboutFragment.shareApp(application)
+        }
+    }
+
+    /**
      * Turn main switch on or off
      *
      * @see    DarkModeSettings.setAllAlarm
      * @see    DarkModeSettings.cancelAllAlarm
      * */
-    fun triggerMasterSwitch() {
+    private fun triggerMasterSwitch(status: Boolean) {
         if (!checkPermissionGranted()) {
             // start permission activity
             _requirePermission.value = true
             return
         }
 
-        val status = !switch.get()
-        switch.set(status)
+        switch.set(if (status) DarkSwitch.ON else DarkSwitch.OFF)
 
         // delay 260ms to let button animation finish
         uiScope.launch {
@@ -156,7 +174,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
 
-        sp.edit().putBoolean(SP_KEY_MASTER_SWITCH, status).apply()
+        saveSwitch(status)
     }
 
     /**
@@ -168,7 +186,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * @see     UiModeManager.getNightMode
      * */
     private fun makeTriggeredSummary(): Summary? {
-        return if (!switch.get()) {
+        return if (switch.get() == DarkSwitch.OFF) {
             // Show dark mode disabled summary
             newSummary(R.string.dark_mode_disabled)
         } else if (darkSettings.isAutoMode()) {
@@ -187,6 +205,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val displayTime = DarkTimeUtil.getDisplayFormattedString(time)
             val actionStr = application.getString(R.string.dark_mode_summary_action)
             Summary(application.getString(textRes, displayTime), actionStr, summaryAction)
+        }
+    }
+
+    fun onAboutPageChanged(isShowing: Boolean) {
+        if (isShowing) {
+            switch.set(DarkSwitch.SHARE)
+        } else {
+            switch.set(getSwitchInSP())
         }
     }
 
@@ -296,6 +322,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val mBehavior = BottomSheetBehavior.from(binding.root.parent as ViewGroup)
             setOnShowListener { mBehavior.peekHeight = binding.root.height }
         }
+    }
+
+    private fun getSwitchInSP():DarkSwitch {
+        return if (sp.getBoolean(SP_KEY_MASTER_SWITCH, false)) DarkSwitch.ON else DarkSwitch.OFF
+    }
+
+    private fun saveSwitch(status: Boolean) {
+        sp.edit().putBoolean(SP_KEY_MASTER_SWITCH, status).apply()
     }
 
     override fun onCleared() {

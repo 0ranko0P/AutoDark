@@ -7,7 +7,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
 import androidx.databinding.Observable
-import androidx.databinding.ObservableBoolean
+import androidx.databinding.ObservableField
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.Preference
@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.R
-import me.ranko.autodark.core.*
+import me.ranko.autodark.core.DarkPreferenceSupplier
 import me.ranko.autodark.ui.Preference.DarkDisplayPreference
 import timber.log.Timber
 
@@ -51,8 +51,13 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier,
      * */
     private val onSwitchChangedCallback = object : Observable.OnPropertyChangedCallback() {
         override fun onPropertyChanged(sender: Observable, propertyId: Int) {
-            val enabled = (sender as ObservableBoolean).get()
-            setTimePreferenceEnabled(enabled)
+            when ((sender as ObservableField<*>).get() as DarkSwitch) {
+                DarkSwitch.SHARE -> return
+
+                DarkSwitch.ON -> setTimePreferenceEnabled(true)
+
+                DarkSwitch.OFF -> setTimePreferenceEnabled(false)
+            }
         }
     }
 
@@ -120,7 +125,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier,
             endPreference.isVisible = !result
 
             // enable time preference status
-            setTimePreferenceEnabled(viewModel.switch.get())
+            setTimePreferenceEnabled(viewModel.switch.get() == DarkSwitch.ON)
         })
     }
 
