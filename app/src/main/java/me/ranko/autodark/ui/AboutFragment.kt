@@ -36,10 +36,11 @@ class AboutFragment : PreferenceFragmentCompat() {
 
         fun replace(manager: FragmentManager, @IdRes container: Int, name: String?) {
             val fragment = AboutFragment()
-            val transaction = manager.beginTransaction()
-            transaction.replace(container, fragment)
-            if (name != null) transaction.addToBackStack(name)
-            transaction.commit()
+            manager.beginTransaction()
+                .setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit)
+                .replace(container, fragment)
+                .addToBackStack(name)
+                .commit()
         }
 
         fun shareApp(context: Context) {
