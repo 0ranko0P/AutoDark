@@ -16,7 +16,7 @@ buildscript {
         ver_oss_plugin = "0.10.1"
         ver_preference = "1.1.0"
         ver_rikka_design = "3.1.8"
-        ver_shizuku = "3.1.0-alpha3"
+        ver_shizuku = "3.1.0-alpha4"
         ver_sunrise_cal = "1.2"
         ver_support = "1.0.0"
         ver_timber = "4.7.1"
