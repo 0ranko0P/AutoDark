@@ -48,7 +48,7 @@
     <string name="pref_time_auto">在日落到日出期间开启</string>
     <string name="pref_time_auto_summary">用当前GPS 坐标计算出日落/日出时间, 需要位置服务权限.</string>
     <string name="pref_share_title">分享</string>
-    <string name="pref_share_summary">如果你喜欢这个应用请分享给您的朋友</string>
+    <string name="pref_share_summary">分享应用如果你喜欢它</string>
     <string name="pref_source_title">开源</string>
     <string name="pref_source_summary">在Github 查看源代码</string>
     <string name="pref_version">版本号</string>

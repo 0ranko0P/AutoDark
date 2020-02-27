@@ -1,5 +1,6 @@
 package me.ranko.autodark.ui
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -32,6 +33,15 @@ class AboutFragment : PreferenceFragmentCompat() {
             if (name != null) transaction.addToBackStack(name)
             transaction.commit()
         }
+
+        fun shareApp(context: Context) {
+            val intent = Intent(Intent.ACTION_SEND)
+            intent.type = "text/plain"
+            intent.putExtra(Intent.EXTRA_TEXT, context.getString(R.string.app_github_page))
+            context.startActivity(
+                Intent.createChooser(intent, context.getString(R.string.adb_share_text))
+            )
+        }
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -62,14 +72,7 @@ class AboutFragment : PreferenceFragmentCompat() {
                 startActivity(Intent.createChooser(intent, getString(R.string.feedback_send)))
             }
 
-            PREFERENCE_KEY_SHARE -> {
-                val intent = Intent(Intent.ACTION_SEND)
-                intent.type = "text/plain"
-                intent.putExtra(Intent.EXTRA_TEXT, getString(R.string.app_github_page))
-                startActivity(
-                    Intent.createChooser(intent, getString(R.string.adb_share_text))
-                )
-            }
+            PREFERENCE_KEY_SHARE -> shareApp(context!!)
 
             PREFERENCE_KEY_LICENSE -> {
                 startActivity(Intent(context, OssLicensesMenuActivity::class.java))

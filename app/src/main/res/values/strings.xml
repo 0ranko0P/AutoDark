@@ -40,7 +40,7 @@
     <string name="pref_force_dark">Force dark mode (Root)</string>
     <string name="pref_force_dark_summary">Provided by Android, force apps into dark mode \nNot recommended, will set some apps on fire.</string>
     <string name="pref_share_title">Share</string>
-    <string name="pref_share_summary">Share to your friends if you like the app</string>
+    <string name="pref_share_summary">If you Like it, Share it</string>
     <string name="pref_source_title">Open source</string>
     <string name="pref_source_summary">View source code at Github</string>
     <string name="pref_version">Version</string>
