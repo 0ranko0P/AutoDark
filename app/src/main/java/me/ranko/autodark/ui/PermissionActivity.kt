@@ -26,6 +26,14 @@ import timber.log.Timber
 class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutListener {
     private lateinit var binding: PermissionActivityBinding
 
+    /**
+     * Coordinates that circle animate starts
+     * **Nullable** if Activity started without Animation
+     *
+     * @see     PermissionActivity.startWithAnimationForResult
+     * */
+    private var coordinate: IntArray? = null
+
     private val viewModel: PermissionViewModel by lazy {
         ViewModelProvider(this, PermissionViewModel.Companion.Factory(application)).get(
             PermissionViewModel::class.java
@@ -36,8 +44,11 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
         super.onCreate(savedInstanceState)
         if (!ViewUtil.isLandscape(this)) ViewUtil.setImmersiveNavBar(window)
 
-        // replace default transition
-        overridePendingTransition(R.anim.do_not_move, R.anim.do_not_move)
+        coordinate = intent.getIntArrayExtra(ARG_COORDINATE)
+        if ( coordinate != null) {
+            // replace default transition
+            overridePendingTransition(R.anim.do_not_move, R.anim.do_not_move)
+        }
 
         binding = DataBindingUtil.setContentView(this, R.layout.permission_activity)
         binding.lifecycleOwner = this
@@ -54,7 +65,7 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
             }
         })
 
-        if (savedInstanceState == null) {
+        if (savedInstanceState == null && coordinate != null) {
             val viewTreeObserver = binding.coordRoot.viewTreeObserver
             if (viewTreeObserver.isAlive) {
                 viewTreeObserver.addOnGlobalLayoutListener(this)
@@ -94,8 +105,7 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
 
     override fun onGlobalLayout() {
         binding.coordRoot.viewTreeObserver.removeOnGlobalLayoutListener(this)
-        val coordinate = intent.getIntArrayExtra(ARG_COORDINATE)!!
-        val animator = CircularAnimationUtil.buildAnimator(coordinate, binding.coordRoot)
+        val animator = CircularAnimationUtil.buildAnimator(coordinate!!, binding.coordRoot)
         showRootView()
         animator.duration = resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
         animator.doOnEnd {
