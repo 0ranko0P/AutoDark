@@ -355,7 +355,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         fun isComponentEnabled(context: Context, receiver: Class<*>): Boolean {
             val component = ComponentName(context, receiver)
             val status = context.packageManager.getComponentEnabledSetting(component)
-            return status <= PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+            return status == PackageManager.COMPONENT_ENABLED_STATE_ENABLED
         }
     }
 }

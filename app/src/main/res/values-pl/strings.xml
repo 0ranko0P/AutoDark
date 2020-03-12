@@ -59,4 +59,6 @@
     <string name="permission_description">AutoDark potrzebuje uprawnień, by zmienić systemowy tryb nocny. Użyj jednej z poniższych metod, by przyznać uprawnienia.</string>
     <string name="permission_granted">Uprawnienia przyznane.</string>
     <string name="permission_failed">Nie udało się przyznać uprawnień!</string>
+
+    <string name="tile_dark_theme">Ciemny motyw</string>
 </resources>

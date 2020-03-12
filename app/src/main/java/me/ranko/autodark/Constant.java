@@ -7,6 +7,8 @@ import java.lang.annotation.RetentionPolicy;
 
 public final class Constant {
 
+    public static final String BRAND_ONE_PLUS = "OnePlus";
+
     public static final String SP_KEY_MASTER_SWITCH = "switch";
 
     public static final String SP_AUTO_TIME_SUNRISE = "sunrise";

@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 
 import androidx.lifecycle.AndroidViewModel;
 
+import me.ranko.autodark.Services.DarkModeTileService;
 import me.ranko.autodark.core.DebugTree;
 import me.ranko.autodark.core.ReleaseTree;
 import moe.shizuku.api.ShizukuClientHelper;
@@ -28,6 +29,8 @@ public final class AutoDarkApplication extends Application {
         } else {
             Timber.plant(ReleaseTree.INSTANCE);
         }
+
+        DarkModeTileService.setUp(this);
     }
 
     @Override

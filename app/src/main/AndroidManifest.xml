@@ -51,5 +51,17 @@
             android:name=".ui.PermissionActivity"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.TransparentActionBar" />
+
+        <service
+            android:name=".Services.DarkModeTileService"
+            android:icon="@drawable/ic_dark_theme"
+            android:label="@string/tile_dark_theme"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:enabled="false">
+
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>
