@@ -77,6 +77,8 @@ class AboutFragment : PreferenceFragmentCompat() {
                 val systemInfo = StringBuilder(divider)
                     .append("\nApp version: ${BuildConfig.VERSION_NAME}")
                     .append("\nAndroid SDK: ${Build.VERSION.RELEASE} (${Build.VERSION.SDK_INT})")
+                    .append("\nMANUFACTURER: ${Build.MANUFACTURER}")
+                    .append("\nBrand: ${Build.BRAND}")
                     .append(divider)
                     .toString()
 
