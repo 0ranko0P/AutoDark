@@ -59,15 +59,12 @@ class DarkModeTileService : TileService() {
 
     companion object {
         @JvmStatic
-        fun isOnePlus() = true//android.os.Build.BRAND.contains(Constant.BRAND_ONE_PLUS, true)
-
-        @JvmStatic
         fun setUp(context: Context) {
-            val isOnePlus = isOnePlus()
+            val isOnePlus = AutoDarkApplication.isOnePlus()
             if (!isOnePlus) return
 
             Timber.d("Device is ${Constant.BRAND_ONE_PLUS}, enable tile service")
-            if (MainViewModel.isComponentEnabled(context, DarkModeTileService::class.java)) {
+            if (AutoDarkApplication.isComponentEnabled(context, DarkModeTileService::class.java)) {
                 Timber.v("Tile service enabled")
             } else {
                 Timber.v("Tile service disabled, enabling.")

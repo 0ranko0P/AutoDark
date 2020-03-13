@@ -2,9 +2,6 @@ package me.ranko.autodark.ui
 
 import android.app.Application
 import android.app.UiModeManager
-import android.content.ComponentName
-import android.content.Context
-import android.content.pm.PackageManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,8 +13,11 @@ import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.ranko.autodark.AutoDarkApplication
+import me.ranko.autodark.AutoDarkApplication.isComponentEnabled
 import me.ranko.autodark.Constant
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.R
@@ -351,11 +351,5 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
              * */
             var action: View.OnClickListener?
         )
-
-        fun isComponentEnabled(context: Context, receiver: Class<*>): Boolean {
-            val component = ComponentName(context, receiver)
-            val status = context.packageManager.getComponentEnabledSetting(component)
-            return status == PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-        }
     }
 }

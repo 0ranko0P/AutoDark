@@ -1,6 +1,7 @@
 package me.ranko.autodark;
 
 import android.app.Application;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 
@@ -61,5 +62,15 @@ public final class AutoDarkApplication extends Application {
 
     public static boolean checkSelfPermission(AndroidViewModel viewModel, String permission) {
         return viewModel.getApplication().checkCallingOrSelfPermission(permission) == PackageManager.PERMISSION_GRANTED;
+    }
+
+    public static boolean isOnePlus() {
+        return true;//android.os.Build.BRAND.toUpperCase().contains(Constant.BRAND_ONE_PLUS);
+    }
+
+    public static boolean isComponentEnabled(Context context, Class<?> target) {
+        ComponentName component = new ComponentName(context, target);
+        int status = context.getPackageManager().getComponentEnabledSetting(component);
+        return status != PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
     }
 }
