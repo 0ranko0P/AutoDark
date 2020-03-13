@@ -14,7 +14,6 @@ import me.ranko.autodark.Constant
 import me.ranko.autodark.Constant.PERMISSION_WRITE_SECURE_SETTINGS
 import me.ranko.autodark.R
 import me.ranko.autodark.core.DarkModeSettings
-import me.ranko.autodark.ui.MainViewModel
 import me.ranko.autodark.ui.PermissionActivity
 import timber.log.Timber
 
@@ -61,19 +60,18 @@ class DarkModeTileService : TileService() {
         @JvmStatic
         fun setUp(context: Context) {
             val isOnePlus = AutoDarkApplication.isOnePlus()
-            if (!isOnePlus) return
+            if (isOnePlus) return
 
-            Timber.d("Device is ${Constant.BRAND_ONE_PLUS}, enable tile service")
             if (AutoDarkApplication.isComponentEnabled(context, DarkModeTileService::class.java)) {
-                Timber.v("Tile service enabled")
-            } else {
-                Timber.v("Tile service disabled, enabling.")
+                Timber.d("Not ${Constant.BRAND_ONE_PLUS}, disabling tile service")
 
                 context.packageManager.setComponentEnabledSetting(
                     ComponentName(context, DarkModeTileService::class.java),
-                    PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+                    PackageManager.COMPONENT_ENABLED_STATE_DISABLED
                     , PackageManager.DONT_KILL_APP
                 )
+            } else {
+                Timber.v("Tile service disabled")
             }
         }
     }

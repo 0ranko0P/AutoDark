@@ -65,7 +65,7 @@ public final class AutoDarkApplication extends Application {
     }
 
     public static boolean isOnePlus() {
-        return true;//android.os.Build.BRAND.toUpperCase().contains(Constant.BRAND_ONE_PLUS);
+        return android.os.Build.BRAND.toUpperCase().contains(Constant.BRAND_ONE_PLUS);
     }
 
     public static boolean isComponentEnabled(Context context, Class<?> target) {

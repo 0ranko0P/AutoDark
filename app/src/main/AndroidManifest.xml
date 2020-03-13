@@ -57,7 +57,7 @@
             android:icon="@drawable/ic_dark_theme"
             android:label="@string/tile_dark_theme"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
-            android:enabled="false">
+            android:enabled="true">
 
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
