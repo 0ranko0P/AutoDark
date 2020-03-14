@@ -37,8 +37,12 @@ class AboutFragment : PreferenceFragmentCompat() {
         fun replace(manager: FragmentManager, @IdRes container: Int, name: String?) {
             val fragment = AboutFragment()
             manager.beginTransaction()
-                .setCustomAnimations(R.anim.enter, R.anim.exit, R.anim.pop_enter, R.anim.pop_exit)
-                .replace(container, fragment)
+                .setCustomAnimations(
+                    android.R.anim.fade_in,
+                    android.R.anim.fade_out,
+                    android.R.anim.fade_in,
+                    android.R.anim.fade_out
+                ).replace(container, fragment)
                 .addToBackStack(name)
                 .commit()
         }
