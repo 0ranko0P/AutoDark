@@ -56,7 +56,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * */
     val switch = ObservableField<DarkSwitch>(getSwitchInSP())
 
-    val _autoMode = MutableLiveData<Boolean>(darkSettings.isAutoMode())
+    private val _autoMode = MutableLiveData<Boolean>(darkSettings.isAutoMode())
     /**
      * Control the auto mode switch
      * */
@@ -227,8 +227,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         } else {
             val result = darkSettings.triggerAutoMode()
             val message =
-                if (result) R.string.dark_mode_summary_auto_on else R.string.app_location_failed
-            summaryText.set(newSummary(message))
+                if (result) makeTriggeredSummary() else newSummary(R.string.app_location_failed)
+            summaryText.set(message)
         }
 
         // send auto mode status as result
