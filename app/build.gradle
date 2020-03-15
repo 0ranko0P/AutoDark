@@ -75,6 +75,9 @@ dependencies {
     // Shizuku
     implementation "moe.shizuku.privilege:api:$ver_shizuku"
 
+    // Simple License Display
+    implementation "com.marcdonald:simplelicensedisplay:$ver_license"
+
     // Rikka design library
     implementation "moe.shizuku.support:design:$ver_rikka_design"
 
