@@ -12,8 +12,6 @@ buildscript {
         ver_kotlin_coroutines = "1.3.3"
         ver_material = "1.2.0-alpha04"
         ver_navigation = '2.1.0-beta02'
-        ver_oss = "17.0.0"
-        ver_oss_plugin = "0.10.1"
         ver_preference = "1.1.0"
         ver_rikka_design = "3.1.8"
         ver_shizuku = "3.1.0-alpha4"
@@ -31,7 +29,6 @@ buildscript {
     dependencies {
         classpath "com.android.tools.build:gradle:$ver_gradle"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$ver_kotlin"
-        classpath "com.google.android.gms:oss-licenses-plugin:$ver_oss_plugin"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
