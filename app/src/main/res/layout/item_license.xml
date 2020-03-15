@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="license"
+            type="me.ranko.autodark.ui.License" />
+    </data>
+
+    <com.marcdonald.simplelicensedisplay.SimpleLicenseDisplay
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:elevation="8dp"
+        app:bindLicense="@{license}"
+        app:sldLicense="bug"
+        app:sldTitle="bug"
+        app:sldTitleEllipsize="middle"
+        app:sldTitleMaxLines="1" />
+</layout>

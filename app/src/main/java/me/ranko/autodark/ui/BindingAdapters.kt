@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.marcdonald.simplelicensedisplay.SimpleLicenseDisplay
 import me.ranko.autodark.Constant
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.ViewUtil
@@ -45,4 +46,15 @@ fun setAppBarPadding(v: AppBarLayout, viewModel: PermissionViewModel) {
 fun setLinearViewPadding(v: LinearLayout, viewModel: PermissionViewModel) {
     val top = v.paddingTop + ViewUtil.getStatusBarHeight(v.resources)
     v.setPadding(v.paddingLeft, top, v.paddingRight, v.paddingBottom)
+}
+
+@BindingAdapter("bindLicense")
+fun setLicense(v: SimpleLicenseDisplay, license: License) {
+    val licenseView = v.findViewById<TextView>(com.marcdonald.simplelicensedisplay.R.id.txt_license_license)
+    licenseView.text = license.license
+    licenseView.visibility = View.VISIBLE
+
+    val titleView = v.findViewById<TextView>(com.marcdonald.simplelicensedisplay.R.id.txt_license_title)
+    titleView.text = license.name
+    titleView.visibility = View.VISIBLE
 }

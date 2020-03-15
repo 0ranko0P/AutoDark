@@ -10,7 +10,6 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import com.google.android.gms.oss.licenses.OssLicensesMenuActivity
 import me.ranko.autodark.BuildConfig
 import me.ranko.autodark.R
 
@@ -97,7 +96,7 @@ class AboutFragment : PreferenceFragmentCompat() {
             PREFERENCE_KEY_SHARE -> shareApp(context!!)
 
             PREFERENCE_KEY_LICENSE -> {
-                startActivity(Intent(context, OssLicensesMenuActivity::class.java))
+                startActivity(Intent(context, LicenseActivity::class.java))
             }
         }
         return super.onPreferenceTreeClick(preference)

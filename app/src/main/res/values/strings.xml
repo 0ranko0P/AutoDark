@@ -24,6 +24,8 @@
     <string name="feedback_send">Send Email</string>
     <string name="feedback_divider" translatable="false">\n----------------</string>
     <string name="feedback_subject">AutoDark Feedback</string>
+    <string name="license_apache_2.0" translatable="false">Apache 2.0</string>
+    <string name="license_apache_2.0_url" translatable="false">https://www.apache.org/licenses/LICENSE-2.0.txt</string>
 
     <string name="pref_bug_title">Report a bug</string>
     <string name="pref_contact">Contact me</string>
