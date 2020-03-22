@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name" translatable="false">AutoDark</string>
     <string name="app_about">Über AutoDark</string>
     <string name="app_confirm">OK</string>
     <string name="app_later">Später erinnern</string>
-    <string name="app_ranko_email" translatable="false">ranko0p@outlook.com</string>
-    <string name="app_github_page" translatable="false">https://github.com/0ranko0P/AutoDark</string>
-    <string name="app_github_issue_page" translatable="false">https://github.com/0ranko0P/AutoDark/issues</string>
     <string name="app_do_not_show">Nicht erneut zeigen</string>
     <string name="app_location_failed">Standort ist nicht verfügbar, bitte Zeit manuell konfigurieren.</string>
     <string name="app_location_disabled">Standort ist ausgeschaltet.</string>
@@ -22,10 +18,7 @@
     <string name="app_restricted_warning">Probleme erkannt</string>
 
     <string name="feedback_send">Email senden</string>
-    <string name="feedback_divider" translatable="false">\n----------------</string>
     <string name="feedback_subject">AutoDark Feedback</string>
-    <string name="license_apache_2.0" translatable="false">Apache 2.0</string>
-    <string name="license_apache_2.0_url" translatable="false">https://www.apache.org/licenses/LICENSE-2.0.txt</string>
 
     <string name="pref_bug_title">Einen Fehler melden</string>
     <string name="pref_contact">Mich kontaktieren</string>
@@ -72,7 +65,6 @@
     <string name="root_grant">Berechtigung erteilen</string>
     <string name="root_check_failed">Root Berechtigung wurde abgelehnt!</string>
 
-    <string name="shizuku_title" translatable="false">Shizuku</string>
     <string name="shizuku_description">Berechtigung mittels Shizuku erteilen.</string>
     <string name="shizuku_not_install">Shizuku ist nicht installiert!</string>
     <string name="shizuku_service_not_running">Shizuku-Service läuft nicht!</string>
