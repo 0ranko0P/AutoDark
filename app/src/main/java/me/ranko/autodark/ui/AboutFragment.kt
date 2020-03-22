@@ -52,6 +52,7 @@ class AboutFragment : PreferenceFragmentCompat() {
             intent.putExtra(Intent.EXTRA_TEXT, context.getString(R.string.app_github_page))
             context.startActivity(
                 Intent.createChooser(intent, context.getString(R.string.adb_share_text))
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
         }
     }
