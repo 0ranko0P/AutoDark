@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.widget.Toast
+import androidx.annotation.StringDef
 import androidx.databinding.Observable
 import androidx.databinding.ObservableField
 import androidx.lifecycle.Observer
@@ -19,11 +20,12 @@ import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.R
 import me.ranko.autodark.core.DarkPreferenceSupplier
+import me.ranko.autodark.ui.MainFragment.Companion.DARK_PREFERENCE_END
+import me.ranko.autodark.ui.MainFragment.Companion.DARK_PREFERENCE_START
 import me.ranko.autodark.ui.Preference.DarkDisplayPreference
 import timber.log.Timber
 
-class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier,
-    Preference.OnPreferenceClickListener {
+class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
 
     private lateinit var darkTimeCategory: PreferenceCategory
     private lateinit var startPreference: DarkDisplayPreference
@@ -35,6 +37,11 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier,
         val PERMISSIONS_LOCATION = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
 
         const val REQUEST_LOCATION_PERMISSION = 12
+        const val DARK_PREFERENCE_ABOUT = "pref_about"
+        const val DARK_PREFERENCE_AUTO = "dark_mode_auto"
+        const val DARK_PREFERENCE_START = "dark_mode_time_start"
+        const val DARK_PREFERENCE_END = "dark_mode_time_end"
+        const val DARK_PREFERENCE_FORCE = "dark_mode_force"
 
         private fun checkLocationPermission(context: Context): Boolean {
             return AutoDarkApplication.checkSelfPermission(context, PERMISSIONS_LOCATION[0]) &&
@@ -109,8 +116,6 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier,
 
         viewModel.updateForceDarkTitle()
 
-        autoPreference.onPreferenceClickListener = this
-
         viewModel.autoMode.observe(viewLifecycleOwner, Observer<Boolean> { result ->
             autoPreference.isChecked = result
             // hide custom time preferences when using auto mode
@@ -130,7 +135,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier,
      * @see     MainViewModel.onAutoModeClicked
      * */
     @SuppressLint("MissingPermission")
-    override fun onPreferenceClick(preference: Preference?): Boolean {
+    private fun onAutoPreferenceClick(): Boolean {
         if (checkLocationPermission(context!!)) {
             // disable time preference now
             setTimePreferenceEnabled(false)
@@ -142,11 +147,16 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier,
     }
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
-        return if (preference.key == "pref_about") {
-            AboutFragment.replace(activity!!.supportFragmentManager, R.id.container, "about")
-            true
-        } else {
-            super.onPreferenceTreeClick(preference)
+        return when (preference.key) {
+
+            DARK_PREFERENCE_ABOUT -> {
+                AboutFragment.replace(activity!!.supportFragmentManager, R.id.container, "about")
+                true
+            }
+
+            DARK_PREFERENCE_AUTO -> onAutoPreferenceClick()
+
+            else -> super.onPreferenceTreeClick(preference)
         }
     }
 
@@ -156,7 +166,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier,
                 Toast.makeText(context!!, R.string.permission_failed, Toast.LENGTH_SHORT).show()
                 autoPreference.isChecked = false
             } else {
-                autoPreference.performClick()
+                onPreferenceTreeClick(autoPreference)
             }
         }
     }

@@ -9,6 +9,7 @@ import android.content.Intent
 import android.provider.Settings
 import android.widget.Toast
 import androidx.annotation.RequiresPermission
+import androidx.annotation.StringDef
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.preference.Preference
@@ -27,6 +28,9 @@ import me.ranko.autodark.Utils.DarkTimeUtil
 import me.ranko.autodark.Utils.DarkTimeUtil.getPersistFormattedString
 import me.ranko.autodark.Utils.DarkTimeUtil.getTodayOrNextDay
 import me.ranko.autodark.Utils.ShellJobUtil
+import me.ranko.autodark.ui.MainFragment.Companion.DARK_PREFERENCE_END
+import me.ranko.autodark.ui.MainFragment.Companion.DARK_PREFERENCE_FORCE
+import me.ranko.autodark.ui.MainFragment.Companion.DARK_PREFERENCE_START
 import me.ranko.autodark.ui.Preference.DarkDisplayPreference
 import moe.shizuku.api.ShizukuApiConstants
 import moe.shizuku.api.ShizukuClientHelper
@@ -36,6 +40,10 @@ import java.time.LocalTime
 interface DarkPreferenceSupplier {
     fun get(type: String): DarkDisplayPreference
 }
+
+@StringDef(DARK_PREFERENCE_START, DARK_PREFERENCE_END)
+@kotlin.annotation.Retention(AnnotationRetention.SOURCE)
+annotation class DARK_JOB_TYPE
 
 /**
  *  Dark mode Controller
