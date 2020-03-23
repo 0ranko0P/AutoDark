@@ -42,6 +42,7 @@
     <string name="pref_license_summary">开放源代码软件的许可详情</string>
     <string name="pref_force_dark">Force-dark 模式 (Root)</string>
     <string name="pref_force_dark_summary">由 Android 提供, 强制应用显示黑暗模式, 不建议开启, 某些应用不兼容.</string>
+    <string name="pref_trans_title">翻译者</string>
     <string name="pref_master_switch">主开关</string>
     <string name="pref_time_end">关闭时间</string>
     <string name="pref_time_start">开启时间</string>

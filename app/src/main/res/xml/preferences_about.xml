@@ -17,6 +17,10 @@
         </Preference>
 
         <Preference
+            android:key="pref_trans"
+            android:title="@string/pref_trans_title" />
+
+        <Preference
             android:key="pref_license"
             android:summary="@string/pref_license_summary"
             android:title="@string/pref_license_title" />

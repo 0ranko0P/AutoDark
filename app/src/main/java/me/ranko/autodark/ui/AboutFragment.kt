@@ -1,11 +1,14 @@
 package me.ranko.autodark.ui
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.widget.TextView
 import androidx.annotation.IdRes
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.Preference
@@ -31,6 +34,7 @@ class AboutFragment : PreferenceFragmentCompat() {
         const val PREFERENCE_KEY_FEEDBACK = "pref_feedback"
         const val PREFERENCE_KEY_LICENSE = "pref_license"
         const val PREFERENCE_KEY_SHARE = "pref_share"
+        const val PREFERENCE_KEY_TRANSLATORS = "pref_trans"
         const val PREFERENCE_KEY_VERSION = "pref_ver"
 
         fun replace(manager: FragmentManager, @IdRes container: Int, name: String?) {
@@ -95,6 +99,16 @@ class AboutFragment : PreferenceFragmentCompat() {
             }
 
             PREFERENCE_KEY_SHARE -> shareApp(context!!)
+
+            PREFERENCE_KEY_TRANSLATORS -> {
+                AlertDialog.Builder(activity!!)
+                    .setTitle(R.string.pref_trans_title)
+                    .setView(android.R.layout.simple_list_item_1)
+                    .setPositiveButton(R.string.app_confirm) { dialog, _ -> (dialog as AlertDialog).dismiss() }
+                    .show()
+                    .findViewById<TextView>(android.R.id.text1)!!
+                    .setText(R.string.app_translators_list)
+            }
 
             PREFERENCE_KEY_LICENSE -> {
                 startActivity(Intent(context, LicenseActivity::class.java))
