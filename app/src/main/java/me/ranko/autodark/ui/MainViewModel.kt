@@ -225,10 +225,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (!darkSettings.isAutoMode() && !locationUtil.isEnabled()) {
             summaryText.set(newSummary(R.string.app_location_disabled))
         } else {
+            val old = darkSettings.isDarkMode() ?: false
             val result = darkSettings.triggerAutoMode()
-            val message =
-                if (result) makeTriggeredSummary() else newSummary(R.string.app_location_failed)
-            summaryText.set(message)
+            if (result) {
+                // send delay message if dark mode changed
+                if (old.xor(darkSettings.isDarkMode() ?: false)) {
+                    hasDelayedMessage = true
+                } else {
+                    summaryText.set(makeTriggeredSummary())
+                }
+            } else {
+                summaryText.set(newSummary(R.string.app_location_failed))
+            }
         }
 
         // send auto mode status as result
