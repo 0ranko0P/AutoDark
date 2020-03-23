@@ -5,11 +5,14 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
 import androidx.databinding.ObservableField
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.preference.PreferenceFragmentCompat
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
@@ -17,11 +20,13 @@ import me.ranko.autodark.R
 import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.databinding.MainActivityBinding
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), FragmentManager.OnBackStackChangedListener {
     private lateinit var viewModel: MainViewModel
     private lateinit var binding: MainActivityBinding
 
     private var restrictedDialog: BottomSheetDialog? = null
+
+    private var bottomNavHeight = 0
 
     private val summaryTextListener = object : Observable.OnPropertyChangedCallback() {
         override fun onPropertyChanged(sender: Observable, propertyId: Int) {
@@ -62,6 +67,16 @@ class MainActivity : AppCompatActivity() {
         val transaction = supportFragmentManager.beginTransaction()
         transaction.replace(R.id.container, MainFragment())
         transaction.commit()
+
+        // get navBar height then set it as bottom padding to RecyclerView
+        // to avoid RecyclerView covered by navBar
+        supportFragmentManager.addOnBackStackChangedListener(this)
+        ViewCompat.setOnApplyWindowInsetsListener(window!!.decorView.rootView) { v, insets ->
+            bottomNavHeight = insets.systemWindowInsetBottom
+            onBackStackChanged()
+            v.setOnApplyWindowInsetsListener(null)
+            insets.consumeSystemWindowInsets()
+        }
     }
 
     override fun onResumeFragments() {
@@ -102,7 +117,20 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         viewModel.summaryText.removeOnPropertyChangedCallback(summaryTextListener)
+        supportFragmentManager.removeOnBackStackChangedListener(this)
 
         super.onDestroy()
+    }
+
+    private fun applyNavigationBarInsets(paddingBottom: Int, fragment: PreferenceFragmentCompat) {
+        fragment.listView.clipToPadding = false
+        fragment.listView.setPadding(0, 0, 0, paddingBottom)
+    }
+
+    override fun onBackStackChanged() {
+        applyNavigationBarInsets(
+            bottomNavHeight,
+            supportFragmentManager.findFragmentById(R.id.container) as PreferenceFragmentCompat
+        )
     }
 }
