@@ -298,6 +298,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val silence = sp.getBoolean(SP_RESTRICTED_SILENCE, isDialogShowed)
         if (silence && !isRestricted) return null
 
+        // show only once on normal case
+        if(isDialogShowed && !isRestricted) return null
+
         isDialogShowed = true
 
         return BottomSheetDialog(activity, R.style.AppTheme_BottomSheetDialogDayNight).apply {
