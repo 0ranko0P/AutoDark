@@ -316,8 +316,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             setContentView(binding.root)
             // workaround on landscape mode
-            val mBehavior = BottomSheetBehavior.from(binding.root.parent as ViewGroup)
-            setOnShowListener { mBehavior.peekHeight = binding.root.height }
+            if (ViewUtil.isLandscape(activity)) {
+                val mBehavior = BottomSheetBehavior.from(binding.root.parent as ViewGroup)
+                setOnShowListener { mBehavior.peekHeight = binding.root.height }
+            }
         }
     }
 
