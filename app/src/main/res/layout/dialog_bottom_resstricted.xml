@@ -11,7 +11,6 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
         android:background="?attr/colorOnBackground"
         android:orientation="vertical">
 
@@ -56,6 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
             android:enabled="@{!viewModel.restricted}"
             android:text="@string/app_do_not_show" />
     </LinearLayout>
