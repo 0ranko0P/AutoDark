@@ -45,7 +45,7 @@
 {n:"com.jakewharton.timber:timber",li:"",url:""}
 {n:"com.luckycatlabs:SunriseSunsetCalculator",li:"",url:""}
 {n:"com.marcdonald:simplelicensedisplay",li:"MIT",url:"https://github.com/MarcDonald/SimpleLicenseDisplay/blob/master/LICENSE.md"}
-{n:"moe.shizuku.privilege:api",li:"MIT",url:"https://github.com/RikkaApps/libraries/blob/master/LICENSE"}
+{n:"moe.shizuku.privilege:api",li:"",url:""}
 {n:"moe.shizuku.support:design",li:"MIT",url:"https://github.com/RikkaApps/libraries/blob/master/LICENSE"}
 {n:"org.jetbrains.kotlinx:kotlin-android-extensions-runtime",li:"",url:""}
 {n:"org.jetbrains.kotlinx:kotlin-stdlib",li:"",url:""}
