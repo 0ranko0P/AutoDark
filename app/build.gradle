@@ -80,9 +80,6 @@ dependencies {
     // Simple License Display
     implementation "com.marcdonald:simplelicensedisplay:$ver_license"
 
-    // Rikka design library
-    implementation "moe.shizuku.support:design:$ver_rikka_design"
-
     // Sunrise Sunset calculator
     implementation "com.luckycatlabs:SunriseSunsetCalculator:$ver_sunrise_cal"
 }
