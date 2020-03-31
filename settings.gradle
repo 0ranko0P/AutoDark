@@ -1,2 +1,7 @@
 include ':app'
+include ':hidden-api-common'
+project(':hidden-api-common').projectDir = new File('Shizuku-API/hidden-api-common')
+include ':shared'
+project(':shared').projectDir = new File('Shizuku-API/shared')
+include ':Shizuku-API:api'
 rootProject.name='AutoDark'

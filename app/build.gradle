@@ -72,8 +72,10 @@ dependencies {
     // Logging
     implementation "com.jakewharton.timber:timber:$ver_timber"
 
-    // Shizuku
-    implementation "moe.shizuku.privilege:api:$ver_shizuku"
+    // Shizuku API
+    // Build from source to bypass F-Droid scanner
+    // implementation "moe.shizuku.privilege:api:$ver_shizuku"
+    implementation project(':Shizuku-API:api')
 
     // Simple License Display
     implementation "com.marcdonald:simplelicensedisplay:$ver_license"

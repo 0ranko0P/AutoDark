@@ -15,7 +15,6 @@ buildscript {
         ver_navigation = '2.1.0-beta02'
         ver_preference = "1.1.0"
         ver_rikka_design = "3.1.8"
-        ver_shizuku = "3.1.0-alpha4"
         ver_sunrise_cal = "1.2"
         ver_support = "1.0.0"
         ver_timber = "4.7.1"
@@ -40,11 +39,17 @@ allprojects {
         google()
         jcenter()
         maven { url 'https://jitpack.io' }
-        maven { url 'https://dl.bintray.com/rikkaw/Shizuku' }
-        maven { url 'https://dl.bintray.com/rikkaw/Libraries' }
     }
 }
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+// Shizuku-API version def here
+ext {
+    minSdkVersion = 21
+    targetSdkVersion = 29
+
+    apiVersionName = '3.1.0'
 }
