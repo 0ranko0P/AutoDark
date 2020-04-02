@@ -1,32 +1,50 @@
 package me.ranko.autodark.core
 
+import android.Manifest
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.pm.IPackageManager
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import me.ranko.autodark.AutoDarkApplication.isShizukuV3Failed
+import me.ranko.autodark.BuildConfig
 import me.ranko.autodark.Exception.CommandExecuteError
 import me.ranko.autodark.Utils.ShellJobUtil
-import moe.shizuku.api.ShizukuService
+import moe.shizuku.api.*
+import timber.log.Timber
+
+enum class ShizukuStatus {
+    NOT_INSTALL, DEAD, UNAUTHORIZED,
+    /**
+     * Indicates Shizuku is running and authorized
+     * operate on this status only
+     * */
+    AVAILABLE
+}
 
 object ShizukuApi {
 
-    suspend fun checkShizuku(): Boolean {
-        // Shizuku v3 service will send binder via Content Provider to this process when this activity comes foreground.
+    private val mManager:IPackageManager by lazy {
+        IPackageManager.Stub.asInterface(ShizukuBinderWrapper(SystemServiceHelper.getSystemService("package")))
+    }
 
-        // Wait a few seconds here for binder
+    suspend fun checkShizuku(context: Context): ShizukuStatus {
+        if(!ShizukuClientHelper.isManagerV3Installed(context)) return ShizukuStatus.NOT_INSTALL
 
-        delay(1000L)
-        return if (!ShizukuService.pingBinder()) {
-            if (isShizukuV3Failed()) {
-                // provider started with no binder included, binder calls blocked by SELinux or server dead, should never happened
-                // notify user
+        if (!checkPermission(context)) return ShizukuStatus.UNAUTHORIZED
+
+        return withContext(Dispatchers.IO) {
+            if (ShizukuService.pingBinder()) {
+                // Shizuku v3 binder received
+                Timber.d("checkShizuku: binder received")
+                ShizukuStatus.AVAILABLE
+            } else {
+                // Shizuku v3 may not running, notify user
+                Timber.d("checkShizuku: Failed to pingBinder ")
+                ShizukuStatus.DEAD
             }
-
-            // Shizuku v3 may not running, notify user
-            false
-        } else {
-            // Shizuku v3 binder received
-            true
         }
     }
 
@@ -58,4 +76,22 @@ object ShizukuApi {
             process?.destroy()
         }
     }
+
+    fun startManagerActivity(context: Context){
+        val intent = Intent().setComponent(
+            ComponentName(
+                ShizukuApiConstants.MANAGER_APPLICATION_ID,
+                "moe.shizuku.manager.MainActivity"
+            )
+        )
+        ContextCompat.startActivity(context, intent, null)
+    }
+
+
+    fun grantWithShizuku() {
+        mManager.grantRuntimePermission(BuildConfig.APPLICATION_ID, Manifest.permission.WRITE_SECURE_SETTINGS, android.os.Process.ROOT_UID)
+    }
+
+    fun checkPermission(context: Context): Boolean =
+        ContextCompat.checkSelfPermission(context, ShizukuApiConstants.PERMISSION) == PackageManager.PERMISSION_GRANTED
 }

@@ -2,63 +2,63 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_about">O aplikacji AutoDark</string>
     <string name="app_confirm">OK</string>
-    <string name="app_later">Przypomnij mi później</string>
     <string name="app_do_not_show">Nie wyświetlaj więcej</string>
+    <string name="app_later">Przypomnij mi później</string>
     <string name="app_location_failed">Lokalizacja nie jest dostępna. Proszę skonfigurować ją manualnie.</string>
     <string name="app_location_disabled">Lokalizacja jest wyłączona.</string>
-    <string name="main_title">Harmonogram trybu nocnego</string>
 
-    <string name="settings_category_dev">Funkcjonalność eksperymentalna</string>
-    <string name="settings_category_timer">Ustal czas rozpoczęcia i zakończenia.</string>
-
-    <string name="app_restricted_title">Problemy na niektórych urządzeniach</string>
     <string name="app_restricted">Niektórzy producenci (np. OnePlus) ograniczają aplikacjom możliwość działania w tle dla zaoszczędzenia baterii."
         "\nTo powoduje, że AutoDark może nie działać w tle i ustawiać trybu nocnego automatycznie. Dla rozwiązania, proszę przeczytać <a href='https://dontkillmyapp.com/'>dontkillmyapp.com</a>."
         "\nJeśli używany jest optymalizator/aplikacja oszczędzająca baterię, proszę o dodanie AutoDark do jej białej listy.</string>
+    <string name="app_restricted_title">Problemy na niektórych urządzeniach</string>
     <string name="app_restricted_warning">Wykryto problem</string>
 
-    <string name="pref_master_switch">Przełącznik główny</string>
-    <string name="pref_time_start">Godzina rozpoczęcia</string>
-    <string name="pref_time_end">Godzina zakończenia</string>
-    <string name="pref_time_auto">Od zachodu do wschodu słońca</string>
-    <string name="pref_time_auto_summary">Używa współrzędnych GPS by kalkulować czas zachodu/wschodu słońca. Wymagane jest uprawnienie dostępu do lokalizacji.</string>
-    <string name="pref_force_dark_shizuku">Wymuś tryb nocny</string>
-    <string name="pref_force_dark">Wymuś tryb nocny (root)</string>
-    <string name="pref_force_dark_summary">Dostarczane przez system Android, wymusza w aplikacjach tryb nocny.\nNiezalecane, może powodować problemy w niektórych aplikcjach.</string>
-
     <string name="dark_mode_disabled">Przełącznik główny jest wyłączony.</string>
+    <string name="dark_mode_permission_denied">Włączanie trybu nocnego nie powiodło się: brak uprawnień!</string>
+    <string name="dark_mode_summary_action">Włącz teraz</string>
     <string name="dark_mode_summary_auto_on">Włącza tryb nocny od zachodu do wschodu słońca.</string>
     <string name="dark_mode_summary_will_off">Wyłączy tryb nocny o <xliff:g name="time">%1$s</xliff:g></string>
     <string name="dark_mode_summary_will_on">Włączy tryb nocny o <xliff:g name="time">%1$s</xliff:g></string>
-    <string name="dark_mode_summary_action">Włącz teraz</string>
-    <string name="dark_mode_permission_denied">Włączanie trybu nocnego nie powiodło się: brak uprawnień!</string>
 
-    <string name="adb_title">Przyznaj uprawnienia z użyciem ADB</string>
+    <string name="feedback_send">Wysłać email</string>
+    <string name="feedback_subject">AutoDark Sprzężenie zwrotne</string>
+
+    <string name="pref_category_dev">Funkcjonalność eksperymentalna</string>
+    <string name="pref_category_time">Ustal czas rozpoczęcia i zakończenia.</string>
+    <string name="pref_force_dark_shizuku">Wymuś tryb nocny</string>
+    <string name="pref_force_dark">Wymuś tryb nocny (root)</string>
+    <string name="pref_force_dark_summary">Dostarczane przez system Android, wymusza w aplikacjach tryb nocny.\nNiezalecane, może powodować problemy w niektórych aplikcjach.</string>
+    <string name="pref_master_switch">Przełącznik główny</string>
+    <string name="pref_time_auto">Od zachodu do wschodu słońca</string>
+    <string name="pref_time_auto_summary">Używa współrzędnych GPS by kalkulować czas zachodu/wschodu słońca. Wymagane jest uprawnienie dostępu do lokalizacji.</string>
+    <string name="pref_time_start">Godzina rozpoczęcia</string>
+    <string name="pref_time_end">Godzina zakończenia</string>
+
+    <string name="adb_check">Sprawdź</string>
+    <string name="adb_check_failed">Niepowodzenie! Upewnij się, że wpisałeś komendę poprawnie.</string>
     <string name="adb_description">Użyj swojego komputera by przyznać uprawnienia."
         "\n Na początku proszę przeczytać tę instrukcję: <a href="https://greenify.uservoice.com/knowledgebase/articles/749142-how-to-grant-permissions-required-by-some-features">guide</a> (jest napisana dla Greenify, lecz działanie jest takie same)."
         "\n Po przeczytaniu instrukcji i zapoznaniu się z ADB, naciśnij przycisk \'Wyślij komendę\' i prześlij (bądź przepisz) ją na swój komputer."
         "\n Następnie wykonaj komendę by przyznać uprawnienia aplikacji."
         "\n Pod koniec naciśnij przycisk \'Sprawdź\' by zakończyć proces."
     </string>
-
     <string name="adb_send">Wyślij komendę</string>
-    <string name="adb_check">Sprawdź</string>
     <string name="adb_share_text">Prześlij używając</string>
-    <string name="adb_check_failed">Niepowodzenie! Upewnij się, że wpisałeś komendę poprawnie.</string>
-
-    <string name="root_title">Przyznaj uprawnienia używając uprawnień root.</string>
-    <string name="root_description">Jeśli posiadany jest dostęp do uprawnień root, można tak przyznać uprawnienia.</string>
-    <string name="root_grant">Przyznaj uprawnienia</string>
-    <string name="root_check_failed">Uzyzkanie uprawnień root nie powiodło się!</string>
-
-    <string name="shizuku_description">Przyznaj uprawnienia używając Shizuku.</string>
-    <string name="shizuku_not_install">Shizuku nie jest zainstalowane!</string>
-    <string name="shizuku_service_not_running">Usługa Shizuku nie działa!</string>
+    <string name="adb_title">Przyznaj uprawnienia z użyciem ADB</string>
 
     <string name="permission_title">Przyznaj uprawnienia</string>
     <string name="permission_description">AutoDark potrzebuje uprawnień, by zmienić systemowy tryb nocny. Użyj jednej z poniższych metod, by przyznać uprawnienia.</string>
     <string name="permission_granted">Uprawnienia przyznane.</string>
     <string name="permission_failed">Nie udało się przyznać uprawnień!</string>
+
+    <string name="root_check_failed">Uzyzkanie uprawnień root nie powiodło się!</string>
+    <string name="root_description">Jeśli posiadany jest dostęp do uprawnień root, można tak przyznać uprawnienia.</string>
+    <string name="root_grant">Przyznaj uprawnienia</string>
+    <string name="root_title">Przyznaj uprawnienia używając uprawnień root.</string>
+
+    <string name="shizuku_description">Przyznaj uprawnienia używając Shizuku.</string>
+    <string name="shizuku_not_install">Shizuku nie jest zainstalowane!</string>
+    <string name="shizuku_service_not_running">Usługa Shizuku nie działa!</string>
 
     <string name="tile_dark_theme">Ciemny motyw</string>
 </resources>

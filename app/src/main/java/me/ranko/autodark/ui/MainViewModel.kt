@@ -29,6 +29,7 @@ import me.ranko.autodark.core.DarkModeSettings
 import me.ranko.autodark.core.DarkModeSettings.Companion.setForceDark
 import me.ranko.autodark.core.DarkModeSettings.Companion.setForceDarkByShizuku
 import me.ranko.autodark.core.ShizukuApi
+import me.ranko.autodark.core.ShizukuStatus
 import me.ranko.autodark.databinding.DialogBottomResstrictedBinding
 import timber.log.Timber
 import java.time.LocalTime
@@ -41,7 +42,7 @@ enum class DarkSwitch {
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val application = getApplication<AutoDarkApplication>()
+    private val mContext = application
 
     val darkSettings = DarkModeSettings.getInstance(application)
 
@@ -133,7 +134,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             DarkSwitch.OFF -> triggerMasterSwitch(true)
 
-            DarkSwitch.SHARE -> AboutFragment.shareApp(application)
+            DarkSwitch.SHARE -> AboutFragment.shareApp(mContext)
         }
     }
 
@@ -144,7 +145,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * @see    DarkModeSettings.cancelAllAlarm
      * */
     private fun triggerMasterSwitch(status: Boolean) {
-        if (!checkPermissionGranted()) {
+        if (!PermissionViewModel.checkSecurePermission(mContext)) {
             // start permission activity
             _requirePermission.value = true
             return
@@ -200,8 +201,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             val displayTime = DarkTimeUtil.getDisplayFormattedString(time)
-            val actionStr = application.getString(R.string.dark_mode_summary_action)
-            Summary(application.getString(textRes, displayTime), actionStr, summaryAction)
+            val actionStr = mContext.getString(R.string.dark_mode_summary_action)
+            Summary(mContext.getString(textRes, displayTime), actionStr, summaryAction)
         }
     }
 
@@ -218,8 +219,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * */
     @RequiresPermission(allOf = [android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION])
     fun onAutoModeClicked() = viewModelScope.launch(Dispatchers.Main) {
-        val application = getApplication<AutoDarkApplication>()
-        val locationUtil = DarkLocationUtil.getInstance(application)
+        val locationUtil = DarkLocationUtil.getInstance(mContext)
 
         // notify user turn location on
         if (!darkSettings.isAutoMode() && !locationUtil.isEnabled()) {
@@ -260,18 +260,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         } else {
             setForceDark(enabled)
         }
+        // wait for animation
+        delay(1000L)
         // Show force-dark job result
         _forceDarkStatus.value = if (result) JOB_STATUS_SUCCEED else JOB_STATUS_FAILED
     }
 
-    fun onRequireAdbConsumed() {
+    fun onRequirePermissionConsumed() {
         _requirePermission.value = false
     }
 
     fun updateForceDarkTitle() = viewModelScope.launch {
         _forceDarkStatus.value = JOB_STATUS_PENDING
-
-        if (ShizukuApi.checkShizuku() && checkShizukuPermission()) {
+        if (ShizukuApi.checkShizuku(mContext) == ShizukuStatus.AVAILABLE) {
             _forceDarkTile.value = R.string.pref_force_dark_shizuku
         }
         _forceDarkStatus.value = JOB_STATUS_SUCCEED
@@ -286,8 +287,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun newSummary(@StringRes message: Int) =
-        Summary(application.getString(message), null, null)
+    private fun newSummary(@StringRes message: Int) = Summary(mContext.getString(message), null, null)
 
     /**
      * Some optimize app or OEM performance boost function can disable boot receiver

@@ -13,12 +13,12 @@
     <dimen name="text_summary_padding_start">24dp</dimen>
     <dimen name="text_summary_padding_end">0dp</dimen>
 
+    <dimen name="permission_button_size">48dp</dimen>
     <dimen name="permission_title_text_size">18sp</dimen>
     <dimen name="permission_padding_expand_icon_size">32dp</dimen>
     <dimen name="permission_padding_expand_icon_margin">8dp</dimen>
     <dimen name="permission_padding_description_horizontal">16dp</dimen>
     <dimen name="permission_margin_description_vertical">16dp</dimen>
     <dimen name="permission_margin_title_start">16dp</dimen>
-    <dimen name="permission_progress_size">46dp</dimen>
-    <dimen name="permission_progress_padding">8dp</dimen>
+    <dimen name="permission_progress_padding">12dp</dimen>
 </resources>

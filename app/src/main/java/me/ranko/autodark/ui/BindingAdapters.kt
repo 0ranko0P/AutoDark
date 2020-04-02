@@ -22,13 +22,13 @@ fun setActiveImg(fab: FloatingActionButton, status: DarkSwitch) {
     fab.setImageResource(icon)
 }
 
-@BindingAdapter("onButtonSuProgress")
-fun onButtonSuProgress(v: TextView, process: Int) {
+@BindingAdapter("onButtonJobProgress")
+fun onButtonJobProgress(v: TextView, process: Int) {
     v.visibility = if (process == Constant.JOB_STATUS_PENDING) View.GONE else View.VISIBLE
 }
 
-@BindingAdapter("onSuProgress")
-fun onSuProgress(v: ProgressBar, process: Int) {
+@BindingAdapter("onJobProgress")
+fun onJobProgress(v: ProgressBar, process: Int) {
     v.visibility = if (process == Constant.JOB_STATUS_PENDING) View.VISIBLE else View.GONE
 }
 

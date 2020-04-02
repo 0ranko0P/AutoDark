@@ -85,7 +85,9 @@ data class License(
     val url: String
 )
 
-class LicenseAdapter(val listener: LicenseClickListener) : RecyclerView.Adapter<LicenseAdapter.ViewHolder>(){
+class LicenseAdapter(private val listener: LicenseClickListener) :
+    RecyclerView.Adapter<LicenseAdapter.ViewHolder>(){
+
     private var mList: List<License>? = null
 
     interface LicenseClickListener {
@@ -94,7 +96,7 @@ class LicenseAdapter(val listener: LicenseClickListener) : RecyclerView.Adapter<
 
     companion object class ViewHolder(
         val binding: ItemLicenseBinding,
-        val listener: LicenseClickListener
+        private val listener: LicenseClickListener
     ) : RecyclerView.ViewHolder(binding.root), View.OnClickListener {
         var license: License? = null
 

@@ -2,28 +2,23 @@ package me.ranko.autodark.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.widget.Toast
-import androidx.annotation.StringDef
+import android.view.View
 import androidx.databinding.Observable
 import androidx.databinding.ObservableField
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.Preference
-import androidx.preference.Preference.OnPreferenceChangeListener
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
-import me.ranko.autodark.AutoDarkApplication
-import me.ranko.autodark.Constant.*
+import com.google.android.material.snackbar.Snackbar
+import me.ranko.autodark.Constant.JOB_STATUS_FAILED
+import me.ranko.autodark.Constant.JOB_STATUS_PENDING
 import me.ranko.autodark.R
 import me.ranko.autodark.core.DarkPreferenceSupplier
-import me.ranko.autodark.ui.MainFragment.Companion.DARK_PREFERENCE_END
-import me.ranko.autodark.ui.MainFragment.Companion.DARK_PREFERENCE_START
 import me.ranko.autodark.ui.Preference.DarkDisplayPreference
-import timber.log.Timber
 
 class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
 
@@ -33,26 +28,26 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
     private lateinit var forcePreference: SwitchPreference
     private lateinit var autoPreference: SwitchPreference
 
+    // may never get clicked
+    private val aboutPreference by lazy { findPreference<Preference>(getString(R.string.pref_key_about))!! }
+
+    private val rootView by lazy { activity!!.findViewById<View>(R.id.coordinatorRoot) }
+
     companion object {
         val PERMISSIONS_LOCATION = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
 
         const val REQUEST_LOCATION_PERMISSION = 12
-        const val DARK_PREFERENCE_ABOUT = "pref_about"
+
         const val DARK_PREFERENCE_AUTO = "dark_mode_auto"
         const val DARK_PREFERENCE_START = "dark_mode_time_start"
         const val DARK_PREFERENCE_END = "dark_mode_time_end"
         const val DARK_PREFERENCE_FORCE = "dark_mode_force"
-
-        private fun checkLocationPermission(context: Context): Boolean {
-            return AutoDarkApplication.checkSelfPermission(context, PERMISSIONS_LOCATION[0]) &&
-                    AutoDarkApplication.checkSelfPermission(context, PERMISSIONS_LOCATION[1])
-        }
     }
 
     /**
      * Sync master switch status to preferences
      * */
-    private val onSwitchChangedCallback = object : Observable.OnPropertyChangedCallback() {
+    private val switchObserver = object : Observable.OnPropertyChangedCallback() {
         override fun onPropertyChanged(sender: Observable, propertyId: Int) {
             when ((sender as ObservableField<*>).get() as DarkSwitch) {
                 DarkSwitch.SHARE -> return
@@ -77,45 +72,36 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        darkTimeCategory = findPreference<PreferenceCategory>("dark_mode_category")!!
+        darkTimeCategory = findPreference(getString(R.string.pref_key_time))!!
         startPreference = darkTimeCategory.findPreference(DARK_PREFERENCE_START)!!
         endPreference = darkTimeCategory.findPreference(DARK_PREFERENCE_END)!!
-        autoPreference = darkTimeCategory.findPreference<SwitchPreference>(DARK_PREFERENCE_AUTO)!!
+        autoPreference = darkTimeCategory.findPreference(DARK_PREFERENCE_AUTO)!!
         forcePreference = findPreference(DARK_PREFERENCE_FORCE)!!
 
         startPreference.onPreferenceChangeListener = viewModel.darkSettings
         endPreference.onPreferenceChangeListener = viewModel.darkSettings
 
-        viewModel.switch.addOnPropertyChangedCallback(onSwitchChangedCallback)
-        onSwitchChangedCallback.onPropertyChanged(viewModel.switch, 0)
-
-        viewModel.forceDarkStatus.observe(viewLifecycleOwner, Observer<Int> { status ->
-            when (status) {
-                JOB_STATUS_SUCCEED -> Timber.v("Set force job successful")
-
-                JOB_STATUS_FAILED -> {
-                    forcePreference.isChecked = !forcePreference.isChecked
-                    Toast.makeText(context, R.string.root_check_failed, Toast.LENGTH_SHORT).show()
-                    Timber.v("Set force job failed")
-                }
-            }
-            forcePreference.isEnabled = status != JOB_STATUS_PENDING
-        })
+        viewModel.switch.addOnPropertyChangedCallback(switchObserver)
 
         viewModel.forceDarkTile.observe(viewLifecycleOwner, Observer<Int> { strId ->
             forcePreference.setTitle(strId)
         })
 
-        // Set job running on background, reject new value in observer
-        forcePreference.onPreferenceChangeListener = OnPreferenceChangeListener { _, newValue ->
-            viewModel.triggerForceDark(newValue.toString().toBoolean())
-            true
-        }
-
         lifecycle.addObserver(viewModel.darkSettings)
 
         viewModel.updateForceDarkTitle()
 
+        // observe force-dark job result
+        viewModel.forceDarkStatus.observe(viewLifecycleOwner, Observer<Int> { status ->
+            forcePreference.isEnabled = status != JOB_STATUS_PENDING
+            if (status == JOB_STATUS_FAILED) {
+                forcePreference.isChecked = !forcePreference.isChecked
+                Snackbar.make(rootView, R.string.root_check_failed, Snackbar.LENGTH_SHORT).show()
+            }
+        })
+
+        // observe auto mode job result
+        // also init darkTimeCategory there
         viewModel.autoMode.observe(viewLifecycleOwner, Observer<Boolean> { result ->
             autoPreference.isChecked = result
             // hide custom time preferences when using auto mode
@@ -135,26 +121,36 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
      * @see     MainViewModel.onAutoModeClicked
      * */
     @SuppressLint("MissingPermission")
-    private fun onAutoPreferenceClick(): Boolean {
-        if (checkLocationPermission(context!!)) {
+    private fun onAutoPreferenceClick() {
+        if (checkLocationPermission()) {
             // disable time preference now
             setTimePreferenceEnabled(false)
             viewModel.onAutoModeClicked()
         } else {
             requestPermissions(PERMISSIONS_LOCATION, REQUEST_LOCATION_PERMISSION)
         }
-        return true
     }
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
         return when (preference.key) {
+            DARK_PREFERENCE_START -> false
 
-            DARK_PREFERENCE_ABOUT -> {
-                AboutFragment.replace(activity!!.supportFragmentManager, R.id.container, "about")
+            DARK_PREFERENCE_END -> false
+
+            DARK_PREFERENCE_FORCE -> { // handle result in observer
+                viewModel.triggerForceDark((preference as SwitchPreference).isChecked)
                 true
             }
 
-            DARK_PREFERENCE_AUTO -> onAutoPreferenceClick()
+            DARK_PREFERENCE_AUTO -> {
+                onAutoPreferenceClick()
+                true
+            }
+
+            aboutPreference.key -> {
+                AboutFragment.replace(activity!!.supportFragmentManager, R.id.container, "about")
+                true
+            }
 
             else -> super.onPreferenceTreeClick(preference)
         }
@@ -163,26 +159,38 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == REQUEST_LOCATION_PERMISSION) {
             if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(context!!, R.string.permission_failed, Toast.LENGTH_SHORT).show()
+                Snackbar.make(rootView, R.string.permission_failed, Snackbar.LENGTH_SHORT).show()
                 autoPreference.isChecked = false
             } else {
-                onPreferenceTreeClick(autoPreference)
+                onAutoPreferenceClick()
             }
         }
     }
 
+    /**
+     * Set availability to the whole DarkTimeCategory
+     *
+     * @see     darkTimeCategory
+     * @see     Preference.setEnabled
+     * */
     private fun setTimePreferenceEnabled(isEnabled: Boolean) {
-        for (index in 0 until darkTimeCategory.preferenceCount)
-            darkTimeCategory.getPreference(index).isEnabled = isEnabled
+        if (startPreference.isEnabled.xor(isEnabled)) { // avoid unnecessary notifyDependencyChange
+            startPreference.isEnabled = isEnabled
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        viewModel.switch.removeOnPropertyChangedCallback(onSwitchChangedCallback)
+        viewModel.switch.removeOnPropertyChangedCallback(switchObserver)
         autoPreference.onPreferenceClickListener = null
     }
 
     override fun get(type: String): DarkDisplayPreference {
-        return if (type == DARK_PREFERENCE_START) startPreference else endPreference
+        return if (type == startPreference.key) startPreference else endPreference
+    }
+
+    private fun checkLocationPermission(): Boolean {
+        return activity!!.checkSelfPermission(PERMISSIONS_LOCATION[0]) == PackageManager.PERMISSION_GRANTED &&
+                activity!!.checkSelfPermission(PERMISSIONS_LOCATION[1]) == PackageManager.PERMISSION_GRANTED
     }
 }

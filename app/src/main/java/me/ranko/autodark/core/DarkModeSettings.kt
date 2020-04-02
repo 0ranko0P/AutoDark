@@ -18,7 +18,6 @@ import androidx.preference.PreferenceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.Exception.CommandExecuteError
 import me.ranko.autodark.R
@@ -32,8 +31,6 @@ import me.ranko.autodark.ui.MainFragment.Companion.DARK_PREFERENCE_END
 import me.ranko.autodark.ui.MainFragment.Companion.DARK_PREFERENCE_FORCE
 import me.ranko.autodark.ui.MainFragment.Companion.DARK_PREFERENCE_START
 import me.ranko.autodark.ui.Preference.DarkDisplayPreference
-import moe.shizuku.api.ShizukuApiConstants
-import moe.shizuku.api.ShizukuClientHelper
 import timber.log.Timber
 import java.time.LocalTime
 
@@ -81,6 +78,8 @@ class DarkModeSettings private constructor(private val context: Context) :
         private const val REQUEST_ALARM_START = 0x00B0
         private const val REQUEST_ALARM_END = REQUEST_ALARM_START.shl(1)
 
+        private const val SP_AUTO_mode = "dark_mode_auto"
+
         @Volatile
         private var INSTANCE: DarkModeSettings? = null
 
@@ -115,7 +114,7 @@ class DarkModeSettings private constructor(private val context: Context) :
                 // check return value
                 nowStatus == enabled
             } catch (e: Exception) {
-                Timber.e("Error: ${e.localizedMessage}")
+                Timber.i("Error: ${e.localizedMessage}")
                 false
             }
         }
@@ -133,7 +132,7 @@ class DarkModeSettings private constructor(private val context: Context) :
                 // check return value
                 nowStatus == enabled
             } catch (e: Exception) {
-                Timber.e("Error: ${e.localizedMessage}")
+                Timber.i("Error: ${e.localizedMessage}")
                 false
             }
         }
@@ -396,12 +395,13 @@ class DarkModeSettings private constructor(private val context: Context) :
         val endTime =
             sp.getString(if (autoMode) SP_AUTO_TIME_SUNRISE else DARK_PREFERENCE_END, null)
 
-        Timber.v("Dark boot broadcast Received, is auto mode: $autoMode")
+        Timber.v("onBootBroadcast: Switch $masterSwitch, AutoMode: $autoMode, ForceDark: $forceDark")
 
-        // no boot job to do.
         if (!masterSwitch || startTime == null || endTime == null) {
             Timber.v("No job to do.")
             return
+        } else {
+            Timber.v("onBootBroadcast: Start $startTime End: $endTime")
         }
 
         // adjust dark mode if need after boot up
@@ -412,34 +412,11 @@ class DarkModeSettings private constructor(private val context: Context) :
         )
 
         if (forceDark) {
-            val useShizuku = ShizukuClientHelper.isManagerV3Installed(context) &&
-                    AutoDarkApplication.checkSelfPermission(context, ShizukuApiConstants.PERMISSION)
-
-            Timber.v("Start Force-dark job ${if (useShizuku) "with Shizuku" else "with SU"}")
-
-            CoroutineScope(Dispatchers.IO).launch {
-                val result = if (useShizuku) {
-                    // Shizuku mode
-                    if (ShizukuApi.checkShizuku()) {
-                        setForceDarkByShizuku(true)
-                    } else {
-                        Timber.d("Shizuku was grant with ADB or dead, abort Force-dark job")
-                        Toast.makeText(context, R.string.shizuku_service_not_running, Toast.LENGTH_SHORT).show()
-                        false
-                    }
-                } else {
-                    // Root mode
-                    setForceDark(true)
-                }
-
+            CoroutineScope(Dispatchers.Default).launch {
                 // Check set job result
-                if (result)
-                    Timber.v("force-dark job succeed.")
-                else
-                    Timber.d("Failed to execute force-dark job")
+                val result = setForceDark(true)
+                Timber.v("Force-dark job ${if(result) "Succeed"  else "Failed"}")
             }
-        } else {
-            Timber.v("Force-dark is off")
         }
     }
 

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">AutoDark</string>
+    <string name="app_github_page" translatable="false">https://github.com/0ranko0P/AutoDark</string>
+    <string name="app_github_issue_page" translatable="false">https://github.com/0ranko0P/AutoDark/issues</string>
+    <string name="app_ranko_email" translatable="false">ranko0p@outlook.com</string>
+    <!-- sort in alphabetical order -->
+    <string name="app_translators_list" translatable="false">Atrate, Frauhottelmann, Ranko0P</string>
+    <string name="pref_key_about" translatable="false">prefAbout</string>
+    <string name="pref_key_time" translatable="false">prefTime</string>
+    <string name="feedback_divider" translatable="false">\n----------------</string>
+    <string name="license_apache_2.0" translatable="false">Apache 2.0</string>
+    <string name="license_apache_2.0_url" translatable="false">https://www.apache.org/licenses/LICENSE-2.0.txt</string>
+    <string name="shizuku_title" translatable="false">Shizuku</string>
+</resources>

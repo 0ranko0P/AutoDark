@@ -1,89 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name" translatable="false">AutoDark</string>
     <string name="app_about">About AutoDark</string>
     <string name="app_confirm">OK</string>
-    <string name="app_later">Remind me later</string>
-    <string name="app_ranko_email" translatable="false">ranko0p@outlook.com</string>
-    <string name="app_github_page" translatable="false">https://github.com/0ranko0P/AutoDark</string>
-    <string name="app_github_issue_page" translatable="false">https://github.com/0ranko0P/AutoDark/issues</string>
     <string name="app_do_not_show">Do not show this again</string>
+    <string name="app_later">Remind me later</string>
     <string name="app_location_failed">Location is not available now, please configure the time manually.</string>
     <string name="app_location_disabled">Location is disabled.</string>
-    <!-- sort in alphabetical order -->
-    <string name="app_translators_list" translatable="false">Atrate, Frauhottelmann, Ranko0P</string>
-    <string name="main_title">Schedule dark mode</string>
 
-    <string name="settings_category_dev">Experimental features</string>
-    <string name="settings_category_timer">Schedule start and end time.</string>
-
-    <string name="app_restricted_title">Problems on some devices</string>
     <string name="app_restricted">Some vendors (like Oneplus) restrict app background activity to optimize their battery."
         "\nThis makes AutoDark can not wake up in time and do the switch dark mode for you. Please refer to <a href='https://dontkillmyapp.com/'>dontkillmyapp.com</a> for solution."
         "\nAlso, if you are using some kind of optimizer/battery saver app, please add AutoDark to their white list.</string>
+    <string name="app_restricted_title">Problems on some devices</string>
     <string name="app_restricted_warning">Problems detected</string>
 
+    <string name="dark_mode_disabled">Master switch is off now.</string>
+    <string name="dark_mode_permission_denied">Failed to set darkMode: Permission denied!</string>
+    <string name="dark_mode_summary_action">Trigger now</string>
+    <string name="dark_mode_summary_auto_on">Will turn on dark mode from sunset to sunrise.</string>
+    <string name="dark_mode_summary_will_off">Will turn off dark mode at <xliff:g name="time">%1$s</xliff:g></string>
+    <string name="dark_mode_summary_will_on">Will turn on dark mode at <xliff:g name="time">%1$s</xliff:g></string>
+
     <string name="feedback_send">Send Email</string>
-    <string name="feedback_divider" translatable="false">\n----------------</string>
     <string name="feedback_subject">AutoDark Feedback</string>
-    <string name="license_apache_2.0" translatable="false">Apache 2.0</string>
-    <string name="license_apache_2.0_url" translatable="false">https://www.apache.org/licenses/LICENSE-2.0.txt</string>
 
     <string name="pref_bug_title">Report a bug</string>
     <string name="pref_contact">Contact me</string>
+    <string name="pref_category_dev">Experimental features</string>
+    <string name="pref_category_time">Schedule start and end time.</string>
     <string name="pref_feedback_title">Feedback</string>
     <string name="pref_feedback_summary">Any suggestions are welcome</string>
+    <string name="pref_force_dark">Force dark mode (Root)</string>
+    <string name="pref_force_dark_shizuku">Force dark mode</string>
+    <string name="pref_force_dark_summary">Provided by Android, force apps into dark mode \nNot recommended, will set some apps on fire.</string>
     <string name="pref_license_title">Open source licenses</string>
     <string name="pref_license_summary">License details for open source software</string>
     <string name="pref_master_switch">Master switch</string>
-    <string name="pref_time_start">Start time</string>
-    <string name="pref_time_end">End time</string>
     <string name="pref_time_auto">Turns on from sunset to sunrise</string>
     <string name="pref_time_auto_summary">Use your GPS coordinates to calculate sunset/sunrise time, this requires location permission.</string>
+    <string name="pref_time_start">Start time</string>
+    <string name="pref_time_end">End time</string>
     <string name="pref_trans_title">Translators</string>
-    <string name="pref_force_dark_shizuku">Force dark mode</string>
-    <string name="pref_force_dark">Force dark mode (Root)</string>
-    <string name="pref_force_dark_summary">Provided by Android, force apps into dark mode \nNot recommended, will set some apps on fire.</string>
     <string name="pref_share_title">Share</string>
     <string name="pref_share_summary">If you Like it, Share it</string>
     <string name="pref_source_title">Open source</string>
     <string name="pref_source_summary">View source code at Github</string>
     <string name="pref_version">Version</string>
 
-    <string name="dark_mode_disabled">Master switch is off now.</string>
-    <string name="dark_mode_summary_auto_on">Will turn on dark mode from sunset to sunrise.</string>
-    <string name="dark_mode_summary_will_off">Will turn off dark mode at <xliff:g name="time">%1$s</xliff:g></string>
-    <string name="dark_mode_summary_will_on">Will turn on dark mode at <xliff:g name="time">%1$s</xliff:g></string>
-    <string name="dark_mode_summary_action">Trigger now</string>
-    <string name="dark_mode_permission_denied">Failed to set darkMode: Permission denied!</string>
-
-    <string name="adb_title">Grant permission with ADB</string>
+    <!-- Permission activity -->
+    <string name="adb_check">Check</string>
+    <string name="adb_check_failed">Failed! make sure you typed right command.</string>
     <string name="adb_description">Use your PC/Mac to grant permission through ADB."
         "\n First Please read this <a href="https://greenify.uservoice.com/knowledgebase/articles/749142-how-to-grant-permissions-required-by-some-features">guide</a> (its written for Greenify but procedure are basically the same)."
         "\n After you read the guide and know how to use ADB, click the share/copy button below to send the command code to your PC/Mac."
         "\n After that, run the command to grant permission.
         "\n Finally, you can click the 'Check' button to finish this grant procedure."
     </string>
-
     <string name="adb_send">Send Command</string>
-    <string name="adb_check">Check</string>
     <string name="adb_share_text">Share with</string>
-    <string name="adb_check_failed">Failed! make sure you typed right command.</string>
-
-    <string name="root_title">Grant permission using root</string>
-    <string name="root_description">If your device is rooted, you can grant permission with root now.</string>
-    <string name="root_grant">Grant Permission</string>
-    <string name="root_check_failed">Failed to get root permission!</string>
-
-    <string name="shizuku_title" translatable="false">Shizuku</string>
-    <string name="shizuku_description">Grant permission directly using Shizuku.</string>
-    <string name="shizuku_not_install">Shizuku is not installed!</string>
-    <string name="shizuku_service_not_running">Shizuku service is not running!</string>
+    <string name="adb_title">Grant permission with ADB</string>
 
     <string name="permission_title">Grant permission</string>
     <string name="permission_description">AutoDark needs your permission to change the system dark mode. Use one of three ways below to grant that permission.</string>
     <string name="permission_granted">Permission granted</string>
     <string name="permission_failed">Failed to grant permission!</string>
+
+    <string name="root_check_failed">Failed to get root permission!</string>
+    <string name="root_description">If your device is rooted, you can grant permission with root now.</string>
+    <string name="root_grant">Grant Permission</string>
+    <string name="root_title">Grant permission using root</string>
+
+    <string name="shizuku_connect_failed">Unable to connect the Shizuku core service, please make sure it is running.</string>
+    <string name="shizuku_open_manager">Open Shizuku</string>
+    <string name="shizuku_description">Grant permission directly using Shizuku.</string>
+    <string name="shizuku_not_install">Shizuku is not installed!</string>
+    <string name="shizuku_service_not_running">Shizuku service is not running!</string>
 
     <string name="tile_dark_theme">Dark theme</string>
 </resources>

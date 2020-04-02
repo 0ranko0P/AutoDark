@@ -1,5 +1,7 @@
 package me.ranko.autodark;
 
+import android.Manifest;
+
 public final class Constant {
 
     public static final String BRAND_ONE_PLUS = "OnePlus".toUpperCase();
@@ -9,13 +11,9 @@ public final class Constant {
     public static final String SP_AUTO_TIME_SUNRISE = "sunrise";
     public static final String SP_AUTO_TIME_SUNSET = "sunset";
 
-    public static final String SP_AUTO_mode = "dark_mode_auto";
-
     public static final String SP_RESTRICTED_SILENCE = "silence";
 
-    public static final String PERMISSION_WRITE_SECURE_SETTINGS = "android.permission.WRITE_SECURE_SETTINGS";
-
-    public static final String COMMAND_GRANT_PM = "pm grant " + BuildConfig.APPLICATION_ID + " " + PERMISSION_WRITE_SECURE_SETTINGS;
+    public static final String COMMAND_GRANT_PM = "pm grant " + BuildConfig.APPLICATION_ID + " " + Manifest.permission.WRITE_SECURE_SETTINGS;
     public static final String COMMAND_GRANT_ADB = "adb -d shell " + COMMAND_GRANT_PM;
 
     /**

@@ -21,8 +21,8 @@ import me.ranko.autodark.Utils.DarkTimeUtil;
  *
  * @author 0rano0P
  */
-@SuppressWarnings({"unused", "WeakerAccess"})
-public final class DarkDisplayPreference extends Preference {
+@SuppressWarnings({"unused", "WeakerAccess", "RestrictedApi"})
+public class DarkDisplayPreference extends Preference {
 
     @Nullable
     private Dialog dialog;
@@ -125,7 +125,6 @@ public final class DarkDisplayPreference extends Preference {
         super.onRestoreInstanceState(myState.getSuperState());
         setTime(DarkTimeUtil.getPersistLocalTime(myState.mTime));
     }
-
 
     private void updateSummary() {
         setSummary(DarkTimeUtil.getDisplayFormattedString(mTime));

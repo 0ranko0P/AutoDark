@@ -11,10 +11,10 @@ import android.service.quicksettings.Tile.*
 import android.service.quicksettings.TileService
 import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant
-import me.ranko.autodark.Constant.PERMISSION_WRITE_SECURE_SETTINGS
 import me.ranko.autodark.R
 import me.ranko.autodark.core.DarkModeSettings
 import me.ranko.autodark.ui.PermissionActivity
+import me.ranko.autodark.ui.PermissionViewModel
 import timber.log.Timber
 
 /**
@@ -46,7 +46,7 @@ class DarkModeTileService : TileService() {
     }
 
     override fun onClick() {
-        if (AutoDarkApplication.checkSelfPermission(this, PERMISSION_WRITE_SECURE_SETTINGS)) {
+        if (PermissionViewModel.checkSecurePermission(this)) {
             darkSettings.setDarkMode(mTile.state != STATE_ACTIVE)
             mTile.updateTile()
         } else {

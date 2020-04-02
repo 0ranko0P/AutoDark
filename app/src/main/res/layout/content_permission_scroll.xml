@@ -65,7 +65,13 @@
                 style="@style/CardButton"
                 android:drawableStart="@drawable/ic_restart"
                 android:onClick="@{() -> viewModel.onAdbCheck()}"
-                android:text="@string/adb_check" />
+                android:text="@string/adb_check"
+                app:onButtonJobProgress="@{viewModel.adbJobStatus}"/>
+
+            <ProgressBar android:id="@+id/progressAdb"
+                style="@style/CardProgress"
+                app:onJobProgress="@{viewModel.adbJobStatus}"
+                tools:visibility="visible" />
 
             <TextView android:id="@+id/btnSend"
                 style="@style/CardButton"
@@ -91,11 +97,11 @@
                 android:drawableStart="@drawable/ic_grant"
                 android:onClick="@{() -> viewModel.grantWithRoot()}"
                 android:text="@string/root_grant"
-                app:onButtonSuProgress="@{viewModel.sudoJobStatus}" />
+                app:onButtonJobProgress="@{viewModel.sudoJobStatus}" />
 
             <ProgressBar android:id="@+id/progressRoot"
                 style="@style/CardProgress"
-                app:onSuProgress="@{viewModel.sudoJobStatus}"
+                app:onJobProgress="@{viewModel.sudoJobStatus}"
                 tools:visibility="visible" />
         </me.ranko.autodark.ui.widget.PermissionLayout>
 
@@ -111,12 +117,13 @@
             <TextView android:id="@+id/btnShizuku"
                 style="@style/CardButton"
                 android:drawableStart="@drawable/ic_grant"
+                android:onClick="onShizukuClick"
                 android:text="@string/root_grant"
-                app:onButtonSuProgress="@{viewModel.shizukuJobStatus}" />
+                app:onButtonJobProgress="@{viewModel.shizukuJobStatus}" />
 
             <ProgressBar android:id="@+id/progressShizuku"
                 style="@style/CardProgress"
-                app:onSuProgress="@{viewModel.shizukuJobStatus}"
+                app:onJobProgress="@{viewModel.shizukuJobStatus}"
                 tools:visibility="visible" />
         </me.ranko.autodark.ui.widget.PermissionLayout>
     </LinearLayout>

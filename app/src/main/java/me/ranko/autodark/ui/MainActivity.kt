@@ -30,29 +30,25 @@ class MainActivity : AppCompatActivity(), FragmentManager.OnBackStackChangedList
 
     private val summaryTextListener = object : Observable.OnPropertyChangedCallback() {
         override fun onPropertyChanged(sender: Observable, propertyId: Int) {
-            @Suppress("UNCHECKED_CAST")
-            val summary = (sender as ObservableField<MainViewModel.Companion.Summary>).get()!!
-            showSummary(summary)
+            val summary = (sender as ObservableField<*>).get()
+            showSummary(summary as MainViewModel.Companion.Summary)
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        viewModel = ViewModelProvider(this, MainViewModel.Companion.Factory(application))
-            .get(MainViewModel::class.java)
-
         binding = DataBindingUtil.setContentView(this, R.layout.main_activity)
         binding.lifecycleOwner = this
+        viewModel = ViewModelProvider(this, MainViewModel.Companion.Factory(application))
+            .get(MainViewModel::class.java)
         binding.viewModel = viewModel
 
         viewModel.summaryText.addOnPropertyChangedCallback(summaryTextListener)
-
         viewModel.requirePermission.observe(this, Observer { required ->
-            if (required) {
-                PermissionActivity.startWithAnimationForResult(binding.fab, this)
-                viewModel.onRequireAdbConsumed()
-            }
+            if(!required) return@Observer // ignore consumed signal
+            // Show permission UI now
+            PermissionActivity.startWithAnimationForResult(binding.fab, this)
+            viewModel.onRequirePermissionConsumed()
         })
 
         if (ViewUtil.isLandscape(this)) {
@@ -64,12 +60,13 @@ class MainActivity : AppCompatActivity(), FragmentManager.OnBackStackChangedList
             ViewUtil.setImmersiveNavBar(window)
         }
 
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.replace(R.id.container, MainFragment())
-        transaction.commit()
+        if (savedInstanceState == null) {
+            val transaction = supportFragmentManager.beginTransaction()
+            transaction.replace(R.id.container, MainFragment())
+            transaction.commit()
+        }
 
         // get navBar height then set it as bottom padding to RecyclerView
-        // to avoid RecyclerView covered by navBar
         supportFragmentManager.addOnBackStackChangedListener(this)
         ViewCompat.setOnApplyWindowInsetsListener(window!!.decorView.rootView) { v, insets ->
             bottomNavHeight = insets.systemWindowInsetBottom
@@ -110,6 +107,14 @@ class MainActivity : AppCompatActivity(), FragmentManager.OnBackStackChangedList
         }
     }
 
+    override fun onBackStackChanged() {
+        val frag = supportFragmentManager.findFragmentById(R.id.container) as PreferenceFragmentCompat
+        frag.listView.apply {
+            setPadding(paddingLeft, paddingTop, paddingRight, bottomNavHeight)
+            clipToPadding = false
+        }
+    }
+
     override fun onStop() {
         restrictedDialog?.run { if (isShowing) dismiss() }
         super.onStop()
@@ -118,19 +123,6 @@ class MainActivity : AppCompatActivity(), FragmentManager.OnBackStackChangedList
     override fun onDestroy() {
         viewModel.summaryText.removeOnPropertyChangedCallback(summaryTextListener)
         supportFragmentManager.removeOnBackStackChangedListener(this)
-
         super.onDestroy()
-    }
-
-    private fun applyNavigationBarInsets(paddingBottom: Int, fragment: PreferenceFragmentCompat) {
-        fragment.listView.clipToPadding = false
-        fragment.listView.setPadding(0, 0, 0, paddingBottom)
-    }
-
-    override fun onBackStackChanged() {
-        applyNavigationBarInsets(
-            bottomNavHeight,
-            supportFragmentManager.findFragmentById(R.id.container) as PreferenceFragmentCompat
-        )
     }
 }

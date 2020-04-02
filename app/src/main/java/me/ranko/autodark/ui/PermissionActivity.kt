@@ -1,6 +1,7 @@
 package me.ranko.autodark.ui
 
 import android.app.Activity
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -8,15 +9,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.animation.AnimationUtils
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.animation.doOnEnd
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.launch
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.CircularAnimationUtil
 import me.ranko.autodark.Utils.ViewUtil
+import me.ranko.autodark.core.ShizukuApi
+import me.ranko.autodark.core.ShizukuStatus
 import me.ranko.autodark.databinding.PermissionActivityBinding
 import me.ranko.autodark.ui.widget.PermissionLayout
 import moe.shizuku.api.ShizukuApiConstants
@@ -34,6 +41,8 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
      * */
     private var coordinate: IntArray? = null
 
+    private var shizukuDialog: AlertDialog? = null
+
     private val viewModel: PermissionViewModel by lazy {
         ViewModelProvider(this, PermissionViewModel.Companion.Factory(application)).get(
             PermissionViewModel::class.java
@@ -41,14 +50,13 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (!ViewUtil.isLandscape(this)) ViewUtil.setImmersiveNavBar(window)
-
         coordinate = intent.getIntArrayExtra(ARG_COORDINATE)
         if ( coordinate != null) {
             // replace default transition
             overridePendingTransition(R.anim.do_not_move, R.anim.do_not_move)
         }
+        super.onCreate(savedInstanceState)
+        if (!ViewUtil.isLandscape(this)) ViewUtil.setImmersiveNavBar(window)
 
         binding = DataBindingUtil.setContentView(this, R.layout.permission_activity)
         binding.lifecycleOwner = this
@@ -74,32 +82,57 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
             showRootView()
         }
 
-        binding.content.btnShizuku.setOnClickListener {
-            if (!ShizukuClientHelper.isManagerV3Installed(this)) {
-                Snackbar.make(binding.coordRoot, R.string.shizuku_not_install, Snackbar.LENGTH_SHORT)
-                    .show()
-                return@setOnClickListener
-            }
-
-            if (viewModel.checkShizukuPermission()) {
-                viewModel.grantWithShizuku()
-            } else {
-                requestPermissions(arrayOf(ShizukuApiConstants.PERMISSION), REQUEST_CODE_SHIZUKU_PERMISSION)
-            }
-        }
-
         moveShizukuToTop()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == REQUEST_CODE_SHIZUKU_PERMISSION) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                viewModel.grantWithShizuku()
+                onShizukuClick(null)
             } else {
                 // denied
                 Snackbar.make(binding.coordRoot, R.string.permission_failed, Snackbar.LENGTH_SHORT)
                     .show()
             }
+        }
+    }
+
+    /**
+     * Called on grant with Shizuku button clicked
+     * */
+    fun onShizukuClick(v: View?) { lifecycleScope.launch {
+        when (ShizukuApi.checkShizuku(this@PermissionActivity)) {
+
+            ShizukuStatus.DEAD -> showShizukuDeadDialog()
+
+            ShizukuStatus.NOT_INSTALL -> {
+                Snackbar.make(binding.coordRoot, R.string.shizuku_not_install, Snackbar.LENGTH_SHORT).show()
+            }
+
+            ShizukuStatus.UNAUTHORIZED -> {
+                requestPermissions(arrayOf(ShizukuApiConstants.PERMISSION), REQUEST_CODE_SHIZUKU_PERMISSION)
+            }
+
+            ShizukuStatus.AVAILABLE -> viewModel.grantWithShizuku()
+        }}
+    }
+
+    private fun showShizukuDeadDialog() {
+        val onDialogClick = DialogInterface.OnClickListener { dialog, which ->
+            dialog.dismiss()
+            if (which == DialogInterface.BUTTON_NEUTRAL)
+                ShizukuApi.startManagerActivity(this@PermissionActivity)
+        }
+
+        shizukuDialog = AlertDialog.Builder(this, R.style.SimpleDialogStyle)
+            .setView(android.R.layout.simple_list_item_1)
+            .setNeutralButton(R.string.shizuku_open_manager, onDialogClick)
+            .setPositiveButton(android.R.string.cancel, onDialogClick)
+            .show()
+        shizukuDialog?.findViewById<TextView>(android.R.id.text1)!!.apply {
+            val padding = resources.getDimensionPixelOffset(R.dimen.permission_padding_description_horizontal)
+            setText(R.string.shizuku_connect_failed)
+            setPadding(padding, padding, padding, padding)
         }
     }
 
@@ -131,6 +164,12 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
 
     private fun showRootView() {
         binding.coordRoot.visibility = View.VISIBLE
+    }
+
+    override fun onDestroy() {
+        binding.content.btnShizuku.setOnClickListener(null)
+        shizukuDialog?.dismiss()
+        super.onDestroy()
     }
 
     companion object {

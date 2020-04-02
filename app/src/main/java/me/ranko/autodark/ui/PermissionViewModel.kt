@@ -1,24 +1,21 @@
 package me.ranko.autodark.ui
 
+import android.Manifest
 import android.app.Application
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.*
-import kotlinx.coroutines.*
-import me.ranko.autodark.AutoDarkApplication
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.ShellJobUtil
 import me.ranko.autodark.core.ShizukuApi
-import moe.shizuku.api.ShizukuApiConstants
 import timber.log.Timber
-
-fun AndroidViewModel.checkPermissionGranted(): Boolean =
-    AutoDarkApplication.checkSelfPermission(this, PERMISSION_WRITE_SECURE_SETTINGS)
-
-fun AndroidViewModel.checkShizukuPermission(): Boolean =
-    AutoDarkApplication.checkSelfPermission(this, ShizukuApiConstants.PERMISSION)
 
 class PermissionViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -30,58 +27,42 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
      * @see  JOB_STATUS_PENDING
      * */
     val sudoJobStatus = ObservableInt()
-
+    val adbJobStatus = ObservableInt()
     val shizukuJobStatus = ObservableInt()
 
     private val _permissionResult = MutableLiveData<Boolean>()
     val permissionResult: LiveData<Boolean>
         get() = _permissionResult
 
-    fun onAdbCheck() {
-        _permissionResult.value = checkPermissionGranted()
-    }
+    fun onAdbCheck() = grantPermission(adbJobStatus)
 
-    fun grantWithRoot() = viewModelScope.launch {
-        sudoJobStatus.set(JOB_STATUS_PENDING)
+    fun grantWithRoot() = grantPermission(sudoJobStatus)
 
-        delay(800L) // Show progress longer
+    fun grantWithShizuku() = grantPermission(shizukuJobStatus)
 
-        val isRooted: Boolean = try {
-            ShellJobUtil.runSudoJob(COMMAND_GRANT_PM)
-            true
-        } catch (e: Exception) {
-            false
-        }
+    /**
+     * Procedure to grant secure permission
+     * */
+    private fun grantPermission(jobIndicator: ObservableInt) = viewModelScope.launch {
+        try {
+            jobIndicator.set(JOB_STATUS_PENDING)
+            when (jobIndicator) {
+                adbJobStatus -> { /* do nothing */ }
 
-        // Notify job completed
-        sudoJobStatus.set(if (isRooted) JOB_STATUS_SUCCEED else JOB_STATUS_FAILED)
+                sudoJobStatus -> ShellJobUtil.runSudoJob(COMMAND_GRANT_PM)
 
-        // dismiss dialog if rooted
-        _permissionResult.value = isRooted
-        Timber.d("Root job finished, result: %s", isRooted)
-    }
-
-    fun grantWithShizuku() = viewModelScope.launch {
-        shizukuJobStatus.set(JOB_STATUS_PENDING)
-
-        val result = try {
-            val isAvailable = ShizukuApi.checkShizuku()
-            if (isAvailable) {
-                ShizukuApi.runShizukuShell(COMMAND_GRANT_PM)
-                true
-            } else {
-                false
+                shizukuJobStatus -> ShizukuApi.grantWithShizuku()
             }
-        } catch (e: Throwable) {
-            false
+        } catch (e: Exception) {
+            Timber.d(e)
+        } finally {
+            delay(800L) // Show progress longer
+
+            // Notify permission result
+            _permissionResult.value = checkSecurePermission(getApplication())
+            // Notify job completed
+            jobIndicator.set(if (_permissionResult.value!!) JOB_STATUS_SUCCEED else JOB_STATUS_FAILED)
         }
-
-        // Notify job completed
-        shizukuJobStatus.set(if (result) JOB_STATUS_SUCCEED else JOB_STATUS_FAILED)
-
-        // dismiss dialog if rooted
-        _permissionResult.value = result
-        Timber.d("Shizuku job finished, result: %s", result)
     }
 
     companion object {
@@ -94,6 +75,12 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
                 throw IllegalArgumentException("Unable to construct viewModel")
             }
         }
+
+        fun checkSecurePermission(context: Context): Boolean =
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.WRITE_SECURE_SETTINGS
+            ) == PackageManager.PERMISSION_GRANTED
 
         @JvmStatic
         val shareAdbCommand = View.OnClickListener { v ->
