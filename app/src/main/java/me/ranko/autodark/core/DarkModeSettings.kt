@@ -120,24 +120,6 @@ class DarkModeSettings private constructor(private val context: Context) :
         }
 
         /**
-         * Same as [setForceDark] but implement by Shizuku api
-         * */
-        suspend fun setForceDarkByShizuku(enabled: Boolean): Boolean {
-            return try {
-                // Run: set force mode && get force mode
-                val setCMD = if (enabled) COMMAND_SET_FORCE_DARK_ON else COMMAND_SET_FORCE_DARK_OFF
-                val command = "$setCMD && $COMMAND_GET_FORCE_DARK"
-
-                val nowStatus = ShizukuApi.runShizukuShellForValue(command)!!.trim().toBoolean()
-                // check return value
-                nowStatus == enabled
-            } catch (e: Exception) {
-                Timber.i("Error: ${e.localizedMessage}")
-                false
-            }
-        }
-
-        /**
          * @return  current force-dark mode status
          *
          * @see     COMMAND_GET_FORCE_DARK

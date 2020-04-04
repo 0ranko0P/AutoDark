@@ -98,7 +98,6 @@ class MainActivity : AppCompatActivity(), FragmentManager.OnBackStackChangedList
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == PermissionActivity.REQUEST_CODE_PERMISSION) {
             if (resultCode == Activity.RESULT_OK) {
-                viewModel.updateForceDarkTitle()
                 Snackbar.make(binding.coordinatorRoot, R.string.permission_granted, Snackbar.LENGTH_SHORT)
                     .show()
             }

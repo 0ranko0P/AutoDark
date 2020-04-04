@@ -89,8 +89,6 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
 
         lifecycle.addObserver(viewModel.darkSettings)
 
-        viewModel.updateForceDarkTitle()
-
         // observe force-dark job result
         viewModel.forceDarkStatus.observe(viewLifecycleOwner, Observer<Int> { status ->
             forcePreference.isEnabled = status != JOB_STATUS_PENDING

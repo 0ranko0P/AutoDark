@@ -26,9 +26,6 @@ import me.ranko.autodark.Utils.DarkTimeUtil
 import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.core.DarkModeSettings
 import me.ranko.autodark.core.DarkModeSettings.Companion.setForceDark
-import me.ranko.autodark.core.DarkModeSettings.Companion.setForceDarkByShizuku
-import me.ranko.autodark.core.ShizukuApi
-import me.ranko.autodark.core.ShizukuStatus
 import me.ranko.autodark.databinding.DialogBottomResstrictedBinding
 import timber.log.Timber
 import java.time.LocalTime
@@ -252,13 +249,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * */
      fun triggerForceDark(enabled: Boolean) = viewModelScope.launch {
         _forceDarkStatus.value = JOB_STATUS_PENDING
-
-        // Use shizuku if available
-        val result = if (R.string.pref_force_dark_shizuku == forceDarkTile.value) {
-            setForceDarkByShizuku(enabled)
-        } else {
-            setForceDark(enabled)
-        }
+        val result = setForceDark(enabled)
         // wait for animation
         delay(1000L)
         // Show force-dark job result
@@ -267,14 +258,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onRequirePermissionConsumed() {
         _requirePermission.value = false
-    }
-
-    fun updateForceDarkTitle() = viewModelScope.launch {
-        _forceDarkStatus.value = JOB_STATUS_PENDING
-        if (ShizukuApi.checkShizuku(mContext) == ShizukuStatus.AVAILABLE) {
-            _forceDarkTile.value = R.string.pref_force_dark_shizuku
-        }
-        _forceDarkStatus.value = JOB_STATUS_SUCCEED
     }
 
     fun getDelayedSummary(): Summary? {
