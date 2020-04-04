@@ -43,6 +43,18 @@ android {
     }
 }
 
+// task to remove all .class generated from stub class, or app will crash if proguarded
+// if you use other plugin, you must find where the plugin generate file and delete them
+android.applicationVariants.all { variant ->
+    String taskName = String.format("remove%sStubClassesBoom", variant.name.capitalize())
+    task "${taskName}" {
+        doLast {
+            delete "${buildDir}/intermediates/javac/${variant.name}/classes/android"
+        }
+    }
+    variant.processJavaResourcesProvider.get().dependsOn(taskName)
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     testImplementation "junit:junit:$ver_junit"
