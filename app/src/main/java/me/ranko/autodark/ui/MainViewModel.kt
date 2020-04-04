@@ -16,7 +16,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.AutoDarkApplication.isComponentEnabled
 import me.ranko.autodark.Constant
 import me.ranko.autodark.Constant.*
@@ -34,10 +33,10 @@ import me.ranko.autodark.databinding.DialogBottomResstrictedBinding
 import timber.log.Timber
 import java.time.LocalTime
 
-enum class DarkSwitch {
-    ON,
-    OFF,
-    SHARE,
+enum class DarkSwitch(val id: Int) {
+    ON(1),
+    OFF(3),
+    SHARE(6),
 }
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -153,9 +152,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         switch.set(if (status) DarkSwitch.ON else DarkSwitch.OFF)
 
-        // delay 260ms to let button animation finish
+        // delay 360ms to let button animation finish
         viewModelScope.launch {
-            delay(260L)
+            delay(360L)
             val adjusted = if (status) {
                 darkSettings.setAllAlarm()
             } else {
