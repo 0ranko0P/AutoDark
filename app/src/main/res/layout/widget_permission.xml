@@ -17,14 +17,14 @@
             android:layout_height="wrap_content"
             android:duplicateParentState="true"
             android:importantForAccessibility="no"
-            android:src="@drawable/ic_adb" />
+            tools:src="@drawable/ic_adb" />
 
         <TextView android:id="@+id/title"
             style="@style/CardTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/adb_title" />
+            tools:text="@string/adb_title" />
 
         <me.ranko.autodark.ui.widget.CheckedImageView
             android:id="@+id/button"

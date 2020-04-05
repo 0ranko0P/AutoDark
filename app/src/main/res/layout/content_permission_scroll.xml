@@ -57,6 +57,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:description="@string/adb_description"
+            app:expandDescription="true"
             app:iconColor="teal"
             app:src="@drawable/ic_adb"
             app:title="@string/adb_title">
@@ -88,6 +89,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             app:description="@string/root_description"
+            app:expandDescription="true"
             app:iconColor="red"
             app:src="@drawable/ic_root"
             app:title="@string/root_title">

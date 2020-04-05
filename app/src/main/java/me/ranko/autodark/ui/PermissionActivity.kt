@@ -141,12 +141,6 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
         val animator = CircularAnimationUtil.buildAnimator(coordinate!!, binding.coordRoot)
         showRootView()
         animator.duration = resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
-        animator.doOnEnd {
-            // Expand description to let user know it is expandable
-            // first child is description card
-            val permissionCard = (binding.content.getRoot() as ViewGroup).getChildAt(1)
-            (permissionCard as PermissionLayout).onClick(null);
-        }
         animator.start()
     }
 

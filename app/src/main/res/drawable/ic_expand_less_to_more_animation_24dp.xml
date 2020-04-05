@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
-                 xmlns:tools="http://schemas.android.com/tools"
-                 android:drawable="@drawable/ic_expand_less_24dp"
-                 tools:ignore="NewApi">
-    <target
-        android:name="v"
-        android:animation="@anim/ic_expand_to_more_animation"/>
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:drawable="@drawable/ic_expand_less_24dp">
 
+    <target android:name="v">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                android:duration="100"
+                android:propertyName="pathData"
+                android:valueFrom="M6,14L12,8 L18,14L16.59,15.41L12,10.83 L7.41,15.41L6,14Z"
+                android:valueTo="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z"
+                android:valueType="pathType" />
+        </aapt:attr>
+    </target>
 </animated-vector>

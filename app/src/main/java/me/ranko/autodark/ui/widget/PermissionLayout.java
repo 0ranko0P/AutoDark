@@ -50,8 +50,11 @@ public class PermissionLayout extends LinearLayout implements View.OnClickListen
 
         mExpandableLayout = findViewById(R.id.expandable);
         if (a.hasValue(R.styleable.PermissionLayout_expandDescription)) {
-            this.isExpanded = !a.getBoolean(R.styleable.PermissionLayout_expandDescription, false);
-            onClick(null);
+            isExpanded = a.getBoolean(R.styleable.PermissionLayout_expandDescription, false);
+            if (isExpanded ^ mExpandableLayout.isExpanded()) {
+                mExpandableLayout.setExpanded(isExpanded, false);
+                mExpandableButton.setChecked(isExpanded);
+            }
         }
 
         TextView mDescription = findViewById(R.id.description);
