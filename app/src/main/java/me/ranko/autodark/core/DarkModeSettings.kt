@@ -53,9 +53,9 @@ class DarkModeSettings private constructor(private val context: Context) :
     OnPreferenceChangeListener,
     DefaultLifecycleObserver {
 
-    private val mManager:UiModeManager by lazy { context.getSystemService(UiModeManager::class.java)!! }
+    private val mManager:UiModeManager by lazy(LazyThreadSafetyMode.NONE) { context.getSystemService(UiModeManager::class.java)!! }
 
-    private val mAlarmManager: AlarmManager by lazy { context.getSystemService(Activity.ALARM_SERVICE) as AlarmManager }
+    private val mAlarmManager: AlarmManager by lazy(LazyThreadSafetyMode.NONE) { context.getSystemService(Activity.ALARM_SERVICE) as AlarmManager }
 
     private var mSupplier: DarkPreferenceSupplier? = null
 

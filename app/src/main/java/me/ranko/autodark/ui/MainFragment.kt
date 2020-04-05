@@ -29,9 +29,9 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
     private lateinit var autoPreference: SwitchPreference
 
     // may never get clicked
-    private val aboutPreference by lazy { findPreference<Preference>(getString(R.string.pref_key_about))!! }
+    private val aboutPreference by lazy(LazyThreadSafetyMode.NONE) { findPreference<Preference>(getString(R.string.pref_key_about))!! }
 
-    private val rootView by lazy { activity!!.findViewById<View>(R.id.coordinatorRoot) }
+    private val rootView by lazy(LazyThreadSafetyMode.NONE) { activity!!.findViewById<View>(R.id.coordinatorRoot) }
 
     companion object {
         val PERMISSIONS_LOCATION = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)

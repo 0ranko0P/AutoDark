@@ -22,7 +22,7 @@ import me.ranko.autodark.R
  * */
 class AboutFragment : PreferenceFragmentCompat() {
 
-    private val viewModel: MainViewModel by lazy {
+    private val viewModel: MainViewModel by lazy(LazyThreadSafetyMode.NONE) {
         val context = requireNotNull(activity) { "Call after activity created!" }
         ViewModelProvider(context, MainViewModel.Companion.Factory(context.application)).get(
             MainViewModel::class.java

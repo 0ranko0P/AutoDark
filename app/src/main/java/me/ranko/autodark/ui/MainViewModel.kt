@@ -80,7 +80,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * Action button for user to trigger dark mode manually
      * while showing summary message
      * */
-    private val summaryAction by lazy {
+    private val summaryAction by lazy(LazyThreadSafetyMode.NONE) {
         View.OnClickListener {
             val state = darkSettings.isDarkMode() ?: return@OnClickListener
             if (!darkSettings.setDarkMode(state))
@@ -117,7 +117,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val requirePermission: LiveData<Boolean>
         get() = _requirePermission
 
-    val isRestricted = !isComponentEnabled(application, DarkModeAlarmReceiver::class.java)
+    val isRestricted:Boolean by lazy(LazyThreadSafetyMode.NONE) {!isComponentEnabled(application, DarkModeAlarmReceiver::class.java) }
 
     private var isDialogShowed = false
 

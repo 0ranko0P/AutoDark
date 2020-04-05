@@ -42,7 +42,7 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
 
     private var shizukuDialog: AlertDialog? = null
 
-    private val viewModel: PermissionViewModel by lazy {
+    private val viewModel: PermissionViewModel by lazy(LazyThreadSafetyMode.NONE) {
         ViewModelProvider(this, PermissionViewModel.Companion.Factory(application)).get(
             PermissionViewModel::class.java
         )
