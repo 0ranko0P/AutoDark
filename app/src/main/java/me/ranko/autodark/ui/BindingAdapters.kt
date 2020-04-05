@@ -63,7 +63,7 @@ fun setAppBarPadding(v: AppBarLayout, viewModel: PermissionViewModel) {
 }
 
 @BindingAdapter("setLinearViewPadding")
-fun setLinearViewPadding(v: LinearLayout, viewModel: PermissionViewModel) {
+fun setLinearViewPadding(v: LinearLayout, viewModel: PermissionViewModel?) {
     val top = v.paddingTop + ViewUtil.getStatusBarHeight(v.resources)
     v.setPadding(v.paddingLeft, top, v.paddingRight, v.paddingBottom)
 }

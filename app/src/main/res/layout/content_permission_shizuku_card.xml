@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="me.ranko.autodark.ui.PermissionViewModel" />
+    </data>
+
+    <me.ranko.autodark.ui.widget.PermissionLayout
+        style="@style/CardStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:description="@string/shizuku_description"
+        app:expandDescription="true"
+        app:normalIcon="true"
+        app:src="@drawable/ic_shizuku"
+        app:title="@string/shizuku_title">
+
+        <TextView
+            android:id="@+id/btnShizuku"
+            style="@style/CardButton"
+            android:drawableStart="@drawable/ic_grant"
+            android:onClick="onShizukuClick"
+            android:text="@string/root_grant"
+            app:onButtonJobProgress="@{viewModel.shizukuJobStatus}" />
+
+        <ProgressBar
+            android:id="@+id/progressShizuku"
+            style="@style/CardProgress"
+            app:onJobProgress="@{viewModel.shizukuJobStatus}"
+            tools:visibility="visible" />
+    </me.ranko.autodark.ui.widget.PermissionLayout>
+</layout>

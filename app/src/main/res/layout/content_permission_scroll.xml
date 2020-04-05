@@ -50,6 +50,12 @@
                 android:textColor="?android:textColorSecondary" />
         </RelativeLayout>
 
+        <ViewStub android:id="@+id/stubShizukuFirst"
+            style="@style/CardStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout="@layout/content_permission_shizuku_card" />
+
         <me.ranko.autodark.ui.widget.PermissionLayout
             android:id="@+id/adb"
             style="@style/CardStyle"
@@ -107,26 +113,10 @@
                 tools:visibility="visible" />
         </me.ranko.autodark.ui.widget.PermissionLayout>
 
-        <me.ranko.autodark.ui.widget.PermissionLayout
-            android:id="@+id/shizuku"
+        <ViewStub android:id="@+id/stubShizukuLast"
             style="@style/CardStyle"
-            android:orientation="vertical"
-            app:description="@string/shizuku_description"
-            app:normalIcon="true"
-            app:src="@drawable/ic_shizuku"
-            app:title="@string/shizuku_title">
-
-            <TextView android:id="@+id/btnShizuku"
-                style="@style/CardButton"
-                android:drawableStart="@drawable/ic_grant"
-                android:onClick="onShizukuClick"
-                android:text="@string/root_grant"
-                app:onButtonJobProgress="@{viewModel.shizukuJobStatus}" />
-
-            <ProgressBar android:id="@+id/progressShizuku"
-                style="@style/CardProgress"
-                app:onJobProgress="@{viewModel.shizukuJobStatus}"
-                tools:visibility="visible" />
-        </me.ranko.autodark.ui.widget.PermissionLayout>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout="@layout/content_permission_shizuku_card" />
     </LinearLayout>
 </layout>

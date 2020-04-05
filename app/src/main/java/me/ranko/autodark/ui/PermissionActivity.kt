@@ -6,18 +6,17 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.animation.doOnEnd
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.android.synthetic.main.content_permission_scroll.view.*
 import kotlinx.coroutines.launch
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.CircularAnimationUtil
@@ -62,6 +61,8 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 
+        initShizukuCard()
+
         viewModel.permissionResult.observe(this, Observer<Boolean> { result ->
             Timber.v("Access ${if (result) "granted" else "denied"}.")
             if (result) {
@@ -81,8 +82,6 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
         } else {
             showRootView()
         }
-
-        moveShizukuToTop()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -144,15 +143,13 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
         animator.start()
     }
 
-    private fun moveShizukuToTop() {
-        if (ShizukuClientHelper.isManagerV3Installed(this)) {
-            val shizukuView = binding.content.shizuku
-            (shizukuView.parent as ViewGroup).apply {
-                removeView(shizukuView)
-                addView(shizukuView, 1)
-            }
-            val rotate = AnimationUtils.loadAnimation(this, R.anim.rotate_infinite)
-            shizukuView.titleIcon.startAnimation(rotate)
+    private fun initShizukuCard() {
+        val shizukuInstalled = ShizukuClientHelper.isManagerV3Installed(this)
+        val viewStub = (if(shizukuInstalled) binding.coordRoot.stubShizukuFirst else binding.coordRoot.stubShizukuLast)
+        val view = viewStub.inflate()
+        if (shizukuInstalled) {
+            val rotate = AnimationUtils.loadAnimation(view.context, R.anim.rotate_infinite)
+            (view as PermissionLayout).titleIcon.startAnimation(rotate)
         }
     }
 
@@ -161,7 +158,6 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
     }
 
     override fun onDestroy() {
-        binding.content.btnShizuku.setOnClickListener(null)
         shizukuDialog?.dismiss()
         super.onDestroy()
     }
