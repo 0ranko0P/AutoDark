@@ -8,7 +8,7 @@
     <string name="app_location_disabled">Location is disabled.</string>
 
     <string name="app_restricted">Some vendors (like Oneplus) restrict app background activity to optimize their battery."
-        "\nThis makes AutoDark can not wake up in time and do the switch dark mode for you. Please refer to <a href='https://dontkillmyapp.com/'>dontkillmyapp.com</a> for solution."
+        "\nThis makes AutoDark can not wake up in time and switch dark mode for you. Please refer to <a href='https://dontkillmyapp.com/'>dontkillmyapp.com</a> for solution."
         "\nAlso, if you are using some kind of optimizer/battery saver app, please add AutoDark to their white list.</string>
     <string name="app_restricted_title">Problems on some devices</string>
     <string name="app_restricted_warning">Problems detected</string>

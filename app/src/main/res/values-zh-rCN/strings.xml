@@ -15,7 +15,7 @@
 
     <string name="dark_mode_disabled">主开关已关闭</string>
     <string name="dark_mode_permission_denied">设置失败, 无权限!</string>
-    <string name="dark_mode_summary_action">切换</string>
+    <string name="dark_mode_summary_action">现在切换</string>
     <string name="dark_mode_summary_auto_on">将在日落到日出期间开启黑暗模式.</string>
     <string name="dark_mode_summary_will_on">将在 <xliff:g name="time">%1$s</xliff:g> 开启黑暗模式</string>
     <string name="dark_mode_summary_will_off">将在 <xliff:g name="time">%1$s</xliff:g> 关闭黑暗模式</string>

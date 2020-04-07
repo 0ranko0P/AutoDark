@@ -13,7 +13,11 @@ OEM builds are not supported e.g. Flyme,
 they already have this function or not compatible with their theme engine.
 
 ## Screenshots
-![Image][screen_link]
+<p align="middle">
+    <img src="https://raw.githubusercontent.com/0ranko0P/AutoDark/master/fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="256" />
+    <img src="https://raw.githubusercontent.com/0ranko0P/AutoDark/master/fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="256" />
+    <img src="https://raw.githubusercontent.com/0ranko0P/AutoDark/master/fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="256" />
+</>
 
 # License
 
@@ -40,4 +44,3 @@ they already have this function or not compatible with their theme engine.
 	SOFTWARE.
 	
 [project_link]: https://github.com/0ranko0P/AutoDark
-[screen_link]: https://raw.githubusercontent.com/0ranko0P/AutoDark/master/Screenshots/Screenshot.png
