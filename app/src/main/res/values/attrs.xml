@@ -16,7 +16,6 @@
 
     <declare-styleable name="PermissionLayout">
         <attr name="src" format="reference|color" />
-        <attr name="normalIcon" format="boolean" />
         <attr name="iconColor" format="string" />
         <attr name="expandable" format="boolean" />
         <attr name="expandDescription" format="boolean" />

@@ -17,7 +17,7 @@
         android:orientation="vertical"
         app:description="@string/shizuku_description"
         app:expandDescription="true"
-        app:normalIcon="true"
+        app:iconColor="indigo"
         app:src="@drawable/ic_shizuku"
         app:title="@string/shizuku_title">
 

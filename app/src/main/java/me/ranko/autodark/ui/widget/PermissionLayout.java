@@ -6,13 +6,13 @@ import android.text.method.LinkMovementMethod;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import java.util.Objects;
 
 import me.ranko.autodark.R;
 
@@ -23,7 +23,7 @@ public class PermissionLayout extends LinearLayout implements View.OnClickListen
 
     private boolean isExpanded;
 
-    private ImageView mIcon;
+    private MaterialCircleIconView mIcon;
 
     public PermissionLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
@@ -35,7 +35,11 @@ public class PermissionLayout extends LinearLayout implements View.OnClickListen
 
         LayoutInflater.from(context).inflate(R.layout.widget_permission, this, true);
 
-        mIcon = prepareTitleIcon(context, findViewById(R.id.titleRoot), a);
+        mIcon = findViewById(R.id.icon);
+        mIcon.setImageResource(a.getResourceId(R.styleable.PermissionLayout_src, android.R.drawable.ic_btn_speak_now));
+        if (a.hasValue(R.styleable.PermissionLayout_iconColor)) {
+            mIcon.setColorName(Objects.requireNonNull(a.getString(R.styleable.PermissionLayout_iconColor)));
+        }
 
         TextView mTitle = findViewById(R.id.title);
         if (a.hasValue(R.styleable.PermissionLayout_title))
@@ -66,27 +70,7 @@ public class PermissionLayout extends LinearLayout implements View.OnClickListen
         a.recycle();
     }
 
-    private ImageView prepareTitleIcon(Context context, ViewGroup root, TypedArray a) {
-        ImageView icon = root.findViewById(R.id.icon);
-        boolean notMaterial = a.getBoolean(R.styleable.PermissionLayout_normalIcon, false);
-        if (notMaterial) {
-            ViewGroup.LayoutParams params = icon.getLayoutParams();
-            root.removeView(icon);
-
-            icon = new ImageView(context, null, 0);
-            icon.setLayoutParams(params);
-            root.addView(icon, 0);
-        }
-
-        if (!notMaterial && a.hasValue(R.styleable.PermissionLayout_iconColor)) {
-            ((MaterialCircleIconView) icon).setColorName(a.getString(R.styleable.PermissionLayout_iconColor));
-        }
-
-        icon.setImageResource(a.getResourceId(R.styleable.PermissionLayout_src, android.R.drawable.ic_btn_speak_now));
-        return icon;
-    }
-
-    public ImageView getTitleIcon() {
+    public MaterialCircleIconView getTitleIcon() {
         return mIcon;
     }
 
