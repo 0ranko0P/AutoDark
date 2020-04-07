@@ -1,0 +1,5 @@
+A small app to let you schedule dark mode On/Off.
+
+System requirements:
+* At least Android 10.
+* OEM builds are not supported e.g. Flyme.
