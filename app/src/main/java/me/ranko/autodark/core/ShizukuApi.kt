@@ -1,7 +1,6 @@
 package me.ranko.autodark.core
 
 import android.Manifest
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.IPackageManager
@@ -77,16 +76,12 @@ object ShizukuApi {
         }
     }
 
-    fun startManagerActivity(context: Context){
-        val intent = Intent().setComponent(
-            ComponentName(
-                ShizukuApiConstants.MANAGER_APPLICATION_ID,
-                "moe.shizuku.manager.MainActivity"
-            )
-        )
+    fun startManagerActivity(context: Context): Boolean {
+        val intent = context.packageManager.getLaunchIntentForPackage(ShizukuApiConstants.MANAGER_APPLICATION_ID) ?: return false
+        intent.addCategory(Intent.CATEGORY_LAUNCHER)
         ContextCompat.startActivity(context, intent, null)
+        return true
     }
-
 
     fun grantWithShizuku() {
         mManager.grantRuntimePermission(BuildConfig.APPLICATION_ID, Manifest.permission.WRITE_SECURE_SETTINGS, android.os.Process.ROOT_UID)
