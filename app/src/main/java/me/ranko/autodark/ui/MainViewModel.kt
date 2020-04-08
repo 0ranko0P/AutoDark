@@ -17,7 +17,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.ranko.autodark.AutoDarkApplication.isComponentEnabled
-import me.ranko.autodark.Constant
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.R
 import me.ranko.autodark.Receivers.DarkModeAlarmReceiver
@@ -25,7 +24,6 @@ import me.ranko.autodark.Utils.DarkLocationUtil
 import me.ranko.autodark.Utils.DarkTimeUtil
 import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.core.DarkModeSettings
-import me.ranko.autodark.core.DarkModeSettings.Companion.setForceDark
 import me.ranko.autodark.databinding.DialogBottomResstrictedBinding
 import timber.log.Timber
 import java.time.LocalTime
@@ -87,28 +85,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 summaryText.set(newSummary(R.string.dark_mode_permission_denied))
         }
     }
-
-    private val _forceDarkStatus = MutableLiveData<Int>()
-    /**
-     * The progress that indicates the status of fore-dark switching job
-     *
-     * @see  triggerForceDark
-     * @see  JOB_STATUS_SUCCEED
-     * @see  JOB_STATUS_FAILED
-     * @see  JOB_STATUS_PENDING
-     * */
-    val forceDarkStatus: LiveData<Int>
-        get() = _forceDarkStatus
-
-    private val _forceDarkTile = MutableLiveData<Int>()
-    /**
-     * Holds a string res id for Update force-dark
-     * preference title when Shizuku is available
-     *
-     * @see    updateForceDarkTitle
-     * */
-    val forceDarkTile: LiveData<Int>
-        get() = _forceDarkTile
 
     private val _requirePermission = MutableLiveData<Boolean>()
     /**
@@ -237,23 +213,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         // send auto mode status as result
         _autoMode.value = darkSettings.isAutoMode()
-    }
-
-    /**
-     * Control force-dark mode on/off
-     * This experimental feature will be removed on further android version
-     *
-     * @see     Constant.COMMAND_GET_FORCE_DARK
-     * @see     Constant.COMMAND_SET_FORCE_DARK_OFF
-     * @see     Constant.COMMAND_SET_FORCE_DARK_ON
-     * */
-     fun triggerForceDark(enabled: Boolean) = viewModelScope.launch {
-        _forceDarkStatus.value = JOB_STATUS_PENDING
-        val result = setForceDark(enabled)
-        // wait for animation
-        delay(1000L)
-        // Show force-dark job result
-        _forceDarkStatus.value = if (result) JOB_STATUS_SUCCEED else JOB_STATUS_FAILED
     }
 
     fun onRequirePermissionConsumed() {

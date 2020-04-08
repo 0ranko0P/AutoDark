@@ -11,15 +11,17 @@ import androidx.databinding.ObservableField
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
 import com.google.android.material.snackbar.Snackbar
-import me.ranko.autodark.Constant.JOB_STATUS_FAILED
-import me.ranko.autodark.Constant.JOB_STATUS_PENDING
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.ranko.autodark.R
 import me.ranko.autodark.core.DARK_JOB_TYPE
+import me.ranko.autodark.core.DarkModeSettings
 import me.ranko.autodark.core.DarkPreferenceSupplier
 import me.ranko.autodark.ui.Preference.DarkDisplayPreference
 
@@ -90,19 +92,6 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
 
         viewModel.switch.addOnPropertyChangedCallback(switchObserver)
 
-        viewModel.forceDarkTile.observe(viewLifecycleOwner, Observer<Int> { strId ->
-            forcePreference.setTitle(strId)
-        })
-
-        // observe force-dark job result
-        viewModel.forceDarkStatus.observe(viewLifecycleOwner, Observer<Int> { status ->
-            forcePreference.isEnabled = status != JOB_STATUS_PENDING
-            if (status == JOB_STATUS_FAILED) {
-                forcePreference.isChecked = !forcePreference.isChecked
-                Snackbar.make(rootView, R.string.root_check_failed, Snackbar.LENGTH_SHORT).show()
-            }
-        })
-
         // observe auto mode job result
         // also init darkTimeCategory there
         viewModel.autoMode.observe(viewLifecycleOwner, Observer<Boolean> { result ->
@@ -134,6 +123,17 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
         }
     }
 
+    private fun onForceDarkPreferenceClick() = lifecycleScope.launch {
+        forcePreference.isEnabled = false
+        val result = DarkModeSettings.setForceDark(forcePreference.isChecked)
+        delay(600L)
+        if (!result) {
+            forcePreference.isChecked = !forcePreference.isChecked
+            Snackbar.make(rootView, R.string.root_check_failed, Snackbar.LENGTH_SHORT).show()
+        }
+        forcePreference.isEnabled = true
+    }
+
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
         return when (preference.key) {
             DARK_PREFERENCE_START -> false
@@ -141,7 +141,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
             DARK_PREFERENCE_END -> false
 
             DARK_PREFERENCE_FORCE -> { // handle result in observer
-                viewModel.triggerForceDark((preference as SwitchPreference).isChecked)
+                onForceDarkPreferenceClick()
                 true
             }
 
