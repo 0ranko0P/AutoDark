@@ -5,12 +5,7 @@ import android.os.IBinder;
 import android.os.IInterface;
 import android.os.RemoteException;
 
-import androidx.annotation.RequiresApi;
-
 public interface IPackageManager extends IInterface {
-
-    ApplicationInfo getApplicationInfo(String packageName, int flags, int userId)
-            throws RemoteException;
 
     PackageInfo getPackageInfo(String packageName, int flags, int userId)
             throws RemoteException;
@@ -18,7 +13,6 @@ public interface IPackageManager extends IInterface {
     int getPackageUid(String packageName, int userId)
             throws RemoteException;
 
-    @RequiresApi(24)
     int getPackageUid(String packageName, int flags, int userId)
             throws RemoteException;
 
@@ -45,7 +39,6 @@ public interface IPackageManager extends IInterface {
     void updatePermissionFlags(String permissionName, String packageName, int flagMask, int flagValues, int userId)
             throws RemoteException;
 
-    @RequiresApi(29)
     void updatePermissionFlags(String permissionName, String packageName, int flagMask, int flagValues, boolean checkAdjustPolicyFlagPermission, int userId)
             throws RemoteException;
 

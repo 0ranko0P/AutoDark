@@ -43,18 +43,6 @@ android {
     }
 }
 
-// task to remove all .class generated from stub class, or app will crash if proguarded
-// if you use other plugin, you must find where the plugin generate file and delete them
-android.applicationVariants.all { variant ->
-    String taskName = String.format("remove%sStubClassesBoom", variant.name.capitalize())
-    task "${taskName}" {
-        doLast {
-            delete "${buildDir}/intermediates/javac/${variant.name}/classes/android"
-        }
-    }
-    variant.processJavaResourcesProvider.get().dependsOn(taskName)
-}
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     testImplementation "junit:junit:$ver_junit"
@@ -85,9 +73,8 @@ dependencies {
     implementation "com.jakewharton.timber:timber:$ver_timber"
 
     // Shizuku API
-    // Build from source to bypass F-Droid scanner
-    // implementation "moe.shizuku.privilege:api:$ver_shizuku"
     implementation project(':Shizuku-API:api')
+    compileOnly project(':hidden-api-dark')
 
     // Simple License Display
     implementation "com.marcdonald:simplelicensedisplay:$ver_license"
