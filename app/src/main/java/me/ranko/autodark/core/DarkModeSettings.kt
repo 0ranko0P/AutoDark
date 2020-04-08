@@ -35,7 +35,7 @@ import timber.log.Timber
 import java.time.LocalTime
 
 interface DarkPreferenceSupplier {
-    fun get(type: String): DarkDisplayPreference
+    fun get(@DARK_JOB_TYPE type: String): DarkDisplayPreference
 }
 
 @StringDef(DARK_PREFERENCE_START, DARK_PREFERENCE_END)
@@ -64,7 +64,10 @@ class DarkModeSettings private constructor(private val context: Context) :
     private var isAutoMode = sp.getBoolean(SP_AUTO_mode, false)
 
     override fun onStart(owner: LifecycleOwner) {
-        mSupplier = owner as DarkPreferenceSupplier
+        mSupplier = (owner as DarkPreferenceSupplier).apply {
+            get(DARK_PREFERENCE_START).onPreferenceChangeListener = this@DarkModeSettings
+            get(DARK_PREFERENCE_START).onPreferenceChangeListener = this@DarkModeSettings
+        }
     }
 
     override fun onStop(owner: LifecycleOwner) {
@@ -243,7 +246,7 @@ class DarkModeSettings private constructor(private val context: Context) :
      * @param   type Turn the dark mode *ON/OFF*.  Either [DARK_PREFERENCE_START]
      *          or [DARK_PREFERENCE_END].
      *
-     * @see     pendingNextAlarm
+     * @see     pendingDarkAlarm
      * @see     AlarmManager.set
      * @see     DarkModeSettings.onAlarm
      * */

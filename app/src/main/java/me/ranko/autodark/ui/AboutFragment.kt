@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.widget.TextView
 import androidx.annotation.IdRes
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.Preference
@@ -22,12 +23,7 @@ import me.ranko.autodark.R
  * */
 class AboutFragment : PreferenceFragmentCompat() {
 
-    private val viewModel: MainViewModel by lazy(LazyThreadSafetyMode.NONE) {
-        val context = requireNotNull(activity) { "Call after activity created!" }
-        ViewModelProvider(context, MainViewModel.Companion.Factory(context.application)).get(
-            MainViewModel::class.java
-        )
-    }
+    private lateinit var viewModel: MainViewModel
 
     companion object {
         const val PREFERENCE_KEY_FEEDBACK = "pref_feedback"
@@ -60,16 +56,23 @@ class AboutFragment : PreferenceFragmentCompat() {
         }
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        viewModel = ViewModelProvider(
+            context as FragmentActivity,
+            MainViewModel.Companion.Factory(context.application)
+        ).get(MainViewModel::class.java)
+    }
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.preferences_about)
+        findPreference<Preference>(PREFERENCE_KEY_VERSION)!!.summary = BuildConfig.VERSION_NAME
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
         viewModel.onAboutPageChanged(true)
-
-        findPreference<Preference>(PREFERENCE_KEY_VERSION)!!.summary = BuildConfig.VERSION_NAME
     }
 
     override fun onDetach() {

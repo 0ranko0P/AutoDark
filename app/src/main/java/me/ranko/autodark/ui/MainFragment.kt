@@ -2,11 +2,13 @@ package me.ranko.autodark.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import androidx.databinding.Observable
 import androidx.databinding.ObservableField
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.Preference
@@ -17,6 +19,7 @@ import com.google.android.material.snackbar.Snackbar
 import me.ranko.autodark.Constant.JOB_STATUS_FAILED
 import me.ranko.autodark.Constant.JOB_STATUS_PENDING
 import me.ranko.autodark.R
+import me.ranko.autodark.core.DARK_JOB_TYPE
 import me.ranko.autodark.core.DarkPreferenceSupplier
 import me.ranko.autodark.ui.Preference.DarkDisplayPreference
 
@@ -59,35 +62,37 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
         }
     }
 
-    private val viewModel: MainViewModel by lazy {
-        val context = requireNotNull(activity) { "Call after activity created!" }
-        ViewModelProvider(context, MainViewModel.Companion.Factory(context.application)).get(
-            MainViewModel::class.java
-        )
+    private lateinit var viewModel: MainViewModel
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        viewModel = ViewModelProvider(
+            context as FragmentActivity,
+            MainViewModel.Companion.Factory(context.application)
+        ).get(MainViewModel::class.java)
+
+        lifecycle.addObserver(viewModel.darkSettings)
     }
 
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) =
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.preferences_main)
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
 
         darkTimeCategory = findPreference(getString(R.string.pref_key_time))!!
         startPreference = darkTimeCategory.findPreference(DARK_PREFERENCE_START)!!
         endPreference = darkTimeCategory.findPreference(DARK_PREFERENCE_END)!!
         autoPreference = darkTimeCategory.findPreference(DARK_PREFERENCE_AUTO)!!
         forcePreference = findPreference(DARK_PREFERENCE_FORCE)!!
+    }
 
-        startPreference.onPreferenceChangeListener = viewModel.darkSettings
-        endPreference.onPreferenceChangeListener = viewModel.darkSettings
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         viewModel.switch.addOnPropertyChangedCallback(switchObserver)
 
         viewModel.forceDarkTile.observe(viewLifecycleOwner, Observer<Int> { strId ->
             forcePreference.setTitle(strId)
         })
-
-        lifecycle.addObserver(viewModel.darkSettings)
 
         // observe force-dark job result
         viewModel.forceDarkStatus.observe(viewLifecycleOwner, Observer<Int> { status ->
@@ -183,8 +188,8 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
         autoPreference.onPreferenceClickListener = null
     }
 
-    override fun get(type: String): DarkDisplayPreference {
-        return if (type == startPreference.key) startPreference else endPreference
+    override fun get(@DARK_JOB_TYPE type: String): DarkDisplayPreference {
+        return if (type == DARK_PREFERENCE_START) startPreference else endPreference
     }
 
     private fun checkLocationPermission(): Boolean {
