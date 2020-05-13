@@ -81,4 +81,8 @@ dependencies {
 
     // Sunrise Sunset calculator
     implementation "com.luckycatlabs:SunriseSunsetCalculator:$ver_sunrise_cal"
+
+    // Xposed Framework API dependencies
+    compileOnly "de.robv.android.xposed:api:$ver_xposed"
+    compileOnly "de.robv.android.xposed:api:$ver_xposed:sources"
 }

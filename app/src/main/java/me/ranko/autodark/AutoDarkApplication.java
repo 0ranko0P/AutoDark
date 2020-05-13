@@ -12,6 +12,8 @@ import timber.log.Timber;
 
 public final class AutoDarkApplication extends Application {
 
+    private boolean isXposed;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -32,5 +34,9 @@ public final class AutoDarkApplication extends Application {
         ComponentName component = new ComponentName(context, target);
         int status = context.getPackageManager().getComponentEnabledSetting(component);
         return status != PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
+    }
+
+    public boolean isXposed() {
+        return isXposed;
     }
 }

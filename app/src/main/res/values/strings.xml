@@ -76,4 +76,6 @@
     <string name="shizuku_service_not_running">Shizuku service is not running!</string>
 
     <string name="tile_dark_theme">Dark theme</string>
+
+    <string name="xposed_description">This Enables Force-Dark Block list: the apps that you choose won\'t get Force-Dark (Experimental).</string>
 </resources>

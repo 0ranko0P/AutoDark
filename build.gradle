@@ -19,6 +19,7 @@ buildscript {
         ver_support = "1.0.0"
         ver_timber = "4.7.1"
         ver_junit = "4.13"
+        ver_xposed = "82"
     }
 
     repositories {
