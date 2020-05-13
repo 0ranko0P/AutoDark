@@ -2,9 +2,25 @@ package me.ranko.autodark;
 
 import android.Manifest;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 public final class Constant {
 
+    public static final String ANDROID_PACKAGE = "android";
+
+    /**
+     * Available when internal storage is encrypted
+     * SystemServer can initialize block list here
+     * */
+    public static final String APP_DATA_DIR = "/data/user_de/0/" + BuildConfig.APPLICATION_ID;
+
+    public static final Path BLOCK_LIST_PATH = Paths.get(APP_DATA_DIR + File.separator + "block.txt");
+
     public static final String BRAND_ONE_PLUS = "OnePlus".toUpperCase();
+
+    public static final String PERMISSION_DARK_BROADCAST = "me.ranko0p.permission.RECEIVE_DARK_BROADCAST";
 
     public static final String SP_KEY_MASTER_SWITCH = "switch";
 
