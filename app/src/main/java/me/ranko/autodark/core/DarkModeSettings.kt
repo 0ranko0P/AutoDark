@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.app.UiModeManager
 import android.content.Context
 import android.content.Intent
+import android.os.SystemProperties
 import android.provider.Settings
 import android.widget.Toast
 import androidx.annotation.RequiresPermission
@@ -18,6 +19,7 @@ import androidx.preference.PreferenceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import me.ranko.autodark.Constant
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.Exception.CommandExecuteError
 import me.ranko.autodark.R
@@ -109,13 +111,10 @@ class DarkModeSettings private constructor(private val context: Context) :
         suspend fun setForceDark(enabled: Boolean): Boolean {
             return try {
                 // Run: set force mode && get force mode
-                val setCMD = if (enabled) COMMAND_SET_FORCE_DARK_ON else COMMAND_SET_FORCE_DARK_OFF
-
-                val command = "$setCMD && su -c $COMMAND_GET_FORCE_DARK"
-
-                val nowStatus = ShellJobUtil.runSudoJobForValue(command)!!.trim().toBoolean()
+                val command = if (enabled) COMMAND_SET_FORCE_DARK_ON else COMMAND_SET_FORCE_DARK_OFF
+                ShellJobUtil.runSudoJob(command)
                 // check return value
-                nowStatus == enabled
+                getForceDark() == enabled
             } catch (e: Exception) {
                 Timber.i("Error: ${e.localizedMessage}")
                 false
@@ -125,18 +124,9 @@ class DarkModeSettings private constructor(private val context: Context) :
         /**
          * @return  current force-dark mode status
          *
-         * @see     COMMAND_GET_FORCE_DARK
+         * @see     Constant.SYSTEM_PROP_FORCE_DARK
          * */
-        @Throws(CommandExecuteError::class)
-        suspend fun getForceDark(): Boolean {
-            val forceDark = ShellJobUtil.runJobForValue(COMMAND_GET_FORCE_DARK)
-            return if (forceDark == null || forceDark.trim().isEmpty()) {
-                Timber.v("Force-dark settings is untouched")
-                false
-            } else {
-                forceDark.trim().toBoolean()
-            }
-        }
+        fun getForceDark(): Boolean  = SystemProperties.getBoolean(Constant.SYSTEM_PROP_FORCE_DARK, false)
     }
 
     /**
