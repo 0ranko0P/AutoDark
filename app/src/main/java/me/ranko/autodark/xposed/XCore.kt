@@ -8,21 +8,21 @@ import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import de.robv.android.xposed.IXposedHookLoadPackage
-import de.robv.android.xposed.XC_MethodHook
-import de.robv.android.xposed.XposedBridge
-import de.robv.android.xposed.XposedHelpers
+import de.robv.android.xposed.*
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.BuildConfig
+import me.ranko.autodark.Constant
 import me.ranko.autodark.Receivers.ActivityUpdateReceiver
+import me.ranko.autodark.Utils.FileUtil
+import java.nio.file.Paths
 
 /**
  * Xposed inject class
  *
  * @author  0Ranko0P
  * */
-class XCore : IXposedHookLoadPackage {
+class XCore : IXposedHookLoadPackage, IXposedHookZygoteInit {
     companion object {
 
         private const val TAG = "XCore"
@@ -50,7 +50,7 @@ class XCore : IXposedHookLoadPackage {
         private fun hookSystemService(sysClass:Class<*>) {
             XposedHelpers.findAndHookMethod(sysClass, "startCoreServices", object : XC_MethodHook() {
                 override fun afterHookedMethod(param: MethodHookParam) {
-                    var plantB = false
+                    val plantB: Boolean
                     var context: Context? = null
                     try {
                         val contextField = XposedHelpers.findField(sysClass, "mSystemContext")
@@ -106,5 +106,15 @@ class XCore : IXposedHookLoadPackage {
                 }
             })
         }
+    }
+
+    override fun initZygote(startupParam: IXposedHookZygoteInit.StartupParam) {
+        if (!startupParam.startsSystemServer) return
+
+        // chmod 770 && chgrop system
+        val darkDataDir = Paths.get(Constant.APP_DATA_DIR)
+        FileUtil.chgrop(darkDataDir, "system")
+        FileUtil.chmod(darkDataDir)
+        XposedBridge.log("initZygote: Block list permission modified")
     }
 }
