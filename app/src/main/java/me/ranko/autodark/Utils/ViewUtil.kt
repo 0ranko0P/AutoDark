@@ -7,6 +7,8 @@ import android.graphics.Paint
 import android.view.Window
 import android.view.WindowManager
 import android.widget.TextView
+import com.google.android.material.appbar.AppBarLayout
+import me.ranko.autodark.ui.PermissionViewModel
 
 /**
  * Simple view util
@@ -22,6 +24,15 @@ object ViewUtil {
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         )
+    }
+
+    fun setAppBarPadding(v: AppBarLayout) {
+        val statusBar = getStatusBarHeight(v.resources)
+        if (isLandscape(v.context)) {
+            v.setPadding(v.paddingLeft, statusBar / 2, v.paddingRight, statusBar / 2)
+        } else {
+            v.setPadding(v.paddingLeft, statusBar, v.paddingRight, v.paddingBottom)
+        }
     }
 
     /**

@@ -62,6 +62,7 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
         binding.viewModel = viewModel
 
         initShizukuCard()
+        ViewUtil.setAppBarPadding(binding.appbarPermission)
 
         viewModel.permissionResult.observe(this, Observer<Boolean> { result ->
             Timber.v("Access ${if (result) "granted" else "denied"}.")

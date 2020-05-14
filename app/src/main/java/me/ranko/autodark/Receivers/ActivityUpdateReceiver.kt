@@ -9,7 +9,7 @@ import android.util.Log
 import de.robv.android.xposed.XposedBridge
 import me.ranko.autodark.BuildConfig
 import me.ranko.autodark.Constant
-import java.nio.file.Files
+import me.ranko.autodark.Utils.FileUtil
 
 class ActivityUpdateReceiver(private val context: Context) : BroadcastReceiver() {
 
@@ -83,31 +83,12 @@ class ActivityUpdateReceiver(private val context: Context) : BroadcastReceiver()
             context.sendBroadcast(intent)
         }
 
-        @JvmStatic
-        fun readList(knowSize: Int = 16): ArrayList<String>? {
-            if (!Constant.BLOCK_LIST_PATH.toFile().exists()) {
-                Log.d(TAG, "onReadList: File not exists or readable")
-                return null
-            }
-
-            val list = ArrayList<String>(knowSize)
-            try {
-                Files.readAllLines(Constant.BLOCK_LIST_PATH).forEach {
-                    list.add(it)
-                }
-                return list
-            } catch (e: Exception) {
-                Log.d(TAG, "onReadList: " + Log.getStackTraceString(e))
-                return null
-            }
-        }
-
         private fun isForceDark() = SystemProperties.getBoolean(Constant.SYSTEM_PROP_FORCE_DARK, false)
     }
 
     init {
         val time = System.currentTimeMillis()
-        readList()?.let {
+        FileUtil.readList(Constant.BLOCK_LIST_PATH)?.let {
             mBlockList.addAll(it)
             XposedBridge.log("onInit: Load block list: ${mBlockList.size}, time: ${System.currentTimeMillis() - time}ms")
         }
@@ -148,7 +129,7 @@ class ActivityUpdateReceiver(private val context: Context) : BroadcastReceiver()
                 val newList: ArrayList<String>? = if (size <= BROADCAST_MAX_SIZE) {
                     intent.getStringArrayListExtra(EXTRA_KEY_LIST)
                 } else {
-                    readList(size)
+                    FileUtil.readList(Constant.BLOCK_LIST_PATH, size)
                 }
 
                 if (newList == null) {

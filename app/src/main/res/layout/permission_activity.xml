@@ -26,8 +26,7 @@
             android:layout_height="wrap_content"
             android:background="@color/appbar_background"
             android:fitsSystemWindows="true"
-            app:liftOnScroll="true"
-            app:setAppBarPadding="@{viewModel}">
+            app:liftOnScroll="true">
 
             <androidx.appcompat.widget.Toolbar
                 android:layout_width="match_parent"

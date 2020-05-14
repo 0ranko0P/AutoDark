@@ -1,5 +1,9 @@
 package me.ranko.autodark.Utils
 
+import android.util.Log
+import androidx.annotation.WorkerThread
+import me.ranko.autodark.Constant
+import me.ranko.autodark.Receivers.ActivityUpdateReceiver
 import java.io.IOException
 import java.nio.file.FileSystems
 import java.nio.file.Files
@@ -37,5 +41,25 @@ object FileUtil {
         val attr = PosixFilePermissions.asFileAttribute(permissions)
         Files.createFile(path, attr)
         Files.setPosixFilePermissions(path, permissions)
+    }
+
+    @JvmStatic
+    @WorkerThread
+    fun readList(path: Path, knowSize: Int = 16): ArrayList<String>? {
+        if (!path.toFile().exists()) {
+            println("onReadList: File not exists or readable: $path")
+            return null
+        }
+
+        val list = ArrayList<String>(knowSize)
+        try {
+            Files.readAllLines(Constant.BLOCK_LIST_PATH).forEach {
+                list.add(it)
+            }
+            return list
+        } catch (e: Exception) {
+            println("onReadList:${Log.getStackTraceString(e)}")
+            return null
+        }
     }
 }

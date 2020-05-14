@@ -52,16 +52,6 @@ fun onJobProgress(v: ProgressBar, process: Int) {
     v.visibility = if (process == Constant.JOB_STATUS_PENDING) View.VISIBLE else View.GONE
 }
 
-@BindingAdapter("setAppBarPadding")
-fun setAppBarPadding(v: AppBarLayout, viewModel: PermissionViewModel) {
-    val statusBar = ViewUtil.getStatusBarHeight(v.resources)
-    if (ViewUtil.isLandscape(v.context)) {
-        v.setPadding(v.paddingLeft, statusBar / 2, v.paddingRight, statusBar / 2)
-    } else {
-        v.setPadding(v.paddingLeft, statusBar, v.paddingRight, v.paddingBottom)
-    }
-}
-
 @BindingAdapter("setLinearViewPadding")
 fun setLinearViewPadding(v: LinearLayout, viewModel: PermissionViewModel?) {
     val top = v.paddingTop + ViewUtil.getStatusBarHeight(v.resources)
