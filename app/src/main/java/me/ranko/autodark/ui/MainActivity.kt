@@ -90,17 +90,15 @@ class MainActivity : AppCompatActivity(), FragmentManager.OnBackStackChangedList
     }
 
     private fun showSummary(summary: MainViewModel.Companion.Summary) {
-        val snack = Snackbar.make(binding.coordinatorRoot, summary.message, Snackbar.LENGTH_LONG)
-        summary.actionStr?.let { snack.setAction(it, summary.action) }
-        snack.show()
+        Snackbar.make(binding.coordinatorRoot, summary.message, Snackbar.LENGTH_LONG)
+                .setAction(summary.actionStr, summary.action)
+                .show()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == PermissionActivity.REQUEST_CODE_PERMISSION) {
-            if (resultCode == Activity.RESULT_OK) {
-                Snackbar.make(binding.coordinatorRoot, R.string.permission_granted, Snackbar.LENGTH_SHORT)
-                    .show()
-            }
+            if (resultCode == Activity.RESULT_OK)
+                showSummary(MainViewModel.Companion.Summary(getString(R.string.permission_granted)))
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }

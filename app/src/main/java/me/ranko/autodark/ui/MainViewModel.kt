@@ -156,25 +156,24 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * @see     UiModeManager.getNightMode
      * */
     private fun makeTriggeredSummary(): Summary? {
-        return if (switch.get() == DarkSwitch.OFF) {
+        if (switch.get() == DarkSwitch.OFF) {
             // Show dark mode disabled summary
-            newSummary(R.string.dark_mode_disabled)
+            return newSummary(R.string.dark_mode_disabled)
         } else if (darkSettings.isAutoMode()) {
-            newSummary(R.string.dark_mode_summary_auto_on)
+            return newSummary(R.string.dark_mode_summary_auto_on)
         } else {
-            val time: LocalTime
             val isDarkMode = darkSettings.isDarkMode() ?: return null
+            val displayTime: String
             val textRes: Int = if (isDarkMode) {
-                time = darkSettings.getEndTime()
+                displayTime = DarkTimeUtil.getDisplayFormattedString(darkSettings.getEndTime())
                 R.string.dark_mode_summary_will_off
             } else {
-                time = darkSettings.getStartTime()
+                displayTime = DarkTimeUtil.getDisplayFormattedString(darkSettings.getStartTime())
                 R.string.dark_mode_summary_will_on
             }
 
-            val displayTime = DarkTimeUtil.getDisplayFormattedString(time)
             val actionStr = mContext.getString(R.string.dark_mode_summary_action)
-            Summary(mContext.getString(textRes, displayTime), actionStr, summaryAction)
+            return Summary(mContext.getString(textRes, displayTime), actionStr, summaryAction)
         }
     }
 
@@ -228,7 +227,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun newSummary(@StringRes message: Int) = Summary(mContext.getString(message), null, null)
+    private fun newSummary(@StringRes message: Int) = Summary(mContext.getString(message))
 
     /**
      * Some optimize app or OEM performance boost function can disable boot receiver
@@ -299,11 +298,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
          * */
         data class Summary(
             val message: String,
-            var actionStr: String?,
+            val actionStr: String? = null,
             /**
              * Action button for snack bar
              * */
-            var action: View.OnClickListener?
+            val action: View.OnClickListener? = null
         )
     }
 }
