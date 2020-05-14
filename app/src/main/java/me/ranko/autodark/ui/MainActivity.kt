@@ -4,8 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
 import androidx.databinding.ObservableField
@@ -20,13 +18,11 @@ import me.ranko.autodark.R
 import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.databinding.MainActivityBinding
 
-class MainActivity : AppCompatActivity(), FragmentManager.OnBackStackChangedListener {
+class MainActivity : BaseListActivity(), FragmentManager.OnBackStackChangedListener {
     private lateinit var viewModel: MainViewModel
     private lateinit var binding: MainActivityBinding
 
     private var restrictedDialog: BottomSheetDialog? = null
-
-    private var bottomNavHeight = 0
 
     private val summaryTextListener = object : Observable.OnPropertyChangedCallback() {
         override fun onPropertyChanged(sender: Observable, propertyId: Int) {
@@ -60,19 +56,12 @@ class MainActivity : AppCompatActivity(), FragmentManager.OnBackStackChangedList
             ViewUtil.setImmersiveNavBar(window)
         }
 
+        supportFragmentManager.addOnBackStackChangedListener(this)
+
         if (savedInstanceState == null) {
             val transaction = supportFragmentManager.beginTransaction()
             transaction.replace(R.id.container, MainFragment())
             transaction.commit()
-        }
-
-        // get navBar height then set it as bottom padding to RecyclerView
-        supportFragmentManager.addOnBackStackChangedListener(this)
-        ViewCompat.setOnApplyWindowInsetsListener(window!!.decorView.rootView) { v, insets ->
-            bottomNavHeight = insets.systemWindowInsetBottom
-            onBackStackChanged()
-            v.setOnApplyWindowInsetsListener(null)
-            insets.consumeSystemWindowInsets()
         }
     }
 
@@ -107,9 +96,12 @@ class MainActivity : AppCompatActivity(), FragmentManager.OnBackStackChangedList
     override fun onBackStackChanged() {
         val frag = supportFragmentManager.findFragmentById(R.id.container) as PreferenceFragmentCompat
         frag.listView.apply {
-            setPadding(paddingLeft, paddingTop, paddingRight, bottomNavHeight)
+            setPadding(paddingLeft, paddingTop, paddingRight, getNavBarHeight())
             clipToPadding = false
         }
+    }
+
+    override fun onNavBarHeightAvailable(height: Int) {
     }
 
     override fun onStop() {
