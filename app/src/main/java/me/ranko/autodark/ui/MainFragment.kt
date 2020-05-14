@@ -19,6 +19,7 @@ import androidx.preference.SwitchPreference
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.R
 import me.ranko.autodark.core.DARK_JOB_TYPE
 import me.ranko.autodark.core.DarkModeSettings
@@ -85,6 +86,11 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
         endPreference = darkTimeCategory.findPreference(DARK_PREFERENCE_END)!!
         autoPreference = darkTimeCategory.findPreference(DARK_PREFERENCE_AUTO)!!
         forcePreference = findPreference(DARK_PREFERENCE_FORCE)!!
+
+        if ((activity!!.application as AutoDarkApplication).isXposed) {
+            forcePreference.isEnabled = false
+            forcePreference.setIcon(R.drawable.ic_extension)
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
