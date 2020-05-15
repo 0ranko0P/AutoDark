@@ -11,6 +11,9 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
+    <permission android:name="me.ranko0p.permission.RECEIVE_DARK_BROADCAST" />
+    <uses-permission android:name="me.ranko0p.permission.RECEIVE_DARK_BROADCAST" />
+
     <application
         android:name=".AutoDarkApplication"
         android:allowBackup="true"
@@ -50,16 +53,20 @@
         </activity>
 
         <activity
+            android:name=".ui.BlockListActivity"
+            android:theme="@style/AppTheme.TransparentActionBar" />
+
+        <activity
             android:name=".ui.PermissionActivity"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.TransparentActionBar" />
 
         <service
             android:name=".Services.DarkModeTileService"
+            android:enabled="true"
             android:icon="@drawable/ic_dark_theme"
             android:label="@string/tile_dark_theme"
-            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
-            android:enabled="true">
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
 
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />

@@ -78,7 +78,7 @@ class XCore : IXposedHookLoadPackage, IXposedHookZygoteInit {
      * Hook activities before onCreate and send package to [ActivityUpdateReceiver]
      * */
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
-        if (lpparam.packageName == "android") {
+        if (lpparam.packageName == Constant.ANDROID_PACKAGE && lpparam.processName == Constant.ANDROID_PACKAGE) {
             val sysServerClass = XposedHelpers.findClass("com.android.server.SystemServer", lpparam.classLoader)
             hookSystemService(sysServerClass)
         } else {

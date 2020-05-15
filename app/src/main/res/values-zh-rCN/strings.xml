@@ -12,6 +12,10 @@
         "\n如果您使用了某种优化软件/电池优化大师之类的, 请将AutoDark 添加到他们的白名单中.</string>
     <string name="app_restricted_title">某些设备上会出现问题</string>
     <string name="app_restricted_warning">发现问题</string>
+    <string name="app_save">保存</string>
+    <string name="app_upload_fail">无法保存列表, 请将调试日志发送给开发者以帮助解决问题.</string>
+    <string name="app_upload_success">成功</string>
+    <string name="app_upload_busy">现在无法保存</string>
 
     <string name="dark_mode_disabled">主开关已关闭</string>
     <string name="dark_mode_permission_denied">设置失败, 无权限!</string>
@@ -23,6 +27,8 @@
     <string name="feedback_send">发送邮件</string>
     <string name="feedback_subject">AutoDark 反馈</string>
 
+    <string name="pref_block_title">SmartDark 黑名单 (Xposed)</string>
+    <string name="pref_block_summary">您添加到名单里的应用不会被强制SmartDark</string>
     <string name="pref_contact">联系我</string>
     <string name="pref_category_dev">试验性功能</string>
     <string name="pref_bug_title">报告bug</string>
@@ -75,4 +81,5 @@
     <string name="shizuku_service_not_running">Shizuku 服务未运行</string>
 
     <string name="tile_dark_theme">深色主题</string>
+    <string name="xposed_description">激活 SmartDark 黑名单: 您添加到名单里的应用不会被强制SmartDark (试验性功能).</string>
 </resources>

@@ -33,6 +33,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
     private lateinit var endPreference: DarkDisplayPreference
     private lateinit var forcePreference: SwitchPreference
     private lateinit var autoPreference: SwitchPreference
+    private lateinit var xposedPreference: Preference
 
     // may never get clicked
     private val aboutPreference by lazy(LazyThreadSafetyMode.NONE) { findPreference<Preference>(getString(R.string.pref_key_about))!! }
@@ -48,6 +49,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
         const val DARK_PREFERENCE_START = "dark_mode_time_start"
         const val DARK_PREFERENCE_END = "dark_mode_time_end"
         const val DARK_PREFERENCE_FORCE = "dark_mode_force"
+        const val DARK_PREFERENCE_XPOSED = "dark_mode_xposed"
     }
 
     /**
@@ -86,8 +88,11 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
         endPreference = darkTimeCategory.findPreference(DARK_PREFERENCE_END)!!
         autoPreference = darkTimeCategory.findPreference(DARK_PREFERENCE_AUTO)!!
         forcePreference = findPreference(DARK_PREFERENCE_FORCE)!!
+        xposedPreference = findPreference(DARK_PREFERENCE_XPOSED)!!
 
-        if ((activity!!.application as AutoDarkApplication).isXposed) {
+        val isXposed = (activity!!.application as AutoDarkApplication).isXposed
+        xposedPreference.isEnabled = isXposed
+        if (isXposed) {
             forcePreference.isEnabled = false
             forcePreference.setIcon(R.drawable.ic_extension)
         }
