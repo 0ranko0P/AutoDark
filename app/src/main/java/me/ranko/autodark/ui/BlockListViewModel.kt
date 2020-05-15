@@ -71,6 +71,9 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         )
     }
 
+    /**
+     * drawable will be cached by system
+     * */
     fun getAppIcon(app: ApplicationInfo): Drawable = mPackageManager.getApplicationIcon(app)
 
     fun getAppName(app: ApplicationInfo): String = app.loadLabel(mPackageManager).toString()

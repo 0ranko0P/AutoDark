@@ -10,7 +10,9 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.launch
 import me.ranko.autodark.R
 
 class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView.Adapter<BlockListAdapter.ViewHolder>(), View.OnClickListener {
@@ -26,12 +28,11 @@ class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.item_block_list, parent, false)
+        LayoutInflater.from(parent.context).inflate(R.layout.item_block_list, parent, false)
     )
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val app = data!![position]
-        holder.icon.setImageDrawable(viewModel.getAppIcon(app))
         applyBlockedMark(viewModel.isBlocked(app.packageName), holder.indicator, false)
 
         holder.name.text = viewModel.getAppName(app)
@@ -40,10 +41,21 @@ class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView
         holder.rootView.tag = holder
 
         val mAnimation = AnimationUtils.loadAnimation(viewModel.getApplication(), R.anim.item_shift_vertical)
-        val alpha = AlphaAnimation(0.0f, 1.0f)
-        alpha.duration = 300L
-        holder.icon.startAnimation(alpha)
         holder.rootView.startAnimation(mAnimation)
+
+        holder.icon.tag = app.packageName
+        holder.icon.visibility = View.INVISIBLE
+        viewModel.viewModelScope.launch {
+            val iconDrawable = viewModel.getAppIcon(app)
+            val pkg = holder.id.text.toString()
+            if (pkg == app.packageName) {
+                holder.icon.setImageDrawable(iconDrawable)
+                val alpha = AlphaAnimation(0.0f, 1.0f)
+                alpha.duration = 300L
+                holder.icon.startAnimation(alpha)
+                holder.icon.visibility = View.VISIBLE
+            }
+        }
     }
 
     override fun getItemCount() = data?.size ?: 0
