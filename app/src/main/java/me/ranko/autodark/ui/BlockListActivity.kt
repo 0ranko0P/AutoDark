@@ -5,11 +5,9 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_block_list.*
 import kotlinx.coroutines.launch
@@ -22,8 +20,6 @@ class BlockListActivity : BaseListActivity() {
     private lateinit var viewModel: BlockListViewModel
 
     private lateinit var mAdapter: BlockListAdapter
-
-    private var mDialog: AlertDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,13 +37,18 @@ class BlockListActivity : BaseListActivity() {
         viewModel.uploadStatus.observe(this, Observer { status ->
             if (status == null) return@Observer
             when (status) {
-                Constant.JOB_STATUS_PENDING -> showLoadingDialog()
+                Constant.JOB_STATUS_PENDING -> updateLoadUI(true)
 
-                Constant.JOB_STATUS_SUCCEED -> showMessage(R.string.app_upload_success)
+                Constant.JOB_STATUS_SUCCEED -> {
+                    updateLoadUI(false)
+                    showMessage(R.string.app_upload_success)
+                }
 
-                Constant.JOB_STATUS_FAILED -> showMessage(R.string.app_upload_fail)
+                Constant.JOB_STATUS_FAILED -> {
+                    updateLoadUI(true)
+                    progressText.setText(R.string.app_upload_fail)
+                }
             }
-            if (status != Constant.JOB_STATUS_PENDING) mDialog?.dismiss()
         })
 
         swipeRefresh.setOnRefreshListener { refresh() }
@@ -61,22 +62,23 @@ class BlockListActivity : BaseListActivity() {
 
     private fun refresh() = lifecycleScope.launch {
         if (!viewModel.isUploading()) {
-            recyclerView.visibility = View.INVISIBLE
             val appList = viewModel.reloadListAsync().await()
             mAdapter.setData(appList)
         }
-        recyclerView.visibility = View.VISIBLE
+        // use loadUI's progressBar at first init
+        if (swipeRefresh.visibility == View.INVISIBLE) updateLoadUI(false)
         swipeRefresh.isRefreshing = false
     }
 
-    private fun showLoadingDialog() {
-        if (mDialog == null) {
-            mDialog = MaterialAlertDialogBuilder(this)
-                    .setView(R.layout.dialog_loading)
-                    .setCancelable(false)
-                    .create()
+    private fun updateLoadUI(isLoading: Boolean) {
+        if (isLoading) {
+            swipeRefresh.visibility = View.INVISIBLE
+            progressRoot.visibility = View.VISIBLE
+            progressText.setText(R.string.app_upload_start)
+        } else {
+            progressRoot.visibility = View.INVISIBLE
+            swipeRefresh.visibility = View.VISIBLE
         }
-        mDialog!!.show()
     }
 
     private fun showMessage(@StringRes str: Int) = Snackbar.make(coordinatorRoot, str, Snackbar.LENGTH_SHORT).show()
@@ -90,7 +92,7 @@ class BlockListActivity : BaseListActivity() {
     }
 
     private fun onRequestSave() {
-        if (viewModel.requestUploadList()) showMessage(R.string.app_upload_busy)
+        if (!viewModel.requestUploadList()) showMessage(R.string.app_upload_busy)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
