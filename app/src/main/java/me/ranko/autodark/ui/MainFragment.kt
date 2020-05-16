@@ -31,7 +31,8 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
     private lateinit var darkTimeCategory: PreferenceCategory
     private lateinit var startPreference: DarkDisplayPreference
     private lateinit var endPreference: DarkDisplayPreference
-    private lateinit var forcePreference: SwitchPreference
+    private lateinit var forceRootPreference: SwitchPreference
+    private lateinit var forceXposedPreference: Preference
     private lateinit var autoPreference: SwitchPreference
     private lateinit var xposedPreference: Preference
 
@@ -48,7 +49,8 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
         const val DARK_PREFERENCE_AUTO = "dark_mode_auto"
         const val DARK_PREFERENCE_START = "dark_mode_time_start"
         const val DARK_PREFERENCE_END = "dark_mode_time_end"
-        const val DARK_PREFERENCE_FORCE = "dark_mode_force"
+        const val DARK_PREFERENCE_FORCE_ROOT = "dark_mode_force"
+        const val DARK_PREFERENCE_FORCE_XPOSED = "dark_mode_force_xposed"
         const val DARK_PREFERENCE_XPOSED = "dark_mode_xposed"
     }
 
@@ -87,14 +89,19 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
         startPreference = darkTimeCategory.findPreference(DARK_PREFERENCE_START)!!
         endPreference = darkTimeCategory.findPreference(DARK_PREFERENCE_END)!!
         autoPreference = darkTimeCategory.findPreference(DARK_PREFERENCE_AUTO)!!
-        forcePreference = findPreference(DARK_PREFERENCE_FORCE)!!
+        forceRootPreference = findPreference(DARK_PREFERENCE_FORCE_ROOT)!!
+        forceXposedPreference = findPreference(DARK_PREFERENCE_FORCE_XPOSED)!!
         xposedPreference = findPreference(DARK_PREFERENCE_XPOSED)!!
 
         val isXposed = (activity!!.application as AutoDarkApplication).isXposed
-        xposedPreference.isEnabled = isXposed
+
         if (isXposed) {
-            forcePreference.isEnabled = false
-            forcePreference.setIcon(R.drawable.ic_extension)
+            forceRootPreference.parent!!.removePreference(forceRootPreference)
+            forceXposedPreference.summary = getString(R.string.pref_force_dark_summary, getString(R.string.pref_force_dark_summary_xposed))
+        } else {
+            xposedPreference.isEnabled = false
+            forceXposedPreference.parent!!.removePreference(forceXposedPreference)
+            forceRootPreference.summary = getString(R.string.pref_force_dark_summary, getString(R.string.pref_force_dark_summary_root))
         }
     }
 
@@ -135,14 +142,14 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
     }
 
     private fun onForceDarkPreferenceClick() = lifecycleScope.launch {
-        forcePreference.isEnabled = false
-        val result = DarkModeSettings.setForceDark(forcePreference.isChecked)
+        forceRootPreference.isEnabled = false
+        val result = DarkModeSettings.setForceDark(forceRootPreference.isChecked)
         delay(600L)
         if (!result) {
-            forcePreference.isChecked = !forcePreference.isChecked
+            forceRootPreference.isChecked = !forceRootPreference.isChecked
             Snackbar.make(rootView, R.string.root_check_failed, Snackbar.LENGTH_SHORT).show()
         }
-        forcePreference.isEnabled = true
+        forceRootPreference.isEnabled = true
     }
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
@@ -151,7 +158,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
 
             DARK_PREFERENCE_END -> false
 
-            DARK_PREFERENCE_FORCE -> { // handle result in observer
+            DARK_PREFERENCE_FORCE_ROOT -> { // handle result in observer
                 onForceDarkPreferenceClick()
                 true
             }

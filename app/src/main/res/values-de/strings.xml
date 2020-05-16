@@ -29,9 +29,10 @@
     <string name="pref_category_time">Start und Ende planen.</string>
     <string name="pref_feedback_title">Feedback</string>
     <string name="pref_feedback_summary">Alle Vorschläge sind erwünscht</string>
-    <string name="pref_force_dark_shizuku">Dark Mode erzwingen</string>
-    <string name="pref_force_dark">Dark Mode erzwingen (Root)</string>
-    <string name="pref_force_dark_summary">Apps wie von Android vorgegeben in den Dark Mode zwingen. \nIst nicht empfohlen, weil es Apps in ihrer Funktion beeinträchtigen kann.</string>
+    <string name="pref_force_dark">Dark Mode erzwingen</string>
+    <string name="pref_force_dark_root">Dark Mode erzwingen (Root)</string>
+    <string name="pref_force_dark_summary">Apps wie von Android vorgegeben in den Dark Mode zwingen.<xliff:g name="mode">%1$s</xliff:g></string>
+    <string name="pref_force_dark_summary_root">\nIst nicht empfohlen, weil es Apps in ihrer Funktion beeinträchtigen kann.</string>
     <string name="pref_license_title">Open source Lizenzen</string>
     <string name="pref_license_summary">Lizenzdetails für Open Source Software</string>
     <string name="pref_master_switch">Hauptschalter</string>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <PreferenceCategory
         android:key="@string/pref_key_time"
         android:title="@string/pref_category_time">
@@ -28,8 +29,14 @@
         <SwitchPreference
             android:defaultValue="false"
             android:key="dark_mode_force"
-            android:summary="@string/pref_force_dark_summary"
-            android:title="@string/pref_force_dark" />
+            android:shouldDisableView="true"
+            android:title="@string/pref_force_dark_root"
+            tools:summary="@string/pref_force_dark_summary" />
+
+        <Preference
+            android:key="dark_mode_force_xposed"
+            android:title="@string/pref_force_dark"
+            tools:summary="@string/pref_force_dark_summary" />
 
         <Preference
             android:icon="@drawable/ic_extension"

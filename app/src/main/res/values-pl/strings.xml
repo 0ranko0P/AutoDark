@@ -25,9 +25,10 @@
 
     <string name="pref_category_dev">Funkcjonalność eksperymentalna</string>
     <string name="pref_category_time">Ustal czas rozpoczęcia i zakończenia.</string>
-    <string name="pref_force_dark_shizuku">Wymuś tryb nocny</string>
-    <string name="pref_force_dark">Wymuś tryb nocny (root)</string>
-    <string name="pref_force_dark_summary">Dostarczane przez system Android, wymusza w aplikacjach tryb nocny.\nNiezalecane, może powodować problemy w niektórych aplikcjach.</string>
+    <string name="pref_force_dark">Wymuś tryb nocny</string>
+    <string name="pref_force_dark_root">Wymuś tryb nocny (root)</string>
+    <string name="pref_force_dark_summary">Dostarczane przez system Android, wymusza w aplikacjach tryb nocny.<xliff:g name="mode">%1$s</xliff:g></string>
+    <string name="pref_force_dark_summary_root">\nNiezalecane, może powodować problemy w niektórych aplikcjach.</string>
     <string name="pref_master_switch">Przełącznik główny</string>
     <string name="pref_time_auto">Od zachodu do wschodu słońca</string>
     <string name="pref_time_auto_summary">Używa współrzędnych GPS by kalkulować czas zachodu/wschodu słońca. Wymagane jest uprawnienie dostępu do lokalizacji.</string>

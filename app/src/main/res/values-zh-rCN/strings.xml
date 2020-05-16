@@ -35,9 +35,11 @@
     <string name="pref_category_time">设置开始与结束时间</string>
     <string name="pref_feedback_title">反馈</string>
     <string name="pref_feedback_summary">欢迎提出任何建议</string>
-    <string name="pref_force_dark">Force-dark 模式 (Root)</string>
-    <string name="pref_force_dark_shizuku">Force-dark 模式</string>
-    <string name="pref_force_dark_summary">由 Android 提供, 强制应用显示黑暗模式, 不建议开启, 某些应用不兼容.</string>
+    <string name="pref_force_dark">SmartDark 模式</string>
+    <string name="pref_force_dark_root">SmartDark 模式 (Root)</string>
+    <string name="pref_force_dark_summary">由 Android 提供, 强制应用显示黑暗模式<xliff:g name="mode">%1$s</xliff:g></string>
+    <string name="pref_force_dark_summary_root">\n不建议开启, 某些应用不兼容.</string>
+    <string name="pref_force_dark_summary_xposed">\nXposed 模式已激活.</string>
     <string name="pref_license_title">开放源代码许可</string>
     <string name="pref_license_summary">开放源代码软件的许可详情</string>
     <string name="pref_master_switch">主开关</string>

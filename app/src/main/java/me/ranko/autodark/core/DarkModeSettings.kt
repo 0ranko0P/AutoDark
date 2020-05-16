@@ -21,7 +21,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.ranko.autodark.Constant
 import me.ranko.autodark.Constant.*
-import me.ranko.autodark.Exception.CommandExecuteError
 import me.ranko.autodark.R
 import me.ranko.autodark.Receivers.DarkModeAlarmReceiver
 import me.ranko.autodark.Utils.DarkLocationUtil
@@ -30,7 +29,7 @@ import me.ranko.autodark.Utils.DarkTimeUtil.getPersistFormattedString
 import me.ranko.autodark.Utils.DarkTimeUtil.getTodayOrNextDay
 import me.ranko.autodark.Utils.ShellJobUtil
 import me.ranko.autodark.ui.MainFragment.Companion.DARK_PREFERENCE_END
-import me.ranko.autodark.ui.MainFragment.Companion.DARK_PREFERENCE_FORCE
+import me.ranko.autodark.ui.MainFragment.Companion.DARK_PREFERENCE_FORCE_ROOT
 import me.ranko.autodark.ui.MainFragment.Companion.DARK_PREFERENCE_START
 import me.ranko.autodark.ui.Preference.DarkDisplayPreference
 import timber.log.Timber
@@ -357,12 +356,12 @@ class DarkModeSettings private constructor(private val context: Context) :
      * Set force-dark if needed
      *
      * @see     DarkModeSettings.setForceDark
-     * @see     DARK_PREFERENCE_FORCE
+     * @see     DARK_PREFERENCE_FORCE_ROOT
      * */
     fun onBoot() {
         val masterSwitch = sp.getBoolean(SP_KEY_MASTER_SWITCH, false)
         val autoMode = sp.getBoolean(SP_AUTO_mode, false)
-        val forceDark = sp.getBoolean(DARK_PREFERENCE_FORCE, false)
+        val forceDark = sp.getBoolean(DARK_PREFERENCE_FORCE_ROOT, false)
 
         val startTime =
             sp.getString(if (autoMode) SP_AUTO_TIME_SUNSET else DARK_PREFERENCE_START, null)

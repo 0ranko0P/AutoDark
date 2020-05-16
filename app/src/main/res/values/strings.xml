@@ -37,9 +37,11 @@
     <string name="pref_category_time">Schedule start and end time.</string>
     <string name="pref_feedback_title">Feedback</string>
     <string name="pref_feedback_summary">Any suggestions are welcome</string>
-    <string name="pref_force_dark">Force dark mode (Root)</string>
-    <string name="pref_force_dark_shizuku">Force dark mode</string>
-    <string name="pref_force_dark_summary">Provided by Android, force apps into dark mode \nNot recommended, will set some apps on fire.</string>
+    <string name="pref_force_dark">Force dark mode</string>
+    <string name="pref_force_dark_root">Force dark mode (Root)</string>
+    <string name="pref_force_dark_summary">Provided by Android, force apps into dark mode.<xliff:g name="mode">%1$s</xliff:g></string>
+    <string name="pref_force_dark_summary_root">\nNot recommended, will set some apps on fire.</string>
+    <string name="pref_force_dark_summary_xposed">\nXposed mode activated.</string>
     <string name="pref_license_title">Open source licenses</string>
     <string name="pref_license_summary">License details for open source software</string>
     <string name="pref_master_switch">Master switch</string>
