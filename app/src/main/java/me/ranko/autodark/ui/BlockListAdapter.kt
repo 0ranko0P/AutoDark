@@ -18,6 +18,8 @@ import me.ranko.autodark.R
 class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView.Adapter<BlockListAdapter.ViewHolder>(), View.OnClickListener {
     private var data: List<ApplicationInfo>? = null
 
+    private var isSearchMode = false
+
     companion object class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val rootView: RelativeLayout = view.findViewById(R.id.appRoot)
         val icon: ImageView = view.findViewById(R.id.icon)
@@ -39,8 +41,10 @@ class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView
         holder.rootView.setOnClickListener(this)
         holder.rootView.tag = holder
 
-        val mAnimation = AnimationUtils.loadAnimation(viewModel.getApplication(), R.anim.item_shift_vertical)
-        holder.rootView.startAnimation(mAnimation)
+        if (!isSearchMode) {
+            val mAnimation = AnimationUtils.loadAnimation(viewModel.getApplication(), R.anim.item_shift_vertical)
+            holder.rootView.startAnimation(mAnimation)
+        }
 
         holder.icon.tag = app.packageName
         holder.icon.visibility = View.INVISIBLE
@@ -49,9 +53,11 @@ class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView
             val pkg = holder.id.text.toString()
             if (pkg == app.packageName) {
                 holder.icon.setImageDrawable(iconDrawable)
-                val alpha = AlphaAnimation(0.0f, 1.0f)
-                alpha.duration = 300L
-                holder.icon.startAnimation(alpha)
+                if (!isSearchMode) {
+                    val alpha = AlphaAnimation(0.0f, 1.0f)
+                    alpha.duration = 300L
+                    holder.icon.startAnimation(alpha)
+                }
                 holder.icon.visibility = View.VISIBLE
             }
         }
@@ -69,6 +75,10 @@ class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView
     fun clear() {
         this.data = null
         notifyDataSetChanged()
+    }
+
+    fun setSearchMode(isSearchMode: Boolean) {
+        this.isSearchMode = isSearchMode
     }
 
     override fun onClick(v: View) {

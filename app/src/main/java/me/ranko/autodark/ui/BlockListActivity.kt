@@ -35,6 +35,7 @@ class BlockListActivity : BaseListActivity() {
 
         override fun onFocusChange(v: View?, hasFocus: Boolean) {
             saveMenu.isVisible = !hasFocus
+            mAdapter.setSearchMode(hasFocus)
             // clear app list if searching
             if (hasFocus) {
                 mAdapter.clear()
