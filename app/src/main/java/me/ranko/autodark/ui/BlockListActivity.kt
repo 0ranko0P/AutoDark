@@ -92,7 +92,7 @@ class BlockListActivity : BaseListActivity() {
     }
 
     private fun onRequestSave() {
-        if (!viewModel.requestUploadList()) showMessage(R.string.app_upload_busy)
+        if (swipeRefresh.isRefreshing || !viewModel.requestUploadList()) showMessage(R.string.app_upload_busy)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
