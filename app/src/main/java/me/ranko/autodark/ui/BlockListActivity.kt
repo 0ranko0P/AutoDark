@@ -101,12 +101,12 @@ class BlockListActivity : BaseListActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_save) {
-            onRequestSave()
-            return true
-        } else {
-            return super.onOptionsItemSelected(item)
+        when (item.itemId) {
+            R.id.action_save -> onRequestSave()
+
+            android.R.id.home -> onBackPressed()
         }
+        return true
     }
 
     override fun onNavBarHeightAvailable(height: Int) {
