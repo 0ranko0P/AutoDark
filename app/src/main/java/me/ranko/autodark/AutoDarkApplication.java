@@ -12,7 +12,8 @@ import timber.log.Timber;
 
 public final class AutoDarkApplication extends Application {
 
-    private boolean isXposed;
+    @SuppressWarnings("FieldCanBeLocal")
+    private boolean isXposed = false;
 
     @Override
     public void onCreate() {
@@ -36,6 +37,11 @@ public final class AutoDarkApplication extends Application {
         return status != PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
     }
 
+    /**
+     * Hooked by {@link me.ranko.autodark.xposed.XCore}
+     *
+     * @return *True* Xposed enabled and works functional
+     */
     public boolean isXposed() {
         return isXposed;
     }
