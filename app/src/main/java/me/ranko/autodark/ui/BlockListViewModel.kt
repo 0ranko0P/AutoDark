@@ -105,7 +105,6 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
     @MainThread
     fun requestUploadList(): Boolean {
         if (isUploading()) return false
-
         timer = Instant.now()
 
         _uploadStatus.value = JOB_STATUS_PENDING
@@ -114,6 +113,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
                 FileUtil.crateIfNotExists(BLOCK_LIST_PATH, FileUtil.PERMISSION_764)
                 Files.write(BLOCK_LIST_PATH, mBlockSet)
                 ActivityUpdateReceiver.sendNewList(mContext, ArrayList(mBlockSet))
+                delay(1000L)
                 // update success status when receive response
             } catch (e: Exception) {
                 Timber.w(e, "Failed to write block list")
