@@ -12,6 +12,7 @@ import androidx.annotation.MainThread
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.ranko.autodark.BuildConfig
 import me.ranko.autodark.Constant.*
@@ -79,9 +80,9 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
     fun getAppName(app: ApplicationInfo): String = app.loadLabel(mPackageManager).toString()
 
     fun reloadListAsync() = viewModelScope.async(Dispatchers.IO) {
-        // delay(1000L)
         mBlockSet.clear()
         FileUtil.readList(BLOCK_LIST_PATH)?.let { mBlockSet.addAll(it) }
+        delay(1000L)
         return@async mPackageManager.getInstalledApplications(PackageManager.GET_META_DATA)
             .stream()
             .filter { ApplicationInfo.FLAG_SYSTEM.and(it.flags) != ApplicationInfo.FLAG_SYSTEM }
