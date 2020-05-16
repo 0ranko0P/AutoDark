@@ -18,8 +18,7 @@ import me.ranko.autodark.R
 class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView.Adapter<BlockListAdapter.ViewHolder>(), View.OnClickListener {
     private var data: List<ApplicationInfo>? = null
 
-    companion object
-    class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    companion object class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val rootView: RelativeLayout = view.findViewById(R.id.appRoot)
         val icon: ImageView = view.findViewById(R.id.icon)
         val indicator: ImageView = view.findViewById(R.id.indicator)
@@ -62,6 +61,13 @@ class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView
 
     fun setData(data: List<ApplicationInfo>) {
         this.data = data
+        notifyDataSetChanged()
+    }
+
+    fun getData() = this.data
+
+    fun clear() {
+        this.data = null
         notifyDataSetChanged()
     }
 

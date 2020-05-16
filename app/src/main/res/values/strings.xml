@@ -14,6 +14,7 @@
     <string name="app_restricted_title">Problems on some devices</string>
     <string name="app_restricted_warning">Problems detected</string>
     <string name="app_save">Save</string>
+    <string name="app_search_hint">Search</string>
     <string name="app_upload_fail">Unable to save app list, please send debugging logs to the developer to help solve the issue.</string>
     <string name="app_upload_success">Success</string>
     <string name="app_upload_busy">Can\'t save list at this moment.</string>

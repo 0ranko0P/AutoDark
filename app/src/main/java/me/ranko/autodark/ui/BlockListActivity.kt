@@ -1,6 +1,9 @@
 package me.ranko.autodark.ui
 
+import android.content.pm.ApplicationInfo
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -9,7 +12,9 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
 import kotlinx.android.synthetic.main.activity_block_list.*
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import me.ranko.autodark.Constant
 import me.ranko.autodark.R
@@ -18,8 +23,66 @@ import me.ranko.autodark.Utils.ViewUtil
 class BlockListActivity : BaseListActivity() {
 
     private lateinit var viewModel: BlockListViewModel
-
     private lateinit var mAdapter: BlockListAdapter
+    private lateinit var mAppList: MutableList<ApplicationInfo>
+
+    private var menu: Menu? = null
+    private val saveMenu: MenuItem by lazy(LazyThreadSafetyMode.NONE) { menu!!.findItem(R.id.action_save) }
+
+    private val mSearchHelper = object: TextWatcher, View.OnFocusChangeListener {
+        private var queryJob: Job? = null
+        private var lastInput: CharSequence = ""
+
+        override fun onFocusChange(v: View?, hasFocus: Boolean) {
+            saveMenu.isVisible = !hasFocus
+            // clear app list if searching
+            if (hasFocus) {
+                mAdapter.clear()
+            } else {
+                if (!hasFocus) (v as TextInputEditText).text?.clear()
+                if (queryJob?.isActive == true) queryJob?.cancel()
+                mAdapter.setData(mAppList)
+            }
+        }
+
+        override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+            if (s.isEmpty()) {
+                mAdapter.clear()
+                return
+            }
+
+            if (lastInput.isNotEmpty() && isAppendChars(lastInput, s)) {
+                queryAndShow(s, mAdapter.getData()!!)
+            } else {
+                queryAndShow(s, mAppList)
+            }
+            lastInput = s
+        }
+
+        private fun queryAndShow(str: CharSequence, list: List<ApplicationInfo>) {
+            if (queryJob?.isActive == true) queryJob?.cancel()
+            queryJob = lifecycleScope.launch {
+                // clear current result
+                val data = ArrayList<ApplicationInfo>()
+                mAdapter.setData(data)
+
+                for (it: ApplicationInfo in list) {
+                    val isPkg = it.packageName.contains(str, true)
+                    val isLabel = viewModel.getAppName(it).contains(str, true)
+                    if (isPkg || isLabel) {
+                        data.add(it)
+                        mAdapter.notifyItemInserted(list.size - 1)
+                    }
+                }
+            }
+        }
+
+        override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,12 +121,15 @@ class BlockListActivity : BaseListActivity() {
         mAdapter = BlockListAdapter(viewModel)
         recyclerView.adapter = mAdapter
         refresh()
+
+        toolbarEdit.onFocusChangeListener = mSearchHelper
+        toolbarEdit.addTextChangedListener(mSearchHelper)
     }
 
     private fun refresh() = lifecycleScope.launch {
         if (!viewModel.isUploading()) {
-            val appList = viewModel.reloadListAsync().await()
-            mAdapter.setData(appList)
+            mAppList = viewModel.reloadListAsync().await()
+            mAdapter.setData(mAppList)
         }
         // use loadUI's progressBar at first init
         if (swipeRefresh.visibility == View.INVISIBLE) updateLoadUI(false)
@@ -87,7 +153,11 @@ class BlockListActivity : BaseListActivity() {
         if (viewModel.isUploading()) {
             showMessage(R.string.app_upload_busy)
         } else {
-            super.onBackPressed()
+            if (toolbarEdit.hasFocus()) {
+                toolbarEdit.clearFocus()
+            } else {
+                super.onBackPressed()
+            }
         }
     }
 
@@ -97,7 +167,8 @@ class BlockListActivity : BaseListActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_block_list, menu)
-        return true
+        this.menu = menu
+        return super.onCreateOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -114,5 +185,20 @@ class BlockListActivity : BaseListActivity() {
             setPadding(paddingLeft, paddingTop + ViewUtil.getStatusBarHeight(resources), paddingRight, paddingBottom + height)
         }
         swipeRefresh.setProgressViewOffset(false, 0, recyclerView.paddingTop + 32)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        toolbarEdit.removeTextChangedListener(mSearchHelper)
+    }
+
+    companion object {
+        private fun isAppendChars(old: CharSequence, new: CharSequence): Boolean {
+            if (old.length >= new.length || new.isEmpty()) return false
+            for ((index, sChar) in old.withIndex()) {
+                if (new[index] != sChar) return false
+            }
+            return true
+        }
     }
 }
