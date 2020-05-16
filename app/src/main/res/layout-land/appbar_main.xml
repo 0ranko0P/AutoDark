@@ -6,6 +6,7 @@
     android:layout_height="@dimen/app_bar_background_height"
     android:fitsSystemWindows="true"
     android:theme="@style/Widget.ActionBar"
+    android:transitionName="trans_appbar"
     app:liftOnScroll="true"
     tools:ignore="ContentDescription">
 

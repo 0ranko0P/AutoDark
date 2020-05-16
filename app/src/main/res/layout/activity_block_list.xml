@@ -15,6 +15,7 @@
         android:layout_height="wrap_content"
         android:background="@color/appbar_background"
         android:fitsSystemWindows="true"
+        android:transitionName="trans_appbar"
         app:liftOnScrollTargetViewId="@id/recyclerView">
 
         <androidx.appcompat.widget.Toolbar
@@ -85,6 +86,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
+        android:transitionName="trans_fab"
         app:layout_behavior="com.google.android.material.floatingactionbutton.FloatingActionButton$Behavior"
         app:srcCompat="@drawable/ic_save" />
 

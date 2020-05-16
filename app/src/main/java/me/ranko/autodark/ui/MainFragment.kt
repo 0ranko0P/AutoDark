@@ -2,9 +2,12 @@ package me.ranko.autodark.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.ActivityOptions
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Pair
 import android.view.View
 import androidx.databinding.Observable
 import androidx.databinding.ObservableField
@@ -165,6 +168,18 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
 
             DARK_PREFERENCE_AUTO -> {
                 onAutoPreferenceClick()
+                true
+            }
+
+            DARK_PREFERENCE_XPOSED -> {
+                val activity = activity!! as MainActivity
+                val appBarView = activity.findViewById<View>(R.id.appbar)
+                val fabView = activity.findViewById<View>(R.id.fab)
+                val appBarShared = Pair<View, String>(appBarView, appBarView.transitionName)
+                val fabShared = Pair<View, String>(fabView, fabView.transitionName)
+                val intent = Intent(activity, BlockListActivity::class.java)
+                val options = ActivityOptions.makeSceneTransitionAnimation(activity, appBarShared, fabShared)
+                activity.startActivity(intent, options.toBundle())
                 true
             }
 

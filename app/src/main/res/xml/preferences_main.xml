@@ -42,12 +42,7 @@
             android:icon="@drawable/ic_extension"
             android:key="dark_mode_xposed"
             android:summary="@string/pref_block_summary"
-            android:title="@string/pref_block_title">
-            <intent
-                android:action="android.intent.action.VIEW"
-                android:targetClass="me.ranko.autodark.ui.BlockListActivity"
-                android:targetPackage="me.ranko.autodark" />
-        </Preference>
+            android:title="@string/pref_block_title" />
     </PreferenceCategory>
 
     <Preference

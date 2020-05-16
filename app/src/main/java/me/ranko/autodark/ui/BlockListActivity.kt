@@ -4,9 +4,11 @@ import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.transition.Fade
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.Window
 import androidx.annotation.StringRes
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -86,6 +88,11 @@ class BlockListActivity : BaseListActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        with(window) {
+            requestFeature(Window.FEATURE_CONTENT_TRANSITIONS)
+            enterTransition = Fade()
+        }
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_block_list)
         setSupportActionBar(toolbar)

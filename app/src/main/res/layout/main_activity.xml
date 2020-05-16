@@ -25,8 +25,11 @@
             android:layout_height="wrap_content"
             android:layout_margin="@dimen/fab_margin"
             android:onClick="@{() -> viewModel.onFabClicked()}"
+            android:transitionName="trans_fab"
+            app:behavior_autoHide="false"
             app:layout_anchor="@+id/appbar"
             app:layout_anchorGravity="bottom|end"
+            app:layout_behavior="com.google.android.material.floatingactionbutton.FloatingActionButton$Behavior"
             app:setActiveImg="@{viewModel.switch}"
             tools:srcCompat="@drawable/ic_off" />
 
