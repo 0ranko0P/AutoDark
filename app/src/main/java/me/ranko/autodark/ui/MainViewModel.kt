@@ -80,8 +80,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * */
     private val summaryAction by lazy(LazyThreadSafetyMode.NONE) {
         View.OnClickListener {
-            val state = darkSettings.isDarkMode() ?: return@OnClickListener
-            if (!darkSettings.setDarkMode(state))
+            val isDarkMode = darkSettings.isDarkMode() ?: return@OnClickListener
+            if (!darkSettings.setDarkMode(isDarkMode.not()))
                 summaryText.set(newSummary(R.string.dark_mode_permission_denied))
         }
     }
