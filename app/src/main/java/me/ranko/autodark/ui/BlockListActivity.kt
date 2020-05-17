@@ -80,6 +80,8 @@ class BlockListActivity : BaseListActivity() {
             }
         }
 
+        fun isSearching() = toolbarEdit.hasFocus()
+
         override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
         }
 
@@ -135,12 +137,14 @@ class BlockListActivity : BaseListActivity() {
     }
 
     private fun refresh() = lifecycleScope.launch {
-        if (!viewModel.isUploading()) {
-            mAppList = viewModel.reloadListAsync().await()
-            mAdapter.setData(mAppList)
+        if (!mSearchHelper.isSearching()) {
+            if (!viewModel.isUploading()) {
+                mAppList = viewModel.reloadListAsync().await()
+                if (!mSearchHelper.isSearching()) mAdapter.setData(mAppList)
+            }
+            // use loadUI's progressBar at first init
+            if (swipeRefresh.visibility == View.INVISIBLE) updateLoadUI(false)
         }
-        // use loadUI's progressBar at first init
-        if (swipeRefresh.visibility == View.INVISIBLE) updateLoadUI(false)
         swipeRefresh.isRefreshing = false
     }
 
