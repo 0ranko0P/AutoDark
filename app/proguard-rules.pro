@@ -19,3 +19,10 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep class me.ranko.autodark.xposed.XCore
+-keep class me.ranko.autodark.AutoDarkApplication
+
+-keepclassmembers class me.ranko.autodark.AutoDarkApplication {
+    private boolean isXposed;
+}
