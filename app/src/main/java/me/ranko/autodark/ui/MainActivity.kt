@@ -36,12 +36,12 @@ class MainActivity : BaseListActivity(), FragmentManager.OnBackStackChangedListe
         binding = DataBindingUtil.setContentView(this, R.layout.main_activity)
         binding.lifecycleOwner = this
         viewModel = ViewModelProvider(this, MainViewModel.Companion.Factory(application))
-            .get(MainViewModel::class.java)
+                .get(MainViewModel::class.java)
         binding.viewModel = viewModel
 
         viewModel.summaryText.addOnPropertyChangedCallback(summaryTextListener)
         viewModel.requirePermission.observe(this, Observer { required ->
-            if(!required) return@Observer // ignore consumed signal
+            if (!required) return@Observer // ignore consumed signal
             // Show permission UI now
             PermissionActivity.startWithAnimationForResult(binding.fab, this)
             viewModel.onRequirePermissionConsumed()
@@ -49,7 +49,7 @@ class MainActivity : BaseListActivity(), FragmentManager.OnBackStackChangedListe
 
         if (ViewUtil.isLandscape(this)) {
             val collapsingToolbar =
-                binding.appbar.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbar)!!
+                    binding.appbar.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbar)!!
             val transparent = ColorStateList.valueOf(getColor(android.R.color.transparent))
             collapsingToolbar.setExpandedTitleTextColor(transparent)
         } else {
@@ -97,11 +97,12 @@ class MainActivity : BaseListActivity(), FragmentManager.OnBackStackChangedListe
         val frag = supportFragmentManager.findFragmentById(R.id.container) as PreferenceFragmentCompat
         frag.listView.apply {
             setPadding(paddingLeft, paddingTop, paddingRight, getNavBarHeight())
-            clipToPadding = false
+            if (clipToPadding) clipToPadding = false
         }
     }
 
     override fun onNavBarHeightAvailable(height: Int) {
+        onBackStackChanged()
     }
 
     override fun onStop() {
