@@ -4,6 +4,7 @@
     <string name="app_confirm">OK</string>
     <string name="app_do_not_show">Nicht erneut zeigen</string>
     <string name="app_later">Später erinnern</string>
+    <string name="app_loading">Lädt...</string>
     <string name="app_location_failed">Standort ist nicht verfügbar, bitte Zeit manuell konfigurieren.</string>
     <string name="app_location_disabled">Standort ist ausgeschaltet.</string>
 
@@ -12,6 +13,12 @@
         "\nWenn eine Art optimizer/battery saver app benutzt wird, bitte AutoDark zur white list hinzufügen.</string>
     <string name="app_restricted_title">Probleme bei manchen Geräten</string>
     <string name="app_restricted_warning">Probleme erkannt</string>
+    <string name="app_save">Speichern</string>
+    <string name="app_search_hint">Suchen</string>
+    <string name="app_upload_fail">Appliste konnte nicht gespeichert werden, bitte Debugglogs an den Entwickler schicken um das Problem zu lösen.</string>
+    <string name="app_upload_success">Erfolg, geblockte Apps neustarten um den Effekt zu sehen</string>
+    <string name="app_upload_busy">Liste kann im Moment nicht gespeichert werden.</string>
+    <string name="app_upload_start">Blockliste wird gespeichert, bitte warten...</string>
 
     <string name="dark_mode_disabled">Hauptschalter ist jetzt aus.</string>
     <string name="dark_mode_permission_denied">Dark Mode umschalten fehlgeschlagen: Berechtigung abgelehnt!</string>
@@ -23,6 +30,8 @@
     <string name="feedback_send">Email senden</string>
     <string name="feedback_subject">AutoDark Feedback</string>
 
+    <string name="pref_block_title">Force-Dark Blockliste (Xposed)</string>
+    <string name="pref_block_summary">Ausgewählte Apps werden nicht in den Force-Dark-Modus gezwungen</string>
     <string name="pref_bug_title">Einen Fehler melden</string>
     <string name="pref_contact">Mich kontaktieren</string>
     <string name="pref_category_dev">Experimentelle Funktionen</string>
@@ -33,6 +42,7 @@
     <string name="pref_force_dark_root">Dark Mode erzwingen (Root)</string>
     <string name="pref_force_dark_summary">Apps wie von Android vorgegeben in den Dark Mode zwingen.<xliff:g name="mode">%1$s</xliff:g></string>
     <string name="pref_force_dark_summary_root">\nIst nicht empfohlen, weil es Apps in ihrer Funktion beeinträchtigen kann.</string>
+    <string name="pref_force_dark_summary_xposed">\nXposed-Modus aktiviert.</string>
     <string name="pref_license_title">Open source Lizenzen</string>
     <string name="pref_license_summary">Lizenzdetails für Open Source Software</string>
     <string name="pref_master_switch">Hauptschalter</string>
@@ -40,12 +50,14 @@
     <string name="pref_time_auto_summary">GPS Koordinaten zum Berechnen des Sonnuntergangs/Sonnenaufgangs benutzen. Standortberechtigung wird benötigt.</string>
     <string name="pref_time_start">Startzeit</string>
     <string name="pref_time_end">Endzeit</string>
+    <string name="pref_trans_title">Übersetzer</string>
     <string name="pref_share_title">Teilen</string>
     <string name="pref_share_summary">Wenn dir die App gefällt, teile sie.</string>
     <string name="pref_source_title">Open Source</string>
     <string name="pref_source_summary">Quelltext auf Github ansehen.</string>
     <string name="pref_version">Version</string>
 
+    <!-- Permission activity -->
     <string name="adb_check">Überprüfen</string>
     <string name="adb_check_failed">Fehlgeschlagen! Überprüfen, ob das korrekte Kommando eingetippt wurde.</string>
     <string name="adb_description">PC/Mac benutzen um Berechtigung mit ADB zu erteilen."
@@ -63,15 +75,18 @@
     <string name="permission_granted">Berechtigung erteilt</string>
     <string name="permission_failed">Berechtigung erteilen ist fehlgeschlagen!</string>
 
-
     <string name="root_check_failed">Root Berechtigung wurde abgelehnt!</string>
     <string name="root_description">Wenn das Gerät gerootet ist kann die Berechtigung damit erteilt werden.</string>
     <string name="root_grant">Berechtigung erteilen</string>
     <string name="root_title">Mittels root Berechtigung erteilen.</string>
 
+    <string name="shizuku_connect_failed">Verbindung mit dem Shizuku Core Service nicht möglich, bitte sicherstellen, dass es läuft.</string>
+    <string name="shizuku_open_manager">Shizuku öffnen</string>
     <string name="shizuku_description">Berechtigung mittels Shizuku erteilen.</string>
     <string name="shizuku_not_install">Shizuku ist nicht installiert!</string>
     <string name="shizuku_service_not_running">Shizuku-Service läuft nicht!</string>
 
     <string name="tile_dark_theme">Dark Theme</string>
+
+    <string name="xposed_description">Force-Dark Blockliste einschalten: die ausgewählten Apps werden nicht in den Force-Dark-Modus gezwungen (experimentell).</string>
 </resources>
