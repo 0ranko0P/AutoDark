@@ -86,6 +86,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         return@async mPackageManager.getInstalledApplications(PackageManager.GET_META_DATA)
             .stream()
             .filter { ApplicationInfo.FLAG_SYSTEM.and(it.flags) != ApplicationInfo.FLAG_SYSTEM }
+            .sorted { o1, o2 -> getAppName(o1).compareTo(getAppName(o2)) }
             .collect(Collectors.toList())
     }
 
