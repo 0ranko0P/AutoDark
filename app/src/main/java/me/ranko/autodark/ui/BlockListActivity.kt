@@ -163,7 +163,8 @@ class BlockListActivity : BaseListActivity() {
 
     override fun onBackPressed() {
         if (viewModel.isUploading()) {
-            showMessage(R.string.app_upload_busy)
+            // prevent exit while uploading
+            showMessage(R.string.app_upload_start)
         } else {
             if (toolbarEdit.hasFocus()) {
                 toolbarEdit.clearFocus()
