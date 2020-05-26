@@ -20,8 +20,8 @@ object CircularAnimationUtil {
      * @param   target    circle animate perform on this view, will automatic set visibility
      */
     @JvmStatic
-    fun buildAnimator(startView: View, target: View): Animator {
-        return buildAnimator(getViewCenterCoordinate(startView), target)
+    fun buildAnimator(startView: View, target: View, targetRadius:Float = 0f): Animator {
+        return buildAnimator(getViewCenterCoordinate(startView), target, targetRadius)
     }
 
     /**
@@ -35,13 +35,13 @@ object CircularAnimationUtil {
      * @see     ViewAnimationUtils.createCircularReveal
      */
     @JvmStatic
-    fun buildAnimator(@Size(2) coordinates: IntArray, target: View): Animator {
+    fun buildAnimator(@Size(2) coordinates: IntArray, target: View, targetRadius:Float = 0f): Animator {
         // is in/out animation
         val aType = target.visibility == View.VISIBLE
 
         val radius = max(target.width, target.height).toFloat()
-        val start = if (aType) radius else 0f
-        val end = if (aType) 0f else radius
+        val start = if (aType) radius else targetRadius
+        val end = if (aType) targetRadius else radius
 
         return ViewAnimationUtils.createCircularReveal(
             target,

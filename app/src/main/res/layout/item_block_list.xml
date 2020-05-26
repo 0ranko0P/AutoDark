@@ -1,50 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/appRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/card_btn_background"
-    android:clickable="true"
-    android:padding="16dp">
+    tools:layout_height="74dp">
 
-    <ImageView
-        android:id="@+id/icon"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        android:contentDescription="@null"
-        tools:src="@drawable/ic_launcher_background" />
-
-    <TextView
-        android:id="@+id/name"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_toStartOf="@id/indicator"
-        android:layout_toEndOf="@id/icon"
-        android:textColor="?attr/colorOnSurface"
-        android:textSize="16sp"
-        tools:text="System UI" />
-
-    <TextView
-        android:id="@+id/appID"
+    <View
+        android:id="@+id/appRootBg"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/name"
-        android:layout_alignStart="@id/name"
-        android:layout_alignEnd="@id/name"
+        android:layout_height="match_parent"
+        android:layout_marginStart="4dp"
         android:layout_marginTop="2dp"
-        android:textSize="14sp"
-        tools:text="com.android.systemui" />
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="2dp"
+        android:alpha="0.4"
+        android:background="@drawable/shape_btn_background"
+        android:visibility="invisible" />
 
-    <ImageView
-        android:id="@+id/indicator"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        android:layout_marginStart="16dp"
-        android:src="@drawable/ic_clear_anim" />
-</RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/appRoot"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="16dp"
+            android:contentDescription="@null"
+            tools:src="@drawable/ic_launcher_background" />
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_toStartOf="@id/indicator"
+            android:layout_toEndOf="@id/icon"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="16sp"
+            tools:text="System UI" />
+
+        <TextView
+            android:id="@+id/appID"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/name"
+            android:layout_alignStart="@id/name"
+            android:layout_alignEnd="@id/name"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="16dp"
+            android:textSize="14sp"
+            tools:text="com.android.systemui" />
+
+        <ImageView
+            android:id="@+id/indicator"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:src="@drawable/ic_clear_anim" />
+    </RelativeLayout>
+</FrameLayout>
