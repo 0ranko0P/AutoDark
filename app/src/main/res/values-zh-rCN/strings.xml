@@ -17,6 +17,7 @@
     <string name="app_upload_fail">无法保存列表, 请将调试日志发送给开发者以帮助解决问题.</string>
     <string name="app_upload_success">成功, 重启黑名单中的应用来查看效果</string>
     <string name="app_upload_busy">现在无法保存</string>
+    <string name="app_upload_start">正在保存, 请稍候...</string>
 
     <string name="dark_mode_disabled">主开关已关闭</string>
     <string name="dark_mode_permission_denied">设置失败, 无权限!</string>
