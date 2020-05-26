@@ -2,16 +2,13 @@ package me.ranko.autodark.ui
 
 import android.graphics.drawable.Animatable2
 import android.view.View
-import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.marcdonald.simplelicensedisplay.SimpleLicenseDisplay
 import me.ranko.autodark.Constant
 import me.ranko.autodark.R
-import me.ranko.autodark.Utils.ViewUtil
 
 @BindingAdapter("setActiveImg")
 fun setActiveImg(fab: FloatingActionButton, state: DarkSwitch) {
@@ -50,12 +47,6 @@ fun onButtonJobProgress(v: TextView, process: Int) {
 @BindingAdapter("onJobProgress")
 fun onJobProgress(v: ProgressBar, process: Int) {
     v.visibility = if (process == Constant.JOB_STATUS_PENDING) View.VISIBLE else View.GONE
-}
-
-@BindingAdapter("setLinearViewPadding")
-fun setLinearViewPadding(v: LinearLayout, viewModel: PermissionViewModel?) {
-    val top = v.paddingTop + ViewUtil.getStatusBarHeight(v.resources)
-    v.setPadding(v.paddingLeft, top, v.paddingRight, v.paddingBottom)
 }
 
 @BindingAdapter("bindLicense")

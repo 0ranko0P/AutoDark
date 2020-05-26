@@ -1,6 +1,7 @@
 package me.ranko.autodark.ui
 
 import android.content.pm.ApplicationInfo
+import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -102,7 +103,6 @@ class BlockListActivity : BaseListActivity() {
         fab.setOnClickListener { onRequestSave() }
 
         ViewUtil.setAppBarPadding(app_bar)
-        if (!ViewUtil.isLandscape(this)) ViewUtil.setImmersiveNavBar(window)
 
         viewModel = ViewModelProvider(this, BlockListViewModel.Companion.Factory(application))
                 .get(BlockListViewModel::class.java)
@@ -195,7 +195,7 @@ class BlockListActivity : BaseListActivity() {
 
     override fun onNavBarHeightAvailable(height: Int) {
         recyclerView.apply {
-            setPadding(paddingLeft, paddingTop + ViewUtil.getStatusBarHeight(resources), paddingRight, paddingBottom + height)
+            setPadding(paddingLeft, paddingTop + ViewUtil.getStatusBarHeight(resources) + 24, paddingRight, paddingBottom + height)
         }
         swipeRefresh.setProgressViewOffset(false, 0, recyclerView.paddingTop + 32)
     }

@@ -10,7 +10,6 @@ import android.view.ViewTreeObserver
 import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -29,7 +28,7 @@ import moe.shizuku.api.ShizukuApiConstants
 import moe.shizuku.api.ShizukuClientHelper
 import timber.log.Timber
 
-class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutListener {
+class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutListener {
     private lateinit var binding: PermissionActivityBinding
 
     /**
@@ -82,6 +81,12 @@ class PermissionActivity : AppCompatActivity(), ViewTreeObserver.OnGlobalLayoutL
             }
         } else {
             showRootView()
+        }
+    }
+
+    override fun onNavBarHeightAvailable(height: Int) {
+        with(binding.content.permissionRoot) {
+            setPadding(paddingLeft, paddingTop + height, paddingRight, paddingBottom + height)
         }
     }
 

@@ -10,16 +10,15 @@
             type="me.ranko.autodark.ui.PermissionViewModel" />
     </data>
 
-    <LinearLayout
+    <LinearLayout android:id="@+id/permissionRoot"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingTop="?attr/actionBarSize"
-        android:paddingBottom="@dimen/scroll_content_padding_bottom"
-        app:setLinearViewPadding="@{viewModel}">
+        android:paddingTop="?attr/actionBarSize">
 
         <RelativeLayout
             style="@style/CardStyle"
+            android:layout_marginTop="24dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
