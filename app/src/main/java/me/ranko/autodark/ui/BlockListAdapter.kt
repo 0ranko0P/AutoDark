@@ -7,13 +7,14 @@ import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.*
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.AlphaAnimation
+import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.launch
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.CircularAnimationUtil
 
@@ -53,18 +54,14 @@ class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView
         }
 
         holder.icon.tag = app.packageName
-        holder.icon.visibility = View.INVISIBLE
-        viewModel.viewModelScope.launch {
-            val iconDrawable = viewModel.getAppIcon(app)
-            val pkg = holder.id.text.toString()
-            if (pkg == app.packageName) {
-                holder.icon.setImageDrawable(iconDrawable)
-                if (!isSearchMode) {
-                    val alpha = AlphaAnimation(0.0f, 1.0f)
-                    alpha.duration = 300L
-                    holder.icon.startAnimation(alpha)
-                }
-                holder.icon.visibility = View.VISIBLE
+        val iconDrawable = viewModel.getAppIcon(app)
+        val pkg = holder.id.text.toString()
+        if (pkg == app.packageName) {
+            holder.icon.setImageDrawable(iconDrawable)
+            if (!isSearchMode) {
+                val alpha = AlphaAnimation(0.0f, 1.0f)
+                alpha.duration = 300L
+                holder.icon.startAnimation(alpha)
             }
         }
     }

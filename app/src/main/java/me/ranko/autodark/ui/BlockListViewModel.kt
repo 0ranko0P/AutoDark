@@ -73,7 +73,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     /**
-     * drawable will be cached by system
+     * drawable cached by system anyway
      * */
     fun getAppIcon(app: ApplicationInfo): Drawable = mPackageManager.getApplicationIcon(app)
 
@@ -88,6 +88,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
             .filter { ApplicationInfo.FLAG_SYSTEM.and(it.flags) != ApplicationInfo.FLAG_SYSTEM }
             .sorted { o1, o2 -> getAppName(o1).compareTo(getAppName(o2)) }
             .collect(Collectors.toList())
+                .apply { forEach{ getAppIcon(it)} }
     }
 
     fun isBlocked(app: String): Boolean = mBlockSet.contains(app)
