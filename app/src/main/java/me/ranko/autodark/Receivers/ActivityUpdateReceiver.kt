@@ -16,8 +16,13 @@ class ActivityUpdateReceiver(private val context: Context) : BroadcastReceiver()
     companion object {
         private const val TAG = "XCore: Receiver"
 
+        /**
+         * Holds blocked apps
+         * 
+         * @see     ActivityUpdateReceiver.sendNewList
+         * */
         @JvmStatic
-        private val mBlockList = HashSet<String>()
+        private lateinit var mBlockSet: HashSet<String>
 
         private const val ACTION_NEW_ACTIVITY = "me.ranko0p.intent.action.NEW_ACTIVITY"
         private const val ACTION_RELOAD_LIST = "me.ranko0p.intent.action.RELOAD_LIST"
@@ -88,10 +93,9 @@ class ActivityUpdateReceiver(private val context: Context) : BroadcastReceiver()
 
     init {
         val time = System.currentTimeMillis()
-        FileUtil.readList(Constant.BLOCK_LIST_PATH)?.let {
-            mBlockList.addAll(it)
-            XposedBridge.log("onInit: Load block list: ${mBlockList.size}, time: ${System.currentTimeMillis() - time}ms")
-        }
+        val list = FileUtil.readList(Constant.BLOCK_LIST_PATH)
+        mBlockSet =  if (list == null) HashSet() else HashSet(list)
+        XposedBridge.log("onInit: Load block list: ${mBlockSet.size}, time: ${System.currentTimeMillis() - time}ms")
     }
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -104,7 +108,7 @@ class ActivityUpdateReceiver(private val context: Context) : BroadcastReceiver()
                 val pkg = intent.getStringExtra(EXTRA_KEY_PACKAGE) ?: ""
 
                 val force: Boolean = isForceDark()
-                val block = mBlockList.contains(pkg)
+                val block = mBlockSet.contains(pkg)
 
                 // ForceDark ON  == in list --> ForceDark OFF
                 // ForceDark OFF == not in list --> ForceDark ON
@@ -136,8 +140,8 @@ class ActivityUpdateReceiver(private val context: Context) : BroadcastReceiver()
                     XposedBridge.log("onReload: unable to read block list!")
                     updateLoadProgress(STATUS_LIST_LOAD_FAILED)
                 } else {
-                    mBlockList.clear()
-                    if (newList.isNotEmpty()) mBlockList.addAll(newList)
+                    mBlockSet.clear()
+                    if (newList.isNotEmpty()) mBlockSet.addAll(newList)
                     updateLoadProgress(STATUS_LIST_LOAD_SUCCEED)
                 }
 
@@ -146,11 +150,11 @@ class ActivityUpdateReceiver(private val context: Context) : BroadcastReceiver()
 
             ACTION_SERVER_PRINT_LIST -> { // Debug only
                 val sb = StringBuffer()
-                mBlockList.forEach {
+                mBlockSet.forEach {
                     sb.append('[').append(it).append(']').append(',')
                 }
                 if (sb.isNotEmpty()) sb.deleteCharAt(sb.length - 1)
-                Log.e(TAG, "printSet: size: ${mBlockList.size} $sb")
+                Log.e(TAG, "printSet: size: ${mBlockSet.size} $sb")
             }
         }
     }
