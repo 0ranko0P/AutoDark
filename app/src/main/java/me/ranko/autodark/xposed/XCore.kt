@@ -114,7 +114,7 @@ class XCore : IXposedHookLoadPackage, IXposedHookZygoteInit {
         // chmod 770 && chgrop system
         val darkDataDir = Paths.get(Constant.APP_DATA_DIR)
         FileUtil.chgrop(darkDataDir, "system")
-        FileUtil.chmod(darkDataDir)
+        FileUtil.chmod(darkDataDir, FileUtil.PERMISSION_770)
         XposedBridge.log("initZygote: Block list permission modified")
     }
 }

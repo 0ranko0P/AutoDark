@@ -3,7 +3,6 @@ package me.ranko.autodark.Utils
 import android.util.Log
 import androidx.annotation.WorkerThread
 import me.ranko.autodark.Constant
-import me.ranko.autodark.Receivers.ActivityUpdateReceiver
 import java.io.IOException
 import java.nio.file.FileSystems
 import java.nio.file.Files
@@ -27,14 +26,14 @@ object FileUtil {
 
     @JvmStatic
     @Throws(IOException::class)
-    fun chmod(path: Path, permissionNum: String = PERMISSION_770) {
+    fun chmod(path: Path, permissionNum: String) {
         val permissions = PosixFilePermissions.fromString(permissionNum)
         Files.setPosixFilePermissions(path, permissions)
     }
 
     @JvmStatic
     @Throws(IOException::class)
-    fun crateIfNotExists(path:Path, permissionNum: String = PERMISSION_770) {
+    fun crateIfNotExists(path:Path, permissionNum: String) {
         if(path.toFile().exists()) return
 
         val permissions = PosixFilePermissions.fromString(permissionNum)
