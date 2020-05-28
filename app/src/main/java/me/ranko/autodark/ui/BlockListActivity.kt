@@ -8,18 +8,21 @@ import android.view.MenuItem
 import android.view.View
 import android.view.Window
 import androidx.annotation.StringRes
+import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
 import androidx.databinding.ObservableField
+import androidx.databinding.ObservableInt
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.activity_block_list.*
 import me.ranko.autodark.Constant
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.ViewUtil
+import me.ranko.autodark.databinding.ActivityBlockListBinding
 
 class BlockListActivity : BaseListActivity() {
 
+    private lateinit var binding: ActivityBlockListBinding
     private lateinit var viewModel: BlockListViewModel
     private var mAdapter: BlockListAdapter? = null
 
@@ -31,9 +34,17 @@ class BlockListActivity : BaseListActivity() {
             val list = (sender as ObservableField<List<ApplicationInfo>>).get()
             if (mAdapter == null) {
                 mAdapter = BlockListAdapter(viewModel)
-                recyclerView.adapter = mAdapter
+                binding.recyclerView.adapter = mAdapter
             }
             mAdapter!!.setData(list!!)
+        }
+    }
+
+    private val statusObserver = object : Observable.OnPropertyChangedCallback() {
+        override fun onPropertyChanged(sender: Observable, propertyId: Int) {
+            val status = (sender as ObservableInt).get()
+            if (status == Constant.JOB_STATUS_SUCCEED)
+                showMessage(R.string.app_upload_success)
         }
     }
 
@@ -44,85 +55,67 @@ class BlockListActivity : BaseListActivity() {
         }
 
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_block_list)
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        fab.setOnClickListener { onRequestSave() }
-
-        ViewUtil.setAppBarPadding(app_bar)
-
         viewModel = ViewModelProvider(this, BlockListViewModel.Companion.Factory(application))
-                .get(BlockListViewModel::class.java)
-        viewModel.attachViewModel(toolbarEdit)
-        viewModel.uploadStatus.observe(this, Observer { status ->
-            if (status == null) return@Observer
-            when (status) {
-                Constant.JOB_STATUS_PENDING -> updateLoadUI(true)
+            .get(BlockListViewModel::class.java)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_block_list)
+        binding.lifecycleOwner = this
+        binding.viewModel = viewModel
+        binding.swipeRefresh.visibility = View.INVISIBLE
 
-                Constant.JOB_STATUS_SUCCEED -> {
-                    updateLoadUI(false)
-                    showMessage(R.string.app_upload_success)
-                }
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        ViewUtil.setAppBarPadding(binding.appBar)
 
-                Constant.JOB_STATUS_FAILED -> {
-                    updateLoadUI(true)
-                    progressText.setText(R.string.app_upload_fail)
-                }
-            }
-        })
+        viewModel.attachViewModel(binding.toolbarEdit)
+        viewModel.uploadStatus.addOnPropertyChangedCallback(statusObserver)
 
         viewModel.isSearching.observe(this, Observer { isSearching ->
             // hide menu icon while searching
             menu?.findItem(R.id.action_save)?.isVisible = !isSearching
-            if (!isSearching) toolbarEdit.text?.clear()
+            if (!isSearching) binding.toolbarEdit.text?.clear()
             mAdapter?.setSearchMode(isSearching)
         })
 
         viewModel.isRefreshing.observe(this, Observer { isRefreshing ->
-            if (!isRefreshing && swipeRefresh.visibility == View.INVISIBLE) {
+            if (!isRefreshing && binding.swipeRefresh.visibility == View.INVISIBLE && !viewModel.isUploading()) {
                 // on first init
-                updateLoadUI(false)
+                binding.progressRoot.visibility = View.INVISIBLE
+                binding.swipeRefresh.visibility = View.VISIBLE
+                binding.progressText.setText(R.string.app_upload_start)
             } else {
-                swipeRefresh.isRefreshing = isRefreshing
+                binding.swipeRefresh.isRefreshing = isRefreshing
             }
-            toolbarEdit.visibility = if(isRefreshing) View.INVISIBLE else View.VISIBLE
+            binding.toolbarEdit.visibility = if (isRefreshing) View.INVISIBLE else View.VISIBLE
         })
 
         viewModel.appList.addOnPropertyChangedCallback(appListObserver)
 
-        swipeRefresh.setOnRefreshListener { viewModel.refreshList() }
-        // add RGB power
-        swipeRefresh.setColorSchemeResources(R.color.material_red_A700, R.color.material_green_A700, R.color.material_blue_A700)
+        binding.swipeRefresh.setOnRefreshListener { viewModel.refreshList() }
+        binding.swipeRefresh.setColorSchemeResources( // add RGB power
+            R.color.material_red_A700,
+            R.color.material_green_A700,
+            R.color.material_blue_A700
+        )
     }
 
-    private fun updateLoadUI(isLoading: Boolean) {
-        if (isLoading) {
-            swipeRefresh.visibility = View.INVISIBLE
-            progressRoot.visibility = View.VISIBLE
-            progressText.setText(R.string.app_upload_start)
-        } else {
-            progressRoot.visibility = View.INVISIBLE
-            swipeRefresh.visibility = View.VISIBLE
-        }
-    }
-
-    private fun showMessage(@StringRes str: Int) = Snackbar.make(coordinatorRoot, str, Snackbar.LENGTH_SHORT).show()
+    private fun showMessage(@StringRes str: Int) =
+        Snackbar.make(binding.coordinatorRoot, str, Snackbar.LENGTH_SHORT).show()
 
     override fun onBackPressed() {
         if (viewModel.isUploading()) {
             // prevent exit while uploading
             showMessage(R.string.app_upload_start)
         } else {
-            if (toolbarEdit.hasFocus()) {
-                toolbarEdit.clearFocus()
+            if (binding.toolbarEdit.hasFocus()) {
+                binding.toolbarEdit.clearFocus()
             } else {
                 super.onBackPressed()
             }
         }
     }
 
-    private fun onRequestSave() {
-        if (swipeRefresh.isRefreshing || !viewModel.requestUploadList()) showMessage(R.string.app_upload_busy)
+    fun onRequestSave(v: View?) {
+        if (binding.swipeRefresh.isRefreshing || !viewModel.requestUploadList()) showMessage(R.string.app_upload_busy)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -133,7 +126,7 @@ class BlockListActivity : BaseListActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_save -> onRequestSave()
+            R.id.action_save -> onRequestSave(null)
 
             android.R.id.home -> onBackPressed()
         }
@@ -141,14 +134,15 @@ class BlockListActivity : BaseListActivity() {
     }
 
     override fun onNavBarHeightAvailable(height: Int) {
-        recyclerView.apply {
+        binding.recyclerView.apply {
             setPadding(paddingLeft, paddingTop + ViewUtil.getStatusBarHeight(resources) + 24, paddingRight, paddingBottom + height)
         }
-        swipeRefresh.setProgressViewOffset(false, 0, recyclerView.paddingTop + 32)
+        binding.swipeRefresh.setProgressViewOffset(false, 0, binding.recyclerView.paddingTop + 32)
     }
 
     override fun onDestroy() {
         super.onDestroy()
         viewModel.appList.removeOnPropertyChangedCallback(appListObserver)
+        viewModel.uploadStatus.removeOnPropertyChangedCallback(statusObserver)
     }
 }

@@ -14,6 +14,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.annotation.MainThread
 import androidx.databinding.ObservableField
+import androidx.databinding.ObservableInt
 import androidx.lifecycle.*
 import kotlinx.coroutines.*
 import me.ranko.autodark.BuildConfig
@@ -61,9 +62,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
     private var timer: Instant = Instant.now()
 
-    private val _uploadStatus = MutableLiveData<Int?>()
-    val uploadStatus: LiveData<Int?>
-        get() = _uploadStatus
+    val uploadStatus = ObservableInt()
 
     private val _isSearching = MutableLiveData(false)
     val isSearching: LiveData<Boolean>
@@ -203,18 +202,23 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         if (isUploading()) return false
         timer = Instant.now()
 
-        _uploadStatus.value = JOB_STATUS_PENDING
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                FileUtil.crateIfNotExists(BLOCK_LIST_PATH, FileUtil.PERMISSION_764)
-                Files.write(BLOCK_LIST_PATH, mBlockSet)
-                ActivityUpdateReceiver.sendNewList(mContext, ArrayList(mBlockSet))
-                delay(1000L)
-                // update success status when receive response
-            } catch (e: Exception) {
-                Timber.w(e, "Failed to write block list")
-                _uploadStatus.postValue(JOB_STATUS_FAILED)
-                _uploadStatus.postValue(null)
+        uploadStatus.set(JOB_STATUS_PENDING)
+        viewModelScope.launch {
+            val result: Boolean = async(Dispatchers.IO) {
+                try {
+                    FileUtil.crateIfNotExists(BLOCK_LIST_PATH, FileUtil.PERMISSION_764)
+                    Files.write(BLOCK_LIST_PATH, mBlockSet)
+                    ActivityUpdateReceiver.sendNewList(mContext, ArrayList(mBlockSet))
+                    delay(1000L)
+                    // update success status when receive response
+                    return@async true
+                } catch (e: Exception) {
+                    Timber.w(e, "Failed to write block list")
+                    return@async false
+                }
+            }.await()
+            if (!result) {
+                uploadStatus.set(JOB_STATUS_FAILED)
             }
         }
         return true
@@ -224,25 +228,21 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         when (response) {
             STATUS_LIST_LOAD_START -> Timber.d("onReceiveSystemServer: Start")
 
-            STATUS_LIST_LOAD_FAILED -> _uploadStatus.value = JOB_STATUS_FAILED
+            STATUS_LIST_LOAD_FAILED -> uploadStatus.set(JOB_STATUS_FAILED)
 
-            STATUS_LIST_LOAD_SUCCEED -> _uploadStatus.value = JOB_STATUS_SUCCEED
+            STATUS_LIST_LOAD_SUCCEED -> uploadStatus.set(JOB_STATUS_SUCCEED)
 
             else -> throw IllegalArgumentException("WTF response: $response")
         }
 
-        if (response != STATUS_LIST_LOAD_START) {
-            _uploadStatus.value = null
-
-            if (BuildConfig.DEBUG) {
-                mContext.sendBroadcast(Intent(ActivityUpdateReceiver.ACTION_SERVER_PRINT_LIST))
-                val cost = Duration.between(timer, Instant.now()).toMillis()
-                Timber.w("${if (response == STATUS_LIST_LOAD_SUCCEED) "Succeed" else "Failed"}: ${cost}ms")
-            }
+        if (BuildConfig.DEBUG && response != STATUS_LIST_LOAD_START) {
+            mContext.sendBroadcast(Intent(ActivityUpdateReceiver.ACTION_SERVER_PRINT_LIST))
+            val cost = Duration.between(timer, Instant.now()).toMillis()
+            Timber.w("${if (response == STATUS_LIST_LOAD_SUCCEED) "Succeed" else "Failed"}: ${cost}ms")
         }
     }
 
-    fun isUploading(): Boolean = _uploadStatus.value == JOB_STATUS_PENDING
+    fun isUploading(): Boolean = uploadStatus.get() == JOB_STATUS_PENDING
 
     override fun onCleared() {
         super.onCleared()
