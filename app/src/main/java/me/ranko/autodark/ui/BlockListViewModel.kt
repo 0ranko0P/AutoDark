@@ -8,12 +8,14 @@ import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.View
+import android.widget.TextView
 import androidx.annotation.MainThread
+import androidx.databinding.ObservableField
 import androidx.lifecycle.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import me.ranko.autodark.BuildConfig
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.Receivers.ActivityUpdateReceiver
@@ -39,6 +41,17 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
                 throw IllegalArgumentException("Unable to construct viewModel")
             }
         }
+
+        val EMPTY_APP_LIST = ArrayList<ApplicationInfo>(0)
+
+        @JvmStatic
+        fun isAppendChars(old: CharSequence, new: CharSequence): Boolean {
+            if (old.isEmpty() || old.length >= new.length) return false
+            for ((index, sChar) in old.withIndex()) {
+                if (new[index] != sChar) return false
+            }
+            return true
+        }
     }
 
     private val mContext = application
@@ -52,6 +65,76 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
     val uploadStatus: LiveData<Int?>
         get() = _uploadStatus
 
+    private val _isSearching = MutableLiveData(false)
+    val isSearching: LiveData<Boolean>
+        get() = _isSearching
+
+    private val _isRefreshing = MutableLiveData(false)
+    val isRefreshing: LiveData<Boolean>
+        get() = _isRefreshing
+
+    val appList = ObservableField<List<ApplicationInfo>>()
+
+    private val mSearchHelper = object : TextWatcher, View.OnFocusChangeListener {
+        var mEdit: TextView? = null
+        var queryJob: Job? = null
+        var lastInput: CharSequence = ""
+        var mAppList: List<ApplicationInfo> = EMPTY_APP_LIST
+
+        override fun onFocusChange(v: View, hasFocus: Boolean) {
+            _isSearching.value = hasFocus
+            // clear app list if searching
+            if (hasFocus) {
+                mAppList = appList.get()!!
+                appList.set(EMPTY_APP_LIST)
+            } else {
+                if (queryJob?.isActive == true) queryJob?.cancel()
+                appList.set(mAppList)
+            }
+        }
+
+        override fun onTextChanged(str: CharSequence, start: Int, before: Int, count: Int) {
+            if (str.isEmpty()) { // clear
+                appList.set(EMPTY_APP_LIST)
+                return
+            }
+            queryAndShow(str, isAppendChars(lastInput, str))
+            lastInput = str.toString()
+        }
+
+        private fun queryAndShow(str: CharSequence, isAppend: Boolean) {
+            val result = ArrayList<ApplicationInfo>()
+            // iterate old list if isAppend
+            val list = if (isAppend) appList.get()!! else mAppList
+            for (app in list) {
+                if (app.packageName.contains(str, true) || getAppName(app).contains(str, true)) {
+                    result.add(app)
+                }
+            }
+
+            appList.set(result)
+        }
+
+        override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+        }
+
+        override fun afterTextChanged(s: Editable?) {
+        }
+
+        fun attach(editText: TextView) {
+            mEdit = editText
+            editText.text = null
+            editText.onFocusChangeListener = this
+            editText.addTextChangedListener(this)
+        }
+
+        fun detach() {
+            mEdit?.onFocusChangeListener = null
+            mEdit?.removeTextChangedListener(this)
+            mEdit = null
+        }
+    }
+
     private val updateStatusReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
             if (intent.action == ActivityUpdateReceiver.ACTION_RELOAD_RESULT) {
@@ -63,12 +146,14 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun register() {
+    fun attachViewModel(editText: TextView) {
+        refreshList()
+        mSearchHelper.attach(editText)
         mContext.registerReceiver(
-            updateStatusReceiver,
-            IntentFilter(ActivityUpdateReceiver.ACTION_RELOAD_RESULT),
-            PERMISSION_DARK_BROADCAST,
-            null
+                updateStatusReceiver,
+                IntentFilter(ActivityUpdateReceiver.ACTION_RELOAD_RESULT),
+                PERMISSION_DARK_BROADCAST,
+                null
         )
     }
 
@@ -79,16 +164,25 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun getAppName(app: ApplicationInfo): String = app.loadLabel(mPackageManager).toString()
 
-    fun reloadListAsync() = viewModelScope.async(Dispatchers.IO) {
-        mBlockSet.clear()
-        FileUtil.readList(BLOCK_LIST_PATH)?.let { mBlockSet.addAll(it) }
-        delay(1000L)
-        return@async mPackageManager.getInstalledApplications(PackageManager.GET_META_DATA)
-            .stream()
-            .filter { ApplicationInfo.FLAG_SYSTEM.and(it.flags) != ApplicationInfo.FLAG_SYSTEM }
-            .sorted { o1, o2 -> getAppName(o1).compareTo(getAppName(o2)) }
-            .collect(Collectors.toList())
-                .apply { forEach{ getAppIcon(it)} }
+    fun refreshList() {
+        if (isRefreshing.value == true) return
+
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            mBlockSet.clear()
+            val list = async(Dispatchers.IO) {
+                FileUtil.readList(BLOCK_LIST_PATH)?.let { mBlockSet.addAll(it) }
+                delay(1000L)
+                return@async mPackageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+                        .stream()
+                        .filter { ApplicationInfo.FLAG_SYSTEM.and(it.flags) != ApplicationInfo.FLAG_SYSTEM }
+                        .sorted { o1, o2 -> getAppName(o1).compareTo(getAppName(o2)) }
+                        .collect(Collectors.toList())
+                        .apply { forEach { getAppIcon(it) } }
+            }.await()
+            appList.set(list)
+            _isRefreshing.value = false
+        }
     }
 
     fun isBlocked(app: String): Boolean = mBlockSet.contains(app)
@@ -154,5 +248,6 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         super.onCleared()
         mContext.unregisterReceiver(updateStatusReceiver)
         mBlockSet.clear()
+        mSearchHelper.detach()
     }
 }

@@ -1,24 +1,19 @@
 package me.ranko.autodark.ui
 
 import android.content.pm.ApplicationInfo
-import android.graphics.Color
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.transition.Fade
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.Window
 import androidx.annotation.StringRes
+import androidx.databinding.Observable
+import androidx.databinding.ObservableField
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.textfield.TextInputEditText
 import kotlinx.android.synthetic.main.activity_block_list.*
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 import me.ranko.autodark.Constant
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.ViewUtil
@@ -26,67 +21,19 @@ import me.ranko.autodark.Utils.ViewUtil
 class BlockListActivity : BaseListActivity() {
 
     private lateinit var viewModel: BlockListViewModel
-    private lateinit var mAdapter: BlockListAdapter
-    private lateinit var mAppList: MutableList<ApplicationInfo>
+    private var mAdapter: BlockListAdapter? = null
 
     private var menu: Menu? = null
-    private val saveMenu: MenuItem by lazy(LazyThreadSafetyMode.NONE) { menu!!.findItem(R.id.action_save) }
 
-    private val mSearchHelper = object: TextWatcher, View.OnFocusChangeListener {
-        private var queryJob: Job? = null
-        private var lastInput: CharSequence = ""
-
-        override fun onFocusChange(v: View?, hasFocus: Boolean) {
-            saveMenu.isVisible = !hasFocus
-            mAdapter.setSearchMode(hasFocus)
-            // clear app list if searching
-            if (hasFocus) {
-                mAdapter.clear()
-            } else {
-                if (!hasFocus) (v as TextInputEditText).text?.clear()
-                if (queryJob?.isActive == true) queryJob?.cancel()
-                mAdapter.setData(mAppList)
+    private val appListObserver = object : Observable.OnPropertyChangedCallback() {
+        override fun onPropertyChanged(sender: Observable, propertyId: Int) {
+            @Suppress("UNCHECKED_CAST")
+            val list = (sender as ObservableField<List<ApplicationInfo>>).get()
+            if (mAdapter == null) {
+                mAdapter = BlockListAdapter(viewModel)
+                recyclerView.adapter = mAdapter
             }
-        }
-
-        override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-            if (s.isEmpty()) {
-                mAdapter.clear()
-                return
-            }
-
-            if (lastInput.isNotEmpty() && isAppendChars(lastInput, s)) {
-                queryAndShow(s, mAdapter.getData()!!)
-            } else {
-                queryAndShow(s, mAppList)
-            }
-            lastInput = s
-        }
-
-        private fun queryAndShow(str: CharSequence, list: List<ApplicationInfo>) {
-            if (queryJob?.isActive == true) queryJob?.cancel()
-            queryJob = lifecycleScope.launch {
-                // clear current result
-                val data = ArrayList<ApplicationInfo>()
-                mAdapter.setData(data)
-
-                for (it: ApplicationInfo in list) {
-                    val isPkg = it.packageName.contains(str, true)
-                    val isLabel = viewModel.getAppName(it).contains(str, true)
-                    if (isPkg || isLabel) {
-                        data.add(it)
-                        mAdapter.notifyItemInserted(list.size - 1)
-                    }
-                }
-            }
-        }
-
-        fun isSearching() = toolbarEdit.hasFocus()
-
-        override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-        }
-
-        override fun afterTextChanged(s: Editable?) {
+            mAdapter!!.setData(list!!)
         }
     }
 
@@ -106,7 +53,7 @@ class BlockListActivity : BaseListActivity() {
 
         viewModel = ViewModelProvider(this, BlockListViewModel.Companion.Factory(application))
                 .get(BlockListViewModel::class.java)
-        viewModel.register()
+        viewModel.attachViewModel(toolbarEdit)
         viewModel.uploadStatus.observe(this, Observer { status ->
             if (status == null) return@Observer
             when (status) {
@@ -124,28 +71,28 @@ class BlockListActivity : BaseListActivity() {
             }
         })
 
-        swipeRefresh.setOnRefreshListener { refresh() }
+        viewModel.isSearching.observe(this, Observer { isSearching ->
+            // hide menu icon while searching
+            menu?.findItem(R.id.action_save)?.isVisible = !isSearching
+            if (!isSearching) toolbarEdit.text?.clear()
+            mAdapter?.setSearchMode(isSearching)
+        })
+
+        viewModel.isRefreshing.observe(this, Observer { isRefreshing ->
+            if (!isRefreshing && swipeRefresh.visibility == View.INVISIBLE) {
+                // on first init
+                updateLoadUI(false)
+            } else {
+                swipeRefresh.isRefreshing = isRefreshing
+            }
+            toolbarEdit.visibility = if(isRefreshing) View.INVISIBLE else View.VISIBLE
+        })
+
+        viewModel.appList.addOnPropertyChangedCallback(appListObserver)
+
+        swipeRefresh.setOnRefreshListener { viewModel.refreshList() }
         // add RGB power
         swipeRefresh.setColorSchemeResources(R.color.material_red_A700, R.color.material_green_A700, R.color.material_blue_A700)
-
-        mAdapter = BlockListAdapter(viewModel)
-        recyclerView.adapter = mAdapter
-        refresh()
-
-        toolbarEdit.onFocusChangeListener = mSearchHelper
-        toolbarEdit.addTextChangedListener(mSearchHelper)
-    }
-
-    private fun refresh() = lifecycleScope.launch {
-        if (!mSearchHelper.isSearching()) {
-            if (!viewModel.isUploading()) {
-                mAppList = viewModel.reloadListAsync().await()
-                if (!mSearchHelper.isSearching()) mAdapter.setData(mAppList)
-            }
-            // use loadUI's progressBar at first init
-            if (swipeRefresh.visibility == View.INVISIBLE) updateLoadUI(false)
-        }
-        swipeRefresh.isRefreshing = false
     }
 
     private fun updateLoadUI(isLoading: Boolean) {
@@ -202,16 +149,6 @@ class BlockListActivity : BaseListActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        toolbarEdit.removeTextChangedListener(mSearchHelper)
-    }
-
-    companion object {
-        private fun isAppendChars(old: CharSequence, new: CharSequence): Boolean {
-            if (old.length >= new.length || new.isEmpty()) return false
-            for ((index, sChar) in old.withIndex()) {
-                if (new[index] != sChar) return false
-            }
-            return true
-        }
+        viewModel.appList.removeOnPropertyChangedCallback(appListObserver)
     }
 }

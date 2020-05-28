@@ -33,7 +33,8 @@
                 android:hint="@string/app_search_hint"
                 android:maxLines="1"
                 android:paddingTop="6dp"
-                android:paddingBottom="6dp" />
+                android:paddingBottom="6dp"
+                android:visibility="invisible"/>
         </androidx.appcompat.widget.Toolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
