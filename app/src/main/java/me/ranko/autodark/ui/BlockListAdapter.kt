@@ -85,6 +85,7 @@ class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView
     }
 
     override fun onClick(v: View) {
+        if (viewModel.isRefreshing.value == true) return
         val holder = v.tag as ViewHolder
         val position = holder.adapterPosition
         val isBlocked = viewModel.onAppSelected(data!![position])
