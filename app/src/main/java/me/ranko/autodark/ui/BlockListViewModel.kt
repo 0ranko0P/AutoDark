@@ -80,7 +80,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         var lastInput: CharSequence = ""
         var list: List<ApplicationInfo> = EMPTY_APP_LIST
 
-        override fun onFocusChange(v: View, hasFocus: Boolean) {
+        override fun onFocusChange(v: View?, hasFocus: Boolean) {
             _isSearching.value = hasFocus
             if (hasFocus) {
                 list = _mAppList.value!!
@@ -130,6 +130,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         }
 
         fun detach() {
+            if (list.isNotEmpty()) onFocusChange(null, false)
             mEdit?.onFocusChangeListener = null
             mEdit?.removeTextChangedListener(this)
             mEdit = null
