@@ -56,8 +56,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:visibility="@{(viewModel.uploadStatus == Constant.JOB_STATUS_SUCCEED) ? View.INVISIBLE: View.VISIBLE}"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="@{(viewModel.uploadStatus == Constant.JOB_STATUS_PENDING) ? View.VISIBLE : View.INVISIBLE}">
 
             <ProgressBar
                 android:layout_width="64dp"
@@ -79,7 +79,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
-            android:visibility="@{(viewModel.uploadStatus == Constant.JOB_STATUS_SUCCEED) ? View.VISIBLE : View.INVISIBLE}"
+            android:visibility="@{(viewModel.uploadStatus == Constant.JOB_STATUS_PENDING) ? View.INVISIBLE : View.VISIBLE}"
             tools:visibility="visible">
 
             <androidx.recyclerview.widget.RecyclerView
@@ -100,8 +100,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
-            android:transitionName="trans_fab"
             android:onClick="onRequestSave"
+            android:transitionName="trans_fab"
             app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
             app:srcCompat="@drawable/ic_save" />
 

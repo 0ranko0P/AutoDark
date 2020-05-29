@@ -156,6 +156,10 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun attachViewModel(editText: TextView) {
         mSearchHelper.attach(editText)
+        // show big progressBar on first init
+        if (!isUploading() && appList.get() == null) {
+            uploadStatus.set(JOB_STATUS_PENDING)
+        }
     }
 
     fun detach() = mSearchHelper.detach()
@@ -184,6 +188,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
                         .apply { forEach { getAppIcon(it) } }
             }.await()
             appList.set(list)
+            uploadStatus.set(-1)
             _isRefreshing.value = false
         }
     }

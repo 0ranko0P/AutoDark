@@ -38,9 +38,13 @@ class BlockListActivity : BaseListActivity() {
 
     private val statusObserver = object : Observable.OnPropertyChangedCallback() {
         override fun onPropertyChanged(sender: Observable, propertyId: Int) {
-            val status = (sender as ObservableInt).get()
-            if (status == Constant.JOB_STATUS_SUCCEED)
-                showMessage(R.string.app_upload_success)
+            when ((sender as ObservableInt).get()) {
+                Constant.JOB_STATUS_PENDING -> binding.progressText.setText(R.string.app_upload_start)
+
+                Constant.JOB_STATUS_SUCCEED -> showMessage(R.string.app_upload_success)
+
+                Constant.JOB_STATUS_FAILED -> {binding.progressText.setText(R.string.app_upload_fail)}
+            }
         }
     }
 
@@ -60,10 +64,12 @@ class BlockListActivity : BaseListActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         ViewUtil.setAppBarPadding(binding.appBar)
+        if (!viewModel.isUploading()) binding.progressText.setText(R.string.app_loading)
 
         mAdapter = BlockListAdapter(viewModel)
         binding.recyclerView.adapter = mAdapter
 
+        viewModel.appList.addOnPropertyChangedCallback(appListObserver)
         viewModel.attachViewModel(binding.toolbarEdit)
         viewModel.uploadStatus.addOnPropertyChangedCallback(statusObserver)
 
@@ -75,18 +81,11 @@ class BlockListActivity : BaseListActivity() {
         })
 
         viewModel.isRefreshing.observe(this, Observer { isRefreshing ->
-            if (!isRefreshing && binding.swipeRefresh.visibility == View.INVISIBLE && !viewModel.isUploading()) {
-                // on first init
-                binding.progressRoot.visibility = View.INVISIBLE
-                binding.swipeRefresh.visibility = View.VISIBLE
-                binding.progressText.setText(R.string.app_upload_start)
-            } else {
-                binding.swipeRefresh.isRefreshing = isRefreshing
-            }
+            if (viewModel.isUploading()) return@Observer
+
+            binding.swipeRefresh.isRefreshing = isRefreshing
             binding.toolbarEdit.visibility = if (isRefreshing) View.INVISIBLE else View.VISIBLE
         })
-
-        viewModel.appList.addOnPropertyChangedCallback(appListObserver)
 
         binding.swipeRefresh.setOnRefreshListener { viewModel.refreshList() }
         binding.swipeRefresh.setColorSchemeResources( // add RGB power
