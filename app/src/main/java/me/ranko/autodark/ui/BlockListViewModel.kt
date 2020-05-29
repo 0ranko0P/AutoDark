@@ -93,6 +93,8 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         }
 
         override fun onTextChanged(str: CharSequence, start: Int, before: Int, count: Int) {
+            if (lastInput == str.toString()) return
+
             if (str.isEmpty()) {
                 _mAppList.value = EMPTY_APP_LIST
             } else {
