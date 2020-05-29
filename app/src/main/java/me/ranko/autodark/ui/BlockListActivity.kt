@@ -1,6 +1,5 @@
 package me.ranko.autodark.ui
 
-import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.transition.Fade
 import android.view.Menu
@@ -10,7 +9,6 @@ import android.view.Window
 import androidx.annotation.StringRes
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
-import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -27,14 +25,6 @@ class BlockListActivity : BaseListActivity() {
     private lateinit var mAdapter: BlockListAdapter
 
     private var menu: Menu? = null
-
-    private val appListObserver = object : Observable.OnPropertyChangedCallback() {
-        override fun onPropertyChanged(sender: Observable, propertyId: Int) {
-            @Suppress("UNCHECKED_CAST")
-            val list = (sender as ObservableField<List<ApplicationInfo>>).get()
-            mAdapter.setData(list!!)
-        }
-    }
 
     private val statusObserver = object : Observable.OnPropertyChangedCallback() {
         override fun onPropertyChanged(sender: Observable, propertyId: Int) {
@@ -69,7 +59,7 @@ class BlockListActivity : BaseListActivity() {
         mAdapter = BlockListAdapter(viewModel)
         binding.recyclerView.adapter = mAdapter
 
-        viewModel.appList.addOnPropertyChangedCallback(appListObserver)
+        viewModel.mAppList.observe(this, Observer { list -> mAdapter.setData(list) })
         viewModel.attachViewModel(binding.toolbarEdit)
         viewModel.uploadStatus.addOnPropertyChangedCallback(statusObserver)
 
@@ -139,7 +129,6 @@ class BlockListActivity : BaseListActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.appList.removeOnPropertyChangedCallback(appListObserver)
         viewModel.uploadStatus.removeOnPropertyChangedCallback(statusObserver)
         viewModel.detach()
     }
