@@ -82,11 +82,15 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
         override fun onFocusChange(v: View?, hasFocus: Boolean) {
             _isSearching.value = hasFocus
+            // onConfiguration change, keep ui state
+            if (lastInput.isNotEmpty()) return
+
             if (hasFocus) {
                 list = _mAppList.value!!
                 _mAppList.value = EMPTY_APP_LIST
             } else {
                 if (queryJob?.isActive == true) queryJob?.cancel()
+                lastInput = ""
                 // restore app list
                 _mAppList.value = list
             }
@@ -94,20 +98,20 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
         override fun onTextChanged(str: CharSequence, start: Int, before: Int, count: Int) {
             if (lastInput == str.toString()) return
+            lastInput = str.toString()
 
             if (str.isEmpty()) {
                 _mAppList.value = EMPTY_APP_LIST
             } else {
                 queryAndShow(str, isAppendChars(lastInput, str))
-                lastInput = str.toString()
             }
         }
 
         private fun queryAndShow(str: CharSequence, isAppend: Boolean) {
             val result = ArrayList<ApplicationInfo>()
             // iterate old list if isAppend
-            val list = if (isAppend) _mAppList.value!! else list
-            for (app in list) {
+            val appList = if (isAppend) _mAppList.value!! else list
+            for (app in appList) {
                 if (app.packageName.contains(str, true) || getAppName(app).contains(str, true)) {
                     result.add(app)
                 }
