@@ -145,9 +145,8 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun attachViewModel(editText: TextView) {
+    init {
         refreshList()
-        mSearchHelper.attach(editText)
         mContext.registerReceiver(
                 updateStatusReceiver,
                 IntentFilter(ActivityUpdateReceiver.ACTION_RELOAD_RESULT),
@@ -155,6 +154,12 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
                 null
         )
     }
+
+    fun attachViewModel(editText: TextView) {
+        mSearchHelper.attach(editText)
+    }
+
+    fun detach() = mSearchHelper.detach()
 
     /**
      * drawable cached by system anyway
@@ -248,6 +253,5 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         super.onCleared()
         mContext.unregisterReceiver(updateStatusReceiver)
         mBlockSet.clear()
-        mSearchHelper.detach()
     }
 }

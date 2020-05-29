@@ -60,7 +60,6 @@ class BlockListActivity : BaseListActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_block_list)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
-        binding.swipeRefresh.visibility = View.INVISIBLE
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -144,5 +143,6 @@ class BlockListActivity : BaseListActivity() {
         super.onDestroy()
         viewModel.appList.removeOnPropertyChangedCallback(appListObserver)
         viewModel.uploadStatus.removeOnPropertyChangedCallback(statusObserver)
+        viewModel.detach()
     }
 }
