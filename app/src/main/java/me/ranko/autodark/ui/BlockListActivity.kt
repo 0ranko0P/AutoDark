@@ -24,7 +24,7 @@ class BlockListActivity : BaseListActivity() {
 
     private lateinit var binding: ActivityBlockListBinding
     private lateinit var viewModel: BlockListViewModel
-    private var mAdapter: BlockListAdapter? = null
+    private lateinit var mAdapter: BlockListAdapter
 
     private var menu: Menu? = null
 
@@ -32,11 +32,7 @@ class BlockListActivity : BaseListActivity() {
         override fun onPropertyChanged(sender: Observable, propertyId: Int) {
             @Suppress("UNCHECKED_CAST")
             val list = (sender as ObservableField<List<ApplicationInfo>>).get()
-            if (mAdapter == null) {
-                mAdapter = BlockListAdapter(viewModel)
-                binding.recyclerView.adapter = mAdapter
-            }
-            mAdapter!!.setData(list!!)
+            mAdapter.setData(list!!)
         }
     }
 
@@ -65,6 +61,9 @@ class BlockListActivity : BaseListActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         ViewUtil.setAppBarPadding(binding.appBar)
 
+        mAdapter = BlockListAdapter(viewModel)
+        binding.recyclerView.adapter = mAdapter
+
         viewModel.attachViewModel(binding.toolbarEdit)
         viewModel.uploadStatus.addOnPropertyChangedCallback(statusObserver)
 
@@ -72,7 +71,7 @@ class BlockListActivity : BaseListActivity() {
             // hide menu icon while searching
             menu?.findItem(R.id.action_save)?.isVisible = !isSearching
             if (!isSearching) binding.toolbarEdit.text?.clear()
-            mAdapter?.setSearchMode(isSearching)
+            mAdapter.setSearchMode(isSearching)
         })
 
         viewModel.isRefreshing.observe(this, Observer { isRefreshing ->

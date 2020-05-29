@@ -18,8 +18,8 @@ import androidx.recyclerview.widget.RecyclerView
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.CircularAnimationUtil
 
-class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView.Adapter<BlockListAdapter.ViewHolder>(), View.OnClickListener {
-    private var data: List<ApplicationInfo>? = null
+class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView.Adapter<BlockListAdapter.Companion.ViewHolder>(), View.OnClickListener {
+    private var data: List<ApplicationInfo> = EMPTY_APP_LIST
 
     private var isSearchMode = false
 
@@ -27,13 +27,18 @@ class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView
         viewModel.getApplication<Application>().resources.getInteger(android.R.integer.config_shortAnimTime)
             .toLong()
 
-    companion object class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val rootRipple: View = view.findViewById(R.id.appRootBg)
-        val rootView: RelativeLayout = view.findViewById(R.id.appRoot)
-        val icon: ImageView = rootView.findViewById(R.id.icon)
-        val indicator: ImageView = rootView.findViewById(R.id.indicator)
-        val name: TextView = rootView.findViewById(R.id.name)
-        val id: TextView = rootView.findViewById(R.id.appID)
+    companion object {
+        @JvmStatic
+        val EMPTY_APP_LIST = ArrayList<ApplicationInfo>(0)
+
+        class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            val rootRipple: View = view.findViewById(R.id.appRootBg)
+            val rootView: RelativeLayout = view.findViewById(R.id.appRoot)
+            val icon: ImageView = rootView.findViewById(R.id.icon)
+            val indicator: ImageView = rootView.findViewById(R.id.indicator)
+            val name: TextView = rootView.findViewById(R.id.name)
+            val id: TextView = rootView.findViewById(R.id.appID)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ViewHolder(
@@ -41,7 +46,7 @@ class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView
     )
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val app = data!![position]
+        val app = data[position]
         applyBlockedMark(viewModel.isBlocked(app.packageName), holder, false)
         holder.name.text = viewModel.getAppName(app)
         holder.id.text = app.packageName
@@ -66,17 +71,10 @@ class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView
         }
     }
 
-    override fun getItemCount() = data?.size ?: 0
+    override fun getItemCount() = data.size
 
     fun setData(data: List<ApplicationInfo>) {
         this.data = data
-        notifyDataSetChanged()
-    }
-
-    fun getData() = this.data
-
-    fun clear() {
-        this.data = null
         notifyDataSetChanged()
     }
 
@@ -88,7 +86,7 @@ class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView
         if (viewModel.isRefreshing.value == true) return
         val holder = v.tag as ViewHolder
         val position = holder.adapterPosition
-        val isBlocked = viewModel.onAppSelected(data!![position])
+        val isBlocked = viewModel.onAppSelected(data[position])
         applyBlockedMark(isBlocked, holder)
     }
 

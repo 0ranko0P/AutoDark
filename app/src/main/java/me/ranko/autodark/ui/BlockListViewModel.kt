@@ -24,6 +24,7 @@ import me.ranko.autodark.Receivers.ActivityUpdateReceiver.Companion.STATUS_LIST_
 import me.ranko.autodark.Receivers.ActivityUpdateReceiver.Companion.STATUS_LIST_LOAD_START
 import me.ranko.autodark.Receivers.ActivityUpdateReceiver.Companion.STATUS_LIST_LOAD_SUCCEED
 import me.ranko.autodark.Utils.FileUtil
+import me.ranko.autodark.ui.BlockListAdapter.Companion.EMPTY_APP_LIST
 import timber.log.Timber
 import java.nio.file.Files
 import java.time.Duration
@@ -42,8 +43,6 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
                 throw IllegalArgumentException("Unable to construct viewModel")
             }
         }
-
-        val EMPTY_APP_LIST = ArrayList<ApplicationInfo>(0)
 
         @JvmStatic
         fun isAppendChars(old: CharSequence, new: CharSequence): Boolean {
