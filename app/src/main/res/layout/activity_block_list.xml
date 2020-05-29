@@ -45,6 +45,8 @@
                     android:background="@null"
                     android:hint="@string/app_search_hint"
                     android:maxLines="1"
+                    android:lines="1"
+                    android:inputType="textPersonName"
                     android:paddingTop="6dp"
                     android:paddingBottom="6dp"
                     android:visibility="@{(viewModel.uploadStatus == Constant.JOB_STATUS_PENDING) ? View.INVISIBLE : View.VISIBLE}" />
