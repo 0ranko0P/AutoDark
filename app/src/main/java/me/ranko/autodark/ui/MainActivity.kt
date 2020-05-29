@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
 import androidx.databinding.ObservableField
@@ -52,9 +53,8 @@ class MainActivity : BaseListActivity(), FragmentManager.OnBackStackChangedListe
                     binding.appbar.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbar)!!
             val transparent = ColorStateList.valueOf(getColor(android.R.color.transparent))
             collapsingToolbar.setExpandedTitleTextColor(transparent)
+            window.clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
         }
-
-        ViewUtil.setImmersiveNavBar(window)
 
         supportFragmentManager.addOnBackStackChangedListener(this)
 
