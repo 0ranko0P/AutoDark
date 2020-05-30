@@ -18,7 +18,7 @@ import me.ranko.autodark.R
 import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.databinding.ActivityBlockListBinding
 
-class BlockListActivity : BaseListActivity() {
+class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
 
     private lateinit var binding: ActivityBlockListBinding
     private lateinit var viewModel: BlockListViewModel
@@ -60,15 +60,8 @@ class BlockListActivity : BaseListActivity() {
         binding.recyclerView.adapter = mAdapter
 
         viewModel.mAppList.observe(this, Observer { list -> mAdapter.setData(list) })
-        viewModel.attachViewModel(binding.toolbarEdit)
+        viewModel.attachViewModel()
         viewModel.uploadStatus.addOnPropertyChangedCallback(statusObserver)
-
-        viewModel.isSearching.observe(this, Observer { isSearching ->
-            // hide menu icon while searching
-            menu?.findItem(R.id.action_save)?.isVisible = !isSearching
-            if (!isSearching) binding.toolbarEdit.text?.clear()
-            mAdapter.setSearchMode(isSearching)
-        })
 
         viewModel.isRefreshing.observe(this, Observer { isRefreshing ->
             if (viewModel.isUploading()) return@Observer
@@ -83,6 +76,8 @@ class BlockListActivity : BaseListActivity() {
             R.color.material_green_A700,
             R.color.material_blue_A700
         )
+
+        lifecycle.addObserver(viewModel.mSearchHelper)
     }
 
     private fun showMessage(@StringRes str: Int) =
@@ -94,7 +89,9 @@ class BlockListActivity : BaseListActivity() {
             showMessage(R.string.app_upload_start)
         } else {
             if (binding.toolbarEdit.hasFocus()) {
-                binding.toolbarEdit.clearFocus()
+                menu?.findItem(R.id.action_save)?.isVisible = true
+                mAdapter.setSearchMode(false)
+                viewModel.mSearchHelper.stopSearch()
             } else {
                 super.onBackPressed()
             }
@@ -127,9 +124,19 @@ class BlockListActivity : BaseListActivity() {
         binding.swipeRefresh.setProgressViewOffset(false, 0, binding.recyclerView.paddingTop + 32)
     }
 
+    fun getSearchEditText() = binding.toolbarEdit
+
+    override fun onFocusChange(v: View?, hasFocus: Boolean) {
+        // hide menu icon while searching
+        if (hasFocus) {
+            menu?.findItem(R.id.action_save)?.isVisible = false
+            mAdapter.setSearchMode(true)
+            viewModel.mSearchHelper.startSearch()
+        }
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         viewModel.uploadStatus.removeOnPropertyChangedCallback(statusObserver)
-        viewModel.detach()
     }
 }

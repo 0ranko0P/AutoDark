@@ -10,12 +10,14 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.View
-import android.widget.TextView
+import android.widget.EditText
 import androidx.annotation.MainThread
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.ranko.autodark.BuildConfig
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.Receivers.ActivityUpdateReceiver
@@ -51,6 +53,69 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
             }
             return true
         }
+
+        class SearchHelper(private val viewModel: BlockListViewModel) : TextWatcher,
+            DefaultLifecycleObserver {
+            private var _mAppList: MutableLiveData<List<ApplicationInfo>> = viewModel._mAppList
+            private var list: List<ApplicationInfo> = EMPTY_APP_LIST
+            private var mEdit: EditText? = null
+            private var lastInput: String = ""
+
+            override fun onTextChanged(str: CharSequence, start: Int, before: Int, count: Int) {
+                val input = str.toString()
+                if (lastInput == input) return
+                lastInput = input
+
+                if (input.isEmpty()) {
+                    _mAppList.value = EMPTY_APP_LIST
+                } else {
+                    val isAppend = isAppendChars(lastInput, input)
+                    val result = ArrayList<ApplicationInfo>()
+                    // iterate old list if isAppendInput
+                    val appList = if (isAppend) _mAppList.value!! else list
+                    for (app in appList) {
+                        if (app.packageName.contains(str, true) || viewModel.getAppName(app).contains(str, true)) {
+                            result.add(app)
+                        }
+                    }
+
+                    _mAppList.value = result
+                }
+            }
+
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+            }
+
+            override fun onResume(owner: LifecycleOwner) {
+                mEdit = (owner as BlockListActivity).getSearchEditText().also {
+                    it.addTextChangedListener(this)
+                    it.onFocusChangeListener = owner
+                }
+            }
+
+            override fun onPause(owner: LifecycleOwner) {
+                mEdit?.onFocusChangeListener = null
+                mEdit?.removeTextChangedListener(this)
+                mEdit = null
+            }
+
+            fun startSearch() {
+                if (lastInput.isEmpty()) {
+                    list = _mAppList.value!!
+                    _mAppList.value = EMPTY_APP_LIST
+                }
+            }
+
+            fun stopSearch() {
+                lastInput = ""
+                mEdit?.clearFocus()
+                mEdit?.text?.clear()
+                _mAppList.value = list
+            }
+        }
     }
 
     private val mContext = application
@@ -62,10 +127,6 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
     val uploadStatus = ObservableInt()
 
-    private val _isSearching = MutableLiveData(false)
-    val isSearching: LiveData<Boolean>
-        get() = _isSearching
-
     private val _isRefreshing = MutableLiveData(false)
     val isRefreshing: LiveData<Boolean>
         get() = _isRefreshing
@@ -74,71 +135,8 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
     val mAppList: LiveData<List<ApplicationInfo>>
         get() = _mAppList
 
-    private val mSearchHelper = object : TextWatcher, View.OnFocusChangeListener {
-        var mEdit: TextView? = null
-        var queryJob: Job? = null
-        var lastInput: CharSequence = ""
-        var list: List<ApplicationInfo> = EMPTY_APP_LIST
-
-        override fun onFocusChange(v: View?, hasFocus: Boolean) {
-            _isSearching.value = hasFocus
-            // onConfiguration change, keep ui state
-            if (lastInput.isNotEmpty()) return
-
-            if (hasFocus) {
-                list = _mAppList.value!!
-                _mAppList.value = EMPTY_APP_LIST
-            } else {
-                if (queryJob?.isActive == true) queryJob?.cancel()
-                lastInput = ""
-                // restore app list
-                _mAppList.value = list
-            }
-        }
-
-        override fun onTextChanged(str: CharSequence, start: Int, before: Int, count: Int) {
-            if (lastInput == str.toString()) return
-            lastInput = str.toString()
-
-            if (str.isEmpty()) {
-                _mAppList.value = EMPTY_APP_LIST
-            } else {
-                queryAndShow(str, isAppendChars(lastInput, str))
-            }
-        }
-
-        private fun queryAndShow(str: CharSequence, isAppend: Boolean) {
-            val result = ArrayList<ApplicationInfo>()
-            // iterate old list if isAppend
-            val appList = if (isAppend) _mAppList.value!! else list
-            for (app in appList) {
-                if (app.packageName.contains(str, true) || getAppName(app).contains(str, true)) {
-                    result.add(app)
-                }
-            }
-
-            _mAppList.value = result
-        }
-
-        override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-        }
-
-        override fun afterTextChanged(s: Editable?) {
-        }
-
-        fun attach(editText: TextView) {
-            mEdit = editText
-            editText.text = null
-            editText.onFocusChangeListener = this
-            editText.addTextChangedListener(this)
-        }
-
-        fun detach() {
-            if (list.isNotEmpty()) onFocusChange(null, false)
-            mEdit?.onFocusChangeListener = null
-            mEdit?.removeTextChangedListener(this)
-            mEdit = null
-        }
+    val mSearchHelper by lazy(LazyThreadSafetyMode.NONE) {
+        SearchHelper(this)
     }
 
     private val updateStatusReceiver = object : BroadcastReceiver() {
@@ -162,15 +160,12 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         )
     }
 
-    fun attachViewModel(editText: TextView) {
-        mSearchHelper.attach(editText)
+    fun attachViewModel() {
         // show big progressBar on first init
         if (!isUploading() && _isRefreshing.value == true) {
             uploadStatus.set(JOB_STATUS_PENDING)
         }
     }
-
-    fun detach() = mSearchHelper.detach()
 
     /**
      * drawable cached by system anyway
