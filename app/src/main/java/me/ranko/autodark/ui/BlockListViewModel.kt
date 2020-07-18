@@ -287,6 +287,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
             if (result) {
                 menu.isChecked = !menu.isChecked
+                refreshList()
             } else {
                 menu.isChecked = exists
             }
