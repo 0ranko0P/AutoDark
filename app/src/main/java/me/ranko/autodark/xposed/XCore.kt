@@ -7,6 +7,8 @@ import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.os.Build
 import android.os.Bundle
+import android.os.SystemProperties
+import android.text.TextUtils
 import android.util.Log
 import de.robv.android.xposed.*
 import de.robv.android.xposed.callbacks.XC_LoadPackage
@@ -15,6 +17,7 @@ import me.ranko.autodark.BuildConfig
 import me.ranko.autodark.Constant
 import me.ranko.autodark.Receivers.ActivityUpdateReceiver
 import me.ranko.autodark.Utils.FileUtil
+import java.nio.file.Files
 import java.nio.file.Paths
 
 /**
@@ -66,12 +69,28 @@ class XCore : IXposedHookLoadPackage, IXposedHookZygoteInit {
                         throw NullPointerException("PlantB failed: Context is null")
                     } else {
                         ActivityUpdateReceiver.register(context)
+                        prepareSysAppHook()
                     }
                 }
             })
         }
 
-        fun isSystemApp(app: ApplicationInfo): Boolean = ApplicationInfo.FLAG_SYSTEM.and(app.flags) == ApplicationInfo.FLAG_SYSTEM
+        private fun prepareSysAppHook() {
+            try {
+                if (Files.exists(Constant.BLOCK_LIST_SYSTEM_APP_CONFIG_PATH)) {
+                    SystemProperties.set(Constant.SYSTEM_PROP_HOOK_SYSTEM_APPS, "true")
+                }
+            } catch (e: Exception) {
+                XposedBridge.log(e)
+            } finally {
+                XposedBridge.log("onPrepareSysAppHook: hookSystem: ${SystemProperties.get(Constant.SYSTEM_PROP_HOOK_SYSTEM_APPS)}")
+            }
+        }
+
+        fun excludeSysApp(app: ApplicationInfo): Boolean {
+            return (ApplicationInfo.FLAG_SYSTEM.and(app.flags) == ApplicationInfo.FLAG_SYSTEM) &&
+                    TextUtils.isEmpty(Constant.SYSTEM_PROP_HOOK_SYSTEM_APPS)
+        }
     }
 
     /**
@@ -82,8 +101,7 @@ class XCore : IXposedHookLoadPackage, IXposedHookZygoteInit {
             val sysServerClass = XposedHelpers.findClass("com.android.server.SystemServer", lpparam.classLoader)
             hookSystemService(sysServerClass)
         } else {
-            // System apps usually supports dark mode
-            if (isSystemApp(lpparam.appInfo)) return
+            if (excludeSysApp(lpparam.appInfo)) return
 
             if (lpparam.packageName == BuildConfig.APPLICATION_ID) {
                 hookDarkApp(XposedHelpers.findClass(AutoDarkApplication::class.java.name, lpparam.classLoader))
