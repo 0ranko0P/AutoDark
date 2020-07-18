@@ -10,16 +10,22 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.widget.EditText
 import androidx.annotation.MainThread
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.*
+import androidx.preference.SwitchPreference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.ranko.autodark.BuildConfig
+import me.ranko.autodark.Constant
 import me.ranko.autodark.Constant.*
+import me.ranko.autodark.R
 import me.ranko.autodark.Receivers.ActivityUpdateReceiver
 import me.ranko.autodark.Receivers.ActivityUpdateReceiver.Companion.STATUS_LIST_LOAD_FAILED
 import me.ranko.autodark.Receivers.ActivityUpdateReceiver.Companion.STATUS_LIST_LOAD_START
@@ -27,6 +33,7 @@ import me.ranko.autodark.Receivers.ActivityUpdateReceiver.Companion.STATUS_LIST_
 import me.ranko.autodark.Utils.FileUtil
 import me.ranko.autodark.ui.BlockListAdapter.Companion.EMPTY_APP_LIST
 import timber.log.Timber
+import java.io.IOException
 import java.nio.file.Files
 import java.time.Duration
 import java.time.Instant
@@ -183,9 +190,10 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
             val list = async(Dispatchers.IO) {
                 FileUtil.readList(BLOCK_LIST_PATH)?.let { mBlockSet.addAll(it) }
                 delay(1000L)
+                val hookSysApp = Files.exists(Constant.BLOCK_LIST_SYSTEM_APP_CONFIG_PATH)
                 return@async mPackageManager.getInstalledApplications(PackageManager.GET_META_DATA)
                         .stream()
-                        .filter { ApplicationInfo.FLAG_SYSTEM.and(it.flags) != ApplicationInfo.FLAG_SYSTEM }
+                        .filter { hookSysApp || ApplicationInfo.FLAG_SYSTEM.and(it.flags) != ApplicationInfo.FLAG_SYSTEM }
                         .sorted { o1, o2 -> getAppName(o1).compareTo(getAppName(o2)) }
                         .collect(Collectors.toList())
                         .apply { forEach { getAppIcon(it) } }
@@ -255,6 +263,36 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun isUploading(): Boolean = uploadStatus.get() == JOB_STATUS_PENDING
+
+    fun onSysAppClicked(menu: MenuItem) {
+        menu.isEnabled = false
+        val exists = Files.exists(BLOCK_LIST_SYSTEM_APP_CONFIG_PATH)
+        val exclude = exists.not()
+
+        viewModelScope.launch {
+            val result = async(Dispatchers.IO) {
+                try {
+                    if (exclude) {
+                        FileUtil.crateIfNotExists(BLOCK_LIST_SYSTEM_APP_CONFIG_PATH, FileUtil.PERMISSION_764)
+                    } else {
+                        Files.deleteIfExists(BLOCK_LIST_SYSTEM_APP_CONFIG_PATH)
+                    }
+                    delay(900L) // wait for animation
+                    return@async true
+                } catch (e: IOException) {
+                    Timber.d(e)
+                    return@async false
+                }
+            }.await()
+
+            if (result) {
+                menu.isChecked = !menu.isChecked
+            } else {
+                menu.isChecked = exists
+            }
+            menu.isEnabled = true
+        }
+    }
 
     override fun onCleared() {
         super.onCleared()

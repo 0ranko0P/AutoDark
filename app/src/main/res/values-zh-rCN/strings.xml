@@ -3,6 +3,8 @@
     <string name="app_about">关于 AutoDark</string>
     <string name="app_confirm">好的</string>
     <string name="app_do_not_show">不再显示</string>
+    <string name="app_hook_system">Hook 系统应用</string>
+    <string name="app_hook_system_restart">添加系统应用到黑名单后需要重启</string>
     <string name="app_later">稍后提醒我</string>
     <string name="app_location_failed">获取当前位置失败, 请手动设置时间.</string>
     <string name="app_location_disabled">定位服务已关闭.</string>

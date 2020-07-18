@@ -3,6 +3,8 @@
     <string name="app_about">About AutoDark</string>
     <string name="app_confirm">OK</string>
     <string name="app_do_not_show">Do not show this again</string>
+    <string name="app_hook_system">Hook System App</string>
+    <string name="app_hook_system_restart">Restart is required After you add system apps to list</string>
     <string name="app_later">Remind me later</string>
     <string name="app_loading">Loading...</string>
     <string name="app_location_failed">Location is not available now, please configure the time manually.</string>

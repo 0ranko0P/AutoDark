@@ -17,6 +17,7 @@ import me.ranko.autodark.Constant
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.databinding.ActivityBlockListBinding
+import java.nio.file.Files
 
 class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
 
@@ -108,9 +109,22 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
         return super.onCreateOptionsMenu(menu)
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        super.onPrepareOptionsMenu(menu)
+        menu.findItem(R.id.action_hook_sys).isChecked = Files.exists(Constant.BLOCK_LIST_SYSTEM_APP_CONFIG_PATH)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.action_save -> onRequestSave(null)
+
+            R.id.action_hook_sys -> {
+                if (item.isChecked.not()) {
+                    showMessage(R.string.app_hook_system_restart)
+                }
+                viewModel.onSysAppClicked(item)
+            }
 
             android.R.id.home -> onBackPressed()
         }

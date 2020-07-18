@@ -9,4 +9,10 @@
         android:orderInCategory="100"
         android:title="@string/app_save"
         app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_hook_sys"
+        android:checkable="true"
+        android:title="@string/app_hook_system"
+        app:showAsAction="never" />
 </menu>
