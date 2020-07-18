@@ -12,6 +12,7 @@ import androidx.databinding.Observable
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.snackbar.BaseTransientBottomBar.Duration
 import com.google.android.material.snackbar.Snackbar
 import me.ranko.autodark.Constant
 import me.ranko.autodark.R
@@ -81,8 +82,8 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
         lifecycle.addObserver(viewModel.mSearchHelper)
     }
 
-    private fun showMessage(@StringRes str: Int) =
-        Snackbar.make(binding.coordinatorRoot, str, Snackbar.LENGTH_SHORT).show()
+    private fun showMessage(@StringRes str: Int, @Duration duration: Int = Snackbar.LENGTH_SHORT) =
+        Snackbar.make(binding.coordinatorRoot, str, duration).show()
 
     override fun onBackPressed() {
         if (viewModel.isUploading()) {
@@ -121,7 +122,7 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
 
             R.id.action_hook_sys -> {
                 if (item.isChecked.not()) {
-                    showMessage(R.string.app_hook_system_restart)
+                    showMessage(R.string.app_hook_system_restart, Snackbar.LENGTH_LONG)
                 }
                 viewModel.onSysAppClicked(item)
             }
