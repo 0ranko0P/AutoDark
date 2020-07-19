@@ -25,7 +25,7 @@ import me.ranko.autodark.core.ShizukuStatus
 import me.ranko.autodark.databinding.PermissionActivityBinding
 import me.ranko.autodark.ui.widget.PermissionLayout
 import moe.shizuku.api.ShizukuApiConstants
-import moe.shizuku.api.ShizukuClientHelper
+import moe.shizuku.api.ShizukuProvider
 import timber.log.Timber
 
 class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutListener {
@@ -150,7 +150,7 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
     }
 
     private fun initShizukuCard() {
-        val shizukuInstalled = ShizukuClientHelper.isManagerV3Installed(this)
+        val shizukuInstalled = ShizukuProvider.isShizukuInstalled(this)
         val viewStub = (if(shizukuInstalled) binding.coordRoot.stubShizukuFirst else binding.coordRoot.stubShizukuLast)
         val view = viewStub.inflate()
         if (shizukuInstalled) {

@@ -35,7 +35,7 @@
         </receiver>
 
         <provider
-            android:name="moe.shizuku.api.ShizukuBinderReceiveProvider"
+            android:name="moe.shizuku.api.ShizukuProvider"
             android:authorities="${applicationId}.shizuku"
             android:enabled="true"
             android:exported="true"

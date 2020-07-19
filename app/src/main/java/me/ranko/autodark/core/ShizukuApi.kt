@@ -30,7 +30,7 @@ object ShizukuApi {
     }
 
     suspend fun checkShizuku(context: Context): ShizukuStatus {
-        if(!ShizukuClientHelper.isManagerV3Installed(context)) return ShizukuStatus.NOT_INSTALL
+        if (!ShizukuProvider.isShizukuInstalled(context)) return ShizukuStatus.NOT_INSTALL
 
         if (!checkPermission(context)) return ShizukuStatus.UNAUTHORIZED
 
