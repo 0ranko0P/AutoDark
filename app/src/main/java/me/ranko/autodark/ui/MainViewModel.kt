@@ -124,17 +124,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         switch.set(if (status) DarkSwitch.ON else DarkSwitch.OFF)
+        val oldNightMode: Boolean = darkSettings.isDarkMode() ?: false
 
         // delay 360ms to let button animation finish
         viewModelScope.launch {
             delay(360L)
-            val adjusted = if (status) {
+            if (status) {
                 darkSettings.setAllAlarm()
             } else {
                 darkSettings.cancelAllAlarm()
             }
 
-            if (adjusted) {
+            if (darkSettings.isDarkMode() != oldNightMode) {
                 // dark mode has changed
                 // prepare delayed summary message
                 hasDelayedMessage = true
