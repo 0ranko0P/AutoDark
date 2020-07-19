@@ -163,12 +163,10 @@ class XCore : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
             XposedHelpers.findAndHookMethod(Activity::class.java, "onCreate", Bundle::class.java, object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
-                    val start = System.currentTimeMillis()
                     val manager =
                         (param.thisObject as Activity).getSystemService(UiModeManager::class.java)
                     if (manager.nightMode == UiModeManager.MODE_NIGHT_NO) return
 
-                    Log.v(TAG, "beforeCreate: findUIManager cost: ${System.currentTimeMillis() - start}ms")
                     Log.v(TAG, "beforeCreate: sendActivity: ${lpparam.appInfo.packageName}/${param.thisObject::class.java}")
                     ActivityUpdateReceiver.sendNewActivity(
                         param.thisObject as Activity,
