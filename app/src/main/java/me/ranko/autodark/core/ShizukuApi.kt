@@ -9,8 +9,6 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.ranko.autodark.BuildConfig
-import me.ranko.autodark.Exception.CommandExecuteError
-import me.ranko.autodark.Utils.ShellJobUtil
 import moe.shizuku.api.*
 import timber.log.Timber
 
@@ -44,35 +42,6 @@ object ShizukuApi {
                 Timber.d("checkShizuku: Failed to pingBinder ")
                 ShizukuStatus.DEAD
             }
-        }
-    }
-
-    suspend fun runShizukuShell(vararg commands: String) {
-        runShizukuShellForValue(*commands)
-    }
-
-    suspend fun runShizukuShellForValue(vararg commands: String): String? = withContext(Dispatchers.IO) {
-        if(commands.isEmpty()) throw IllegalArgumentException("No commands to execute!")
-
-        var process: Process? = null
-        try {
-            process = ShizukuService.newProcess(arrayOf("sh"), null, null)
-            process.outputStream.use {
-                commands.forEach {command ->
-                    it.write("$command\n".toByteArray())
-                }
-                it.write("exit\n".toByteArray())
-            }
-
-            val result = ShellJobUtil.readStdout(process.inputStream, true)
-            if (process.waitFor() != 0)
-                throw CommandExecuteError(ShellJobUtil.readStdout(process.errorStream, false))
-
-            return@withContext result
-        } catch (e: Exception) {
-            throw CommandExecuteError(e)
-        } finally {
-            process?.destroy()
         }
     }
 
