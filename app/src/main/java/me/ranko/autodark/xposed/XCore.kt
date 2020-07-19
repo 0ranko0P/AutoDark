@@ -9,7 +9,6 @@ import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemProperties
-import android.text.TextUtils
 import android.util.Log
 import de.robv.android.xposed.*
 import de.robv.android.xposed.callbacks.XC_LoadPackage
@@ -113,7 +112,7 @@ class XCore : IXposedHookLoadPackage, IXposedHookZygoteInit {
 
         fun excludeSysApp(app: ApplicationInfo): Boolean {
             return (ApplicationInfo.FLAG_SYSTEM.and(app.flags) == ApplicationInfo.FLAG_SYSTEM) &&
-                    TextUtils.isEmpty(Constant.SYSTEM_PROP_HOOK_SYSTEM_APPS)
+                    SystemProperties.getBoolean(Constant.SYSTEM_PROP_HOOK_SYSTEM_APPS, false).not()
         }
     }
 
