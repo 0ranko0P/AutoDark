@@ -97,17 +97,22 @@ class XCore : IXposedHookLoadPackage, IXposedHookZygoteInit {
         }
 
         fun tryHookIME(lpparam: XC_LoadPackage.LoadPackageParam) {
-            try {
-                XposedHelpers.findAndHookMethod(InputMethodService::class.java, "onCreate", object : XC_MethodHook() {
-                    override fun beforeHookedMethod(param: MethodHookParam) {
-                        ActivityUpdateReceiver.sendNewActivity(
-                            param.thisObject as Context,
-                            lpparam.appInfo.packageName
-                        )
+            XposedHelpers.findAndHookMethod(InputMethodService::class.java, "updateInputViewShown", object : XC_MethodHook() {
+                override fun beforeHookedMethod(param: MethodHookParam) {
+                    val forceDark =  SystemProperties.getBoolean(Constant.SYSTEM_PROP_FORCE_DARK, false)
+                    if (forceDark) {
+                        ActivityUpdateReceiver.sendNewActivity(param.thisObject as Context, lpparam.appInfo.packageName)
+
+                        try {
+                            val mViewField = XposedHelpers.findField(InputMethodService::class.java, "mInputView")
+                            val mView = mViewField.get(param.thisObject)
+                            if (mView != null) mViewField.set(param.thisObject, null)
+                        } catch (e: Exception) {
+                            XposedBridge.log("onUpdateInputViewShow: " + Log.getStackTraceString(e))
+                        }
                     }
-                })
-            } catch (ignore: Exception) {
-            }
+                }
+            })
         }
 
         fun excludeSysApp(app: ApplicationInfo): Boolean {
@@ -132,7 +137,10 @@ class XCore : IXposedHookLoadPackage, IXposedHookZygoteInit {
             }
 
             if (SystemProperties.getBoolean(Constant.SYSTEM_PROP_HOOK_INPUT_METHOD, false)) {
-                tryHookIME (lpparam)
+                try {
+                    tryHookIME(lpparam)
+                } catch (ignore: Exception) {
+                }
             }
 
             XposedHelpers.findAndHookMethod(Activity::class.java, "onCreate", Bundle::class.java, object : XC_MethodHook() {
