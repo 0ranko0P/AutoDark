@@ -147,18 +147,18 @@ class XCore : IXposedHookLoadPackage, IXposedHookZygoteInit {
             val sysServerClass = XposedHelpers.findClass("com.android.server.SystemServer", lpparam.classLoader)
             hookSystemService(sysServerClass)
         } else {
-            if (excludeSysApp(lpparam.appInfo)) return
-
-            if (lpparam.packageName == BuildConfig.APPLICATION_ID) {
-                hookDarkApp(XposedHelpers.findClass(AutoDarkApplication::class.java.name, lpparam.classLoader))
-                return
-            }
-
             if (SystemProperties.getBoolean(Constant.SYSTEM_PROP_HOOK_INPUT_METHOD, false)) {
                 try {
                     tryHookIME(lpparam)
                 } catch (ignore: Exception) {
                 }
+            }
+
+            if (excludeSysApp(lpparam.appInfo)) return
+
+            if (lpparam.packageName == BuildConfig.APPLICATION_ID) {
+                hookDarkApp(XposedHelpers.findClass(AutoDarkApplication::class.java.name, lpparam.classLoader))
+                return
             }
 
             XposedHelpers.findAndHookMethod(Activity::class.java, "onCreate", Bundle::class.java, object : XC_MethodHook() {
