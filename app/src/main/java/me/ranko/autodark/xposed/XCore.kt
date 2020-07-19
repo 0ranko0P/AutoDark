@@ -92,8 +92,8 @@ class XCore : IXposedHookLoadPackage, IXposedHookZygoteInit {
             } catch (e: Exception) {
                 XposedBridge.log(e)
             } finally {
-                XposedBridge.log("onPrepareHook: hook System: ${SystemProperties.get(Constant.SYSTEM_PROP_HOOK_SYSTEM_APPS)}")
-                XposedBridge.log("onPrepareHook: hook IME: ${SystemProperties.get(Constant.SYSTEM_PROP_HOOK_INPUT_METHOD)}")
+                XposedBridge.log("onPrepareHook: hook System: ${SystemProperties.getBoolean(Constant.SYSTEM_PROP_HOOK_SYSTEM_APPS, false)}")
+                XposedBridge.log("onPrepareHook: hook IME: ${SystemProperties.getBoolean(Constant.SYSTEM_PROP_HOOK_INPUT_METHOD, false)}")
             }
         }
 
