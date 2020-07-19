@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.SystemProperties
 import android.util.Log
+import android.view.View
 import de.robv.android.xposed.*
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.ranko.autodark.AutoDarkApplication
@@ -99,17 +100,34 @@ class XCore : IXposedHookLoadPackage, IXposedHookZygoteInit {
         fun tryHookIME(lpparam: XC_LoadPackage.LoadPackageParam) {
             XposedHelpers.findAndHookMethod(InputMethodService::class.java, "updateInputViewShown", object : XC_MethodHook() {
                 override fun beforeHookedMethod(param: MethodHookParam) {
-                    val forceDark =  SystemProperties.getBoolean(Constant.SYSTEM_PROP_FORCE_DARK, false)
-                    if (forceDark) {
-                        ActivityUpdateReceiver.sendNewActivity(param.thisObject as Context, lpparam.appInfo.packageName)
-
+                    if (SystemProperties.getBoolean(Constant.SYSTEM_PROP_FORCE_DARK, false)) {
+                        var invalidate = true
                         try {
                             val mViewField = XposedHelpers.findField(InputMethodService::class.java, "mInputView")
-                            val mView = mViewField.get(param.thisObject)
-                            if (mView != null) mViewField.set(param.thisObject, null)
+                            val mView: View? = mViewField.get(param.thisObject) as View?
+                            if (mView != null)  {
+                                if (mView.getTag(mView.id) == true) {
+                                    // ignore marked view
+                                    invalidate = false
+                                } else {
+                                    mViewField.set(param.thisObject, null)
+                                    Log.d(TAG, "onUpdateInputViewShown: no mark found, invalidate input view")
+                                }
+                            }
                         } catch (e: Exception) {
                             XposedBridge.log("onUpdateInputViewShow: " + Log.getStackTraceString(e))
                         }
+                        if (invalidate) ActivityUpdateReceiver.sendNewActivity(param.thisObject as Context, lpparam.appInfo.packageName)
+                    }
+                }
+            })
+
+            XposedHelpers.findAndHookMethod(InputMethodService::class.java, "setInputView", View::class.java, object : XC_MethodHook() {
+                override fun afterHookedMethod(param: MethodHookParam) {
+                    if (!SystemProperties.getBoolean(Constant.SYSTEM_PROP_FORCE_DARK, false)) {
+                        // mark this non-force-dark view
+                        val mView: View = param.args[0] as View
+                        mView.setTag(mView.id, true)
                     }
                 }
             })
