@@ -7,6 +7,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.Window
 import androidx.annotation.StringRes
+import androidx.core.view.children
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
 import androidx.databinding.ObservableInt
@@ -92,7 +93,7 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
             showMessage(R.string.app_upload_start)
         } else {
             if (binding.toolbarEdit.hasFocus()) {
-                menu?.findItem(R.id.action_save)?.isVisible = true
+                setMenuVisible(true)
                 mAdapter.setSearchMode(false)
                 viewModel.mSearchHelper.stopSearch()
             } else {
@@ -107,14 +108,15 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_block_list, menu)
-        this.menu = menu
         return super.onCreateOptionsMenu(menu)
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
+        this.menu = menu
         menu.findItem(R.id.action_hook_sys).isChecked = Files.exists(Constant.BLOCK_LIST_SYSTEM_APP_CONFIG_PATH)
         menu.findItem(R.id.action_hook_ime).isChecked = Files.exists(Constant.BLOCK_LIST_INPUT_METHOD_CONFIG_PATH)
+        setMenuVisible(binding.toolbarEdit.hasFocus().not())
         return true
     }
 
@@ -156,9 +158,15 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
     override fun onFocusChange(v: View?, hasFocus: Boolean) {
         // hide menu icon while searching
         if (hasFocus) {
-            menu?.findItem(R.id.action_save)?.isVisible = false
+            setMenuVisible(false)
             mAdapter.setSearchMode(true)
             viewModel.mSearchHelper.startSearch()
+        }
+    }
+
+    private fun setMenuVisible(visible: Boolean) {
+        menu?.children?.forEach { item ->
+            if (item.isVisible.xor(visible)) item.isVisible = visible
         }
     }
 
