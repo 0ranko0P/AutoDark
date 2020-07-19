@@ -20,6 +20,8 @@ public final class Constant {
 
     public static final Path BLOCK_LIST_SYSTEM_APP_CONFIG_PATH = Paths.get( APP_DATA_DIR + File.separator + "blockSystemApp");
 
+    public static final Path BLOCK_LIST_INPUT_METHOD_CONFIG_PATH = Paths.get( APP_DATA_DIR + File.separator + "blockIME");
+
     public static final String BRAND_ONE_PLUS = "OnePlus".toUpperCase();
 
     public static final String PERMISSION_DARK_BROADCAST = "me.ranko0p.permission.RECEIVE_DARK_BROADCAST";
@@ -43,6 +45,8 @@ public final class Constant {
     public static final String SYSTEM_PROP_FORCE_DARK = "debug.hwui.force_dark";
 
     public static final String SYSTEM_PROP_HOOK_SYSTEM_APPS = "debug.hwui.hook_sys_app";
+
+    public static final String SYSTEM_PROP_HOOK_INPUT_METHOD = "debug.hwui.hook_ime";
 
     public static final String SYSTEM_SECURE_PROP_DARK_MODE = "ui_night_mode";
 

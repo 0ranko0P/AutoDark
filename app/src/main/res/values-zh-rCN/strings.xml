@@ -3,6 +3,8 @@
     <string name="app_about">关于 AutoDark</string>
     <string name="app_confirm">好的</string>
     <string name="app_do_not_show">不再显示</string>
+    <string name="app_hook_ime">尝试Hook 输入法</string>
+    <string name="app_hook_ime_restart">重启生效</string>
     <string name="app_hook_system">Hook 系统应用</string>
     <string name="app_hook_system_restart">将消耗更多电量, 系统应用黑名单保存后需要重启</string>
     <string name="app_later">稍后提醒我</string>

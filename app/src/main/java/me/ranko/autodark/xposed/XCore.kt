@@ -5,6 +5,7 @@ import android.app.AndroidAppHelper
 import android.app.UiModeManager
 import android.content.Context
 import android.content.pm.ApplicationInfo
+import android.inputmethodservice.InputMethodService
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemProperties
@@ -69,21 +70,44 @@ class XCore : IXposedHookLoadPackage, IXposedHookZygoteInit {
                         throw NullPointerException("PlantB failed: Context is null")
                     } else {
                         ActivityUpdateReceiver.register(context)
-                        prepareSysAppHook()
+                        prepareHook()
                     }
                 }
             })
         }
 
-        private fun prepareSysAppHook() {
+        /**
+         * Store block list flags to debug system properties if needed
+         *
+         * */
+        private fun prepareHook() {
             try {
                 if (Files.exists(Constant.BLOCK_LIST_SYSTEM_APP_CONFIG_PATH)) {
-                    SystemProperties.set(Constant.SYSTEM_PROP_HOOK_SYSTEM_APPS, "true")
+                    SystemProperties.set(Constant.SYSTEM_PROP_HOOK_SYSTEM_APPS, true.toString())
+                }
+
+                if (Files.exists(Constant.BLOCK_LIST_INPUT_METHOD_CONFIG_PATH)) {
+                    SystemProperties.set(Constant.SYSTEM_PROP_HOOK_INPUT_METHOD, true.toString())
                 }
             } catch (e: Exception) {
                 XposedBridge.log(e)
             } finally {
-                XposedBridge.log("onPrepareSysAppHook: hookSystem: ${SystemProperties.get(Constant.SYSTEM_PROP_HOOK_SYSTEM_APPS)}")
+                XposedBridge.log("onPrepareHook: hook System: ${SystemProperties.get(Constant.SYSTEM_PROP_HOOK_SYSTEM_APPS)}")
+                XposedBridge.log("onPrepareHook: hook IME: ${SystemProperties.get(Constant.SYSTEM_PROP_HOOK_INPUT_METHOD)}")
+            }
+        }
+
+        fun tryHookIME(lpparam: XC_LoadPackage.LoadPackageParam) {
+            try {
+                XposedHelpers.findAndHookMethod(InputMethodService::class.java, "onCreate", object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        ActivityUpdateReceiver.sendNewActivity(
+                            param.thisObject as Context,
+                            lpparam.appInfo.packageName
+                        )
+                    }
+                })
+            } catch (ignore: Exception) {
             }
         }
 
@@ -106,6 +130,10 @@ class XCore : IXposedHookLoadPackage, IXposedHookZygoteInit {
             if (lpparam.packageName == BuildConfig.APPLICATION_ID) {
                 hookDarkApp(XposedHelpers.findClass(AutoDarkApplication::class.java.name, lpparam.classLoader))
                 return
+            }
+
+            if (SystemProperties.get(Constant.SYSTEM_PROP_HOOK_INPUT_METHOD) == true.toString()) {
+                tryHookIME (lpparam)
             }
 
             XposedHelpers.findAndHookMethod(Activity::class.java, "onCreate", Bundle::class.java, object : XC_MethodHook() {

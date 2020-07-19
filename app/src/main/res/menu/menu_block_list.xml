@@ -15,4 +15,10 @@
         android:checkable="true"
         android:title="@string/app_hook_system"
         app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_hook_ime"
+        android:checkable="true"
+        android:title="@string/app_hook_ime"
+        app:showAsAction="never" />
 </menu>

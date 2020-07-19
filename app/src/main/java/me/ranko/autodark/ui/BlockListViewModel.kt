@@ -279,8 +279,8 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
     fun isUploading(): Boolean = uploadStatus.get() == JOB_STATUS_PENDING
 
     fun updateMenuFlag(menu: MenuItem, flagPath: Path, onResult: Consumer<Boolean>?) {
+        if (menu.isChecked.not() == Files.exists(flagPath)) return
         menu.isEnabled = false
-        if (menu.isChecked == Files.exists(flagPath)) return
 
         viewModelScope.launch {
             val result = async(Dispatchers.IO) {

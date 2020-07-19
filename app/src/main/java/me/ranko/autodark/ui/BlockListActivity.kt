@@ -114,6 +114,7 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
         menu.findItem(R.id.action_hook_sys).isChecked = Files.exists(Constant.BLOCK_LIST_SYSTEM_APP_CONFIG_PATH)
+        menu.findItem(R.id.action_hook_ime).isChecked = Files.exists(Constant.BLOCK_LIST_INPUT_METHOD_CONFIG_PATH)
         return true
     }
 
@@ -129,6 +130,12 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
                     } else {
                         showMessage(R.string.app_upload_fail)
                     }
+                })
+            }
+
+            R.id.action_hook_ime -> {
+                viewModel.updateMenuFlag(item, Constant.BLOCK_LIST_INPUT_METHOD_CONFIG_PATH, Consumer {
+                    succeed -> showMessage(if(succeed) R.string.app_hook_ime_restart else R.string.app_upload_fail)
                 })
             }
 
