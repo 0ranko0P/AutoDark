@@ -131,7 +131,7 @@ class XCore : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 return
             }
 
-            if (SystemProperties.get(Constant.SYSTEM_PROP_HOOK_INPUT_METHOD) == true.toString()) {
+            if (SystemProperties.getBoolean(Constant.SYSTEM_PROP_HOOK_INPUT_METHOD, false)) {
                 tryHookIME (lpparam)
             }
 
