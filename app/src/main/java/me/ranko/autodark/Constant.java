@@ -50,7 +50,6 @@ public final class Constant {
 
     public static final String SYSTEM_SECURE_PROP_DARK_MODE = "ui_night_mode";
 
-    public static final String COMMAND_GET_FORCE_DARK = "getprop " + SYSTEM_PROP_FORCE_DARK;
     public static final String COMMAND_SET_FORCE_DARK_ON = "setprop " + SYSTEM_PROP_FORCE_DARK + " true";
     public static final String COMMAND_SET_FORCE_DARK_OFF = "setprop " + SYSTEM_PROP_FORCE_DARK + " false";
 
