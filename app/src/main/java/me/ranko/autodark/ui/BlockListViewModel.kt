@@ -10,14 +10,12 @@ import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.EditText
 import androidx.annotation.MainThread
+import androidx.annotation.WorkerThread
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.*
-import androidx.preference.SwitchPreference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -25,7 +23,6 @@ import kotlinx.coroutines.launch
 import me.ranko.autodark.BuildConfig
 import me.ranko.autodark.Constant
 import me.ranko.autodark.Constant.*
-import me.ranko.autodark.R
 import me.ranko.autodark.Receivers.ActivityUpdateReceiver
 import me.ranko.autodark.Receivers.ActivityUpdateReceiver.Companion.STATUS_LIST_LOAD_FAILED
 import me.ranko.autodark.Receivers.ActivityUpdateReceiver.Companion.STATUS_LIST_LOAD_START
@@ -35,8 +32,10 @@ import me.ranko.autodark.ui.BlockListAdapter.Companion.EMPTY_APP_LIST
 import timber.log.Timber
 import java.io.IOException
 import java.nio.file.Files
+import java.nio.file.Path
 import java.time.Duration
 import java.time.Instant
+import java.util.function.Consumer
 import java.util.stream.Collectors
 
 class BlockListViewModel(application: Application) : AndroidViewModel(application) {
@@ -59,6 +58,21 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
                 if (new[index] != sChar) return false
             }
             return true
+        }
+
+        @WorkerThread
+        private fun saveFlagAsFile(flagPath: Path, flag: Boolean): Boolean {
+            return try {
+                if (flag) {
+                    FileUtil.crateIfNotExists(flagPath, FileUtil.PERMISSION_764)
+                } else {
+                    Files.deleteIfExists(flagPath)
+                }
+                true
+            } catch (e: IOException) {
+                Timber.d(e)
+                false
+            }
         }
 
         class SearchHelper(private val viewModel: BlockListViewModel) : TextWatcher,
@@ -264,34 +278,22 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun isUploading(): Boolean = uploadStatus.get() == JOB_STATUS_PENDING
 
-    fun onSysAppClicked(menu: MenuItem) {
+    fun updateMenuFlag(menu: MenuItem, flagPath: Path, onResult: Consumer<Boolean>?) {
         menu.isEnabled = false
-        val exists = Files.exists(BLOCK_LIST_SYSTEM_APP_CONFIG_PATH)
-        val exclude = exists.not()
+        if (menu.isChecked == Files.exists(flagPath)) return
 
         viewModelScope.launch {
             val result = async(Dispatchers.IO) {
-                try {
-                    if (exclude) {
-                        FileUtil.crateIfNotExists(BLOCK_LIST_SYSTEM_APP_CONFIG_PATH, FileUtil.PERMISSION_764)
-                    } else {
-                        Files.deleteIfExists(BLOCK_LIST_SYSTEM_APP_CONFIG_PATH)
-                    }
-                    delay(900L) // wait for animation
-                    return@async true
-                } catch (e: IOException) {
-                    Timber.d(e)
-                    return@async false
-                }
+                val rec = saveFlagAsFile(flagPath, !menu.isChecked)
+                delay(900L) // wait for animation
+                return@async rec
             }.await()
 
             if (result) {
                 menu.isChecked = !menu.isChecked
-                refreshList()
-            } else {
-                menu.isChecked = exists
             }
             menu.isEnabled = true
+            onResult?.accept(result)
         }
     }
 

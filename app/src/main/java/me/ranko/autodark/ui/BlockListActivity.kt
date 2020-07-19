@@ -19,6 +19,7 @@ import me.ranko.autodark.R
 import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.databinding.ActivityBlockListBinding
 import java.nio.file.Files
+import java.util.function.Consumer
 
 class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
 
@@ -121,10 +122,14 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
             R.id.action_save -> onRequestSave(null)
 
             R.id.action_hook_sys -> {
-                if (item.isChecked.not()) {
-                    showMessage(R.string.app_hook_system_restart, Snackbar.LENGTH_LONG)
-                }
-                viewModel.onSysAppClicked(item)
+                viewModel.updateMenuFlag(item, Constant.BLOCK_LIST_SYSTEM_APP_CONFIG_PATH, Consumer { succeed ->
+                    if (succeed) {
+                        if (item.isChecked) showMessage(R.string.app_hook_system_restart, Snackbar.LENGTH_LONG)
+                        viewModel.refreshList()
+                    } else {
+                        showMessage(R.string.app_upload_fail)
+                    }
+                })
             }
 
             android.R.id.home -> onBackPressed()
