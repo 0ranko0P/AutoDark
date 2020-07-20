@@ -96,9 +96,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
         forceXposedPreference = findPreference(DARK_PREFERENCE_FORCE_XPOSED)!!
         xposedPreference = findPreference(DARK_PREFERENCE_XPOSED)!!
 
-        val isXposed = (requireActivity().application as AutoDarkApplication).isXposed
-
-        if (isXposed) {
+        if (viewModel.getApplication<AutoDarkApplication>().isXposed) {
             forceRootPreference.parent!!.removePreference(forceRootPreference)
             forceXposedPreference.summary = getString(R.string.pref_force_dark_summary, getString(R.string.pref_force_dark_summary_xposed))
         } else {
