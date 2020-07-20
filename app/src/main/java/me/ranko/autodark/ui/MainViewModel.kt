@@ -228,7 +228,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    private fun newSummary(@StringRes message: Int) = Summary(mContext.getString(message))
+    fun newSummary(@StringRes message: Int) = Summary(mContext.getString(message))
 
     /**
      * Some optimize app or OEM performance boost function can disable boot receiver

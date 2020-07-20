@@ -42,8 +42,6 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
     // may never get clicked
     private val aboutPreference by lazy(LazyThreadSafetyMode.NONE) { findPreference<Preference>(getString(R.string.pref_key_about))!! }
 
-    private val rootView by lazy(LazyThreadSafetyMode.NONE) { requireActivity().findViewById<View>(R.id.coordinatorRoot) }
-
     companion object {
         val PERMISSIONS_LOCATION = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
 
@@ -148,7 +146,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
         delay(600L)
         if (!result) {
             forceRootPreference.isChecked = !forceRootPreference.isChecked
-            Snackbar.make(rootView, R.string.root_check_failed, Snackbar.LENGTH_SHORT).show()
+            viewModel.summaryText.set(viewModel.newSummary(R.string.root_check_failed))
         }
         forceRootPreference.isEnabled = true
     }
@@ -193,7 +191,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == REQUEST_LOCATION_PERMISSION) {
             if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Snackbar.make(rootView, R.string.permission_failed, Snackbar.LENGTH_SHORT).show()
+                viewModel.summaryText.set(viewModel.newSummary(R.string.permission_failed))
                 autoPreference.isChecked = false
             } else {
                 onAutoPreferenceClick()
