@@ -16,10 +16,7 @@ import androidx.annotation.MainThread
 import androidx.annotation.WorkerThread
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import me.ranko.autodark.BuildConfig
 import me.ranko.autodark.Constant
 import me.ranko.autodark.Constant.*
@@ -35,12 +32,16 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Duration
 import java.time.Instant
+import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Consumer
 import java.util.stream.Collectors
 
 class BlockListViewModel(application: Application) : AndroidViewModel(application) {
 
     companion object {
+
+        private const val MAX_UPLOAD_TIME_MILLIS = 9000L
+
         class Factory(private val application: Application) : ViewModelProvider.Factory {
             override fun <T : ViewModel?> create(modelClass: Class<T>): T {
                 if (modelClass.isAssignableFrom(BlockListViewModel::class.java)) {
@@ -145,6 +146,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
     private val mBlockSet = HashSet<String>()
 
     private var timer: Instant = Instant.now()
+    private val uploadTimeOutWatcher = AtomicReference<Job?>()
 
     val uploadStatus = ObservableInt()
 
@@ -238,20 +240,28 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
         uploadStatus.set(JOB_STATUS_PENDING)
         viewModelScope.launch {
-            val result: Boolean = async(Dispatchers.IO) {
+            val succeed: Boolean = async(Dispatchers.IO) {
                 try {
                     FileUtil.crateIfNotExists(BLOCK_LIST_PATH, FileUtil.PERMISSION_764)
                     Files.write(BLOCK_LIST_PATH, mBlockSet)
-                    ActivityUpdateReceiver.sendNewList(mContext, ArrayList(mBlockSet))
-                    delay(1000L)
-                    // update success status when receive response
                     return@async true
                 } catch (e: Exception) {
                     Timber.w(e, "Failed to write block list")
                     return@async false
                 }
             }.await()
-            if (!result) {
+            if (succeed) {
+                ActivityUpdateReceiver.sendNewList(mContext, ArrayList(mBlockSet))
+                uploadTimeOutWatcher.set(launch {
+                    delay(MAX_UPLOAD_TIME_MILLIS)
+
+                    if (uploadTimeOutWatcher.getAndSet(null) != null) {
+                        // system server no response, wtf happened
+                        Timber.e("onRequestUploadList: Upload time out! status: ${uploadStatus.get()}")
+                        uploadStatus.set(JOB_STATUS_FAILED)
+                    }
+                })
+            } else {
                 uploadStatus.set(JOB_STATUS_FAILED)
             }
         }
@@ -259,17 +269,16 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun onNewResponse(response: Int) {
-        when (response) {
-            STATUS_LIST_LOAD_START -> Timber.d("onReceiveSystemServer: Start")
+        Timber.d("onNewResponse: $response")
+        if (response == STATUS_LIST_LOAD_START) return
 
-            STATUS_LIST_LOAD_FAILED -> uploadStatus.set(JOB_STATUS_FAILED)
+        // stop watcher now
+        val watcher = uploadTimeOutWatcher.getAndSet(null)
+        if (watcher?.isActive == true) watcher.cancel("Response received: $response")
 
-            STATUS_LIST_LOAD_SUCCEED -> uploadStatus.set(JOB_STATUS_SUCCEED)
+        uploadStatus.set(if (response == STATUS_LIST_LOAD_SUCCEED) JOB_STATUS_SUCCEED else JOB_STATUS_FAILED)
 
-            else -> throw IllegalArgumentException("WTF response: $response")
-        }
-
-        if (BuildConfig.DEBUG && response != STATUS_LIST_LOAD_START) {
+        if (BuildConfig.DEBUG) {
             mContext.sendBroadcast(Intent(ActivityUpdateReceiver.ACTION_SERVER_PRINT_LIST))
             val cost = Duration.between(timer, Instant.now()).toMillis()
             Timber.w("${if (response == STATUS_LIST_LOAD_SUCCEED) "Succeed" else "Failed"}: ${cost}ms")
