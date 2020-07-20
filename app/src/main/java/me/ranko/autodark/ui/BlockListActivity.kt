@@ -37,7 +37,7 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
 
                 Constant.JOB_STATUS_SUCCEED -> showMessage(R.string.app_upload_success)
 
-                Constant.JOB_STATUS_FAILED -> {binding.progressText.setText(R.string.app_upload_fail)}
+                Constant.JOB_STATUS_FAILED -> binding.progressText.setText(R.string.app_upload_fail)
             }
         }
     }
