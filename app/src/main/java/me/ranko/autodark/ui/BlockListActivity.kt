@@ -93,7 +93,6 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
             showMessage(R.string.app_upload_start)
         } else {
             if (binding.toolbarEdit.hasFocus()) {
-                setMenuVisible(true)
                 mAdapter.setSearchMode(false)
                 viewModel.mSearchHelper.stopSearch()
             } else {
@@ -158,10 +157,10 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
     override fun onFocusChange(v: View?, hasFocus: Boolean) {
         // hide menu icon while searching
         if (hasFocus) {
-            setMenuVisible(false)
             mAdapter.setSearchMode(true)
             viewModel.mSearchHelper.startSearch()
         }
+        setMenuVisible(hasFocus.not())
     }
 
     private fun setMenuVisible(visible: Boolean) {
