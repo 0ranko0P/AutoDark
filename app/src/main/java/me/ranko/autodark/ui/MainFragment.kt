@@ -31,13 +31,14 @@ import me.ranko.autodark.ui.Preference.DarkDisplayPreference
 
 class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
 
-    private lateinit var darkTimeCategory: PreferenceCategory
     private lateinit var startPreference: DarkDisplayPreference
     private lateinit var endPreference: DarkDisplayPreference
-    private lateinit var forceRootPreference: SwitchPreference
-    private lateinit var forceXposedPreference: Preference
     private lateinit var autoPreference: SwitchPreference
-    private lateinit var xposedPreference: Preference
+
+    /**
+     * [SwitchPreference] in non-xposed mode
+     * */
+    private lateinit var forceDarkPreference: Preference
 
     // may never get clicked
     private val aboutPreference by lazy(LazyThreadSafetyMode.NONE) { findPreference<Preference>(getString(R.string.pref_key_about))!! }
@@ -85,18 +86,18 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(R.xml.preferences_main)
-
-        darkTimeCategory = findPreference(getString(R.string.pref_key_time))!!
+        val darkTimeCategory = findPreference<PreferenceCategory>(getString(R.string.pref_key_time))!!
         startPreference = darkTimeCategory.findPreference(DARK_PREFERENCE_START)!!
         endPreference = darkTimeCategory.findPreference(DARK_PREFERENCE_END)!!
         autoPreference = darkTimeCategory.findPreference(DARK_PREFERENCE_AUTO)!!
-        forceRootPreference = findPreference(DARK_PREFERENCE_FORCE_ROOT)!!
-        forceXposedPreference = findPreference(DARK_PREFERENCE_FORCE_XPOSED)!!
-        xposedPreference = findPreference(DARK_PREFERENCE_XPOSED)!!
+
+        val forceRootPreference = findPreference<SwitchPreference>(DARK_PREFERENCE_FORCE_ROOT)!!
+        val forceXposedPreference = findPreference<Preference>(DARK_PREFERENCE_FORCE_XPOSED)!!
+        val xposedPreference = findPreference<Preference>(DARK_PREFERENCE_XPOSED)!!
 
         // init preference for xposed mode
         val isXposed = viewModel.getApplication<AutoDarkApplication>().isXposed
-        val forceDarkPreference = if (isXposed) forceXposedPreference else forceRootPreference
+        forceDarkPreference = if (isXposed) forceXposedPreference else forceRootPreference
 
         if (isXposed) {
             // drop switchable force-dark preference on xposed mode
@@ -152,14 +153,16 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
     }
 
     private fun onForceDarkPreferenceClick() = lifecycleScope.launch {
-        forceRootPreference.isEnabled = false
-        val result = DarkModeSettings.setForceDark(forceRootPreference.isChecked)
-        delay(600L)
-        if (!result) {
-            forceRootPreference.isChecked = !forceRootPreference.isChecked
-            viewModel.summaryText.set(viewModel.newSummary(R.string.root_check_failed))
+        (forceDarkPreference as SwitchPreference).run {
+            isEnabled = false
+            val succeed = DarkModeSettings.setForceDark(isChecked)
+            delay(600L)
+            if (!succeed) {
+                isChecked = !isChecked
+                viewModel.summaryText.set(viewModel.newSummary(R.string.root_check_failed))
+            }
+            isEnabled = true
         }
-        forceRootPreference.isEnabled = true
     }
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
