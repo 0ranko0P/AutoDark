@@ -54,7 +54,7 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
                 shizukuJobStatus -> ShizukuApi.grantWithShizuku()
             }
         } catch (e: Exception) {
-            Timber.d(e)
+            Timber.i(e)
         } finally {
             delay(800L) // Show progress longer
 

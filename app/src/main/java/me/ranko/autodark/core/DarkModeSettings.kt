@@ -163,7 +163,7 @@ class DarkModeSettings private constructor(private val context: Context) :
             mManager.disableCarMode(0)
             return mManager.nightMode == newMode
         } catch (e: SecurityException) {
-            Timber.e(e.localizedMessage)
+            Timber.d(e)
             return false
         }
     }
@@ -309,7 +309,7 @@ class DarkModeSettings private constructor(private val context: Context) :
         val location = locationUtil.getLastLocation()
         if (location != null) {
             val darkTimeStr = DarkTimeUtil.getDarkTimeString(location)
-            Timber.d("Sunrise at ${darkTimeStr.first}, sunset at ${darkTimeStr.second}")
+            Timber.i("Sunrise at ${darkTimeStr.first}, sunset at ${darkTimeStr.second}")
             // save dark time for master switch
             saveAutoTime(darkTimeStr)
             saveAutoMode(true)
@@ -320,7 +320,7 @@ class DarkModeSettings private constructor(private val context: Context) :
             return true
         }
 
-        Timber.d("Location is unavailable")
+        Timber.i("Location is unavailable")
         return false
     }
 
@@ -369,7 +369,7 @@ class DarkModeSettings private constructor(private val context: Context) :
         val endTime =
             sp.getString(if (autoMode) SP_AUTO_TIME_SUNRISE else DARK_PREFERENCE_END, null)
 
-        Timber.v("onBootBroadcast: Switch $masterSwitch, AutoMode: $autoMode, ForceDark: $forceDark")
+        Timber.i("onBootBroadcast: Switch $masterSwitch, AutoMode: $autoMode, ForceDark: $forceDark")
 
         if (!masterSwitch || startTime == null || endTime == null) {
             Timber.v("No job to do.")
