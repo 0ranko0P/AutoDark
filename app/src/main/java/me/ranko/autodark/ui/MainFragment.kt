@@ -42,7 +42,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
     // may never get clicked
     private val aboutPreference by lazy(LazyThreadSafetyMode.NONE) { findPreference<Preference>(getString(R.string.pref_key_about))!! }
 
-    private val rootView by lazy(LazyThreadSafetyMode.NONE) { activity!!.findViewById<View>(R.id.coordinatorRoot) }
+    private val rootView by lazy(LazyThreadSafetyMode.NONE) { requireActivity().findViewById<View>(R.id.coordinatorRoot) }
 
     companion object {
         val PERMISSIONS_LOCATION = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -96,7 +96,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
         forceXposedPreference = findPreference(DARK_PREFERENCE_FORCE_XPOSED)!!
         xposedPreference = findPreference(DARK_PREFERENCE_XPOSED)!!
 
-        val isXposed = (activity!!.application as AutoDarkApplication).isXposed
+        val isXposed = (requireActivity().application as AutoDarkApplication).isXposed
 
         if (isXposed) {
             forceRootPreference.parent!!.removePreference(forceRootPreference)
@@ -172,7 +172,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
             }
 
             DARK_PREFERENCE_XPOSED -> {
-                val activity = activity!! as MainActivity
+                val activity = requireActivity() as MainActivity
                 val appBarView = activity.findViewById<View>(R.id.appbar)
                 val fabView = activity.findViewById<View>(R.id.fab)
                 val appBarShared = Pair<View, String>(appBarView, appBarView.transitionName)
@@ -184,7 +184,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
             }
 
             aboutPreference.key -> {
-                AboutFragment.replace(activity!!.supportFragmentManager, R.id.container, "about")
+                AboutFragment.replace(requireActivity().supportFragmentManager, R.id.container, "about")
                 true
             }
 
@@ -226,7 +226,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
     }
 
     private fun checkLocationPermission(): Boolean {
-        return activity!!.checkSelfPermission(PERMISSIONS_LOCATION[0]) == PackageManager.PERMISSION_GRANTED &&
-                activity!!.checkSelfPermission(PERMISSIONS_LOCATION[1]) == PackageManager.PERMISSION_GRANTED
+        return requireActivity().checkSelfPermission(PERMISSIONS_LOCATION[0]) == PackageManager.PERMISSION_GRANTED &&
+                requireActivity().checkSelfPermission(PERMISSIONS_LOCATION[1]) == PackageManager.PERMISSION_GRANTED
     }
 }

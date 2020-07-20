@@ -100,10 +100,10 @@ class AboutFragment : PreferenceFragmentCompat() {
                 startActivity(Intent.createChooser(intent, getString(R.string.feedback_send)))
             }
 
-            PREFERENCE_KEY_SHARE -> shareApp(context!!)
+            PREFERENCE_KEY_SHARE -> shareApp(requireContext())
 
             PREFERENCE_KEY_TRANSLATORS -> {
-                AlertDialog.Builder(activity!!)
+                AlertDialog.Builder(requireActivity())
                     .setTitle(R.string.pref_trans_title)
                     .setView(android.R.layout.simple_list_item_1)
                     .setPositiveButton(R.string.app_confirm) { dialog, _ -> (dialog as AlertDialog).dismiss() }
