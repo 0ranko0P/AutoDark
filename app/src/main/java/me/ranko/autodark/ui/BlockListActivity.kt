@@ -72,6 +72,7 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
 
             binding.swipeRefresh.isRefreshing = isRefreshing
             binding.toolbarEdit.visibility = if (isRefreshing) View.INVISIBLE else View.VISIBLE
+            setMenuVisible(isRefreshing.not())
         })
 
         binding.swipeRefresh.setOnRefreshListener { viewModel.refreshList() }
