@@ -33,7 +33,7 @@
     <string name="feedback_send">发送邮件</string>
     <string name="feedback_subject">AutoDark 反馈</string>
 
-    <string name="pref_block_title">SmartDark 黑名单 (Xposed)</string>
+    <string name="pref_block_title">SmartDark 黑名单%1$s</string>
     <string name="pref_block_summary">您添加到名单里的应用不会被强制SmartDark</string>
     <string name="pref_contact">联系我</string>
     <string name="pref_category_dev">试验性功能</string>
@@ -41,8 +41,7 @@
     <string name="pref_category_time">设置开始与结束时间</string>
     <string name="pref_feedback_title">反馈</string>
     <string name="pref_feedback_summary">欢迎提出任何建议</string>
-    <string name="pref_force_dark">SmartDark 模式</string>
-    <string name="pref_force_dark_root">SmartDark 模式 (Root)</string>
+    <string name="pref_force_dark">SmartDark 模式%1$s</string>
     <string name="pref_force_dark_summary">由 Android 提供, 强制应用显示黑暗模式<xliff:g name="mode">%1$s</xliff:g></string>
     <string name="pref_force_dark_summary_root">\n不建议开启, 某些应用不兼容.</string>
     <string name="pref_force_dark_summary_xposed">\nXposed 模式已激活.</string>

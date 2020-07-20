@@ -34,7 +34,7 @@
     <string name="feedback_send">Send Email</string>
     <string name="feedback_subject">AutoDark Feedback</string>
 
-    <string name="pref_block_title">Force-Dark Block List (Xposed)</string>
+    <string name="pref_block_title">Force-Dark Block List%1$s</string>
     <string name="pref_block_summary">The apps that you choose won\'t get Force-Dark</string>
     <string name="pref_bug_title">Report a bug</string>
     <string name="pref_contact">Contact me</string>
@@ -42,8 +42,7 @@
     <string name="pref_category_time">Schedule start and end time.</string>
     <string name="pref_feedback_title">Feedback</string>
     <string name="pref_feedback_summary">Any suggestions are welcome</string>
-    <string name="pref_force_dark">Force dark mode</string>
-    <string name="pref_force_dark_root">Force dark mode (Root)</string>
+    <string name="pref_force_dark">Force dark mode%1$s</string>
     <string name="pref_force_dark_summary">Provided by Android, force apps into dark mode.<xliff:g name="mode">%1$s</xliff:g></string>
     <string name="pref_force_dark_summary_root">\nNot recommended, will set some apps on fire.</string>
     <string name="pref_force_dark_summary_xposed">\nXposed mode activated.</string>

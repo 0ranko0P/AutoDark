@@ -94,13 +94,24 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
         forceXposedPreference = findPreference(DARK_PREFERENCE_FORCE_XPOSED)!!
         xposedPreference = findPreference(DARK_PREFERENCE_XPOSED)!!
 
-        if (viewModel.getApplication<AutoDarkApplication>().isXposed) {
+        // init preference for xposed mode
+        val isXposed = viewModel.getApplication<AutoDarkApplication>().isXposed
+        val forceDarkPreference = if (isXposed) forceXposedPreference else forceRootPreference
+
+        if (isXposed) {
+            // drop switchable force-dark preference on xposed mode
             forceRootPreference.parent!!.removePreference(forceRootPreference)
-            forceXposedPreference.summary = getString(R.string.pref_force_dark_summary, getString(R.string.pref_force_dark_summary_xposed))
+
+            xposedPreference.title = getString(R.string.pref_block_title, "")
+            forceDarkPreference.title = getString(R.string.pref_force_dark, "")
+            forceDarkPreference.summary = getString(R.string.pref_force_dark_summary, getString(R.string.pref_force_dark_summary_xposed))
         } else {
-            xposedPreference.isEnabled = false
             forceXposedPreference.parent!!.removePreference(forceXposedPreference)
-            forceRootPreference.summary = getString(R.string.pref_force_dark_summary, getString(R.string.pref_force_dark_summary_root))
+
+            xposedPreference.isEnabled = false
+            xposedPreference.title = getString(R.string.pref_block_title, " (Xposed)")
+            forceDarkPreference.title = getString(R.string.pref_force_dark, " (Root)")
+            forceDarkPreference.summary = getString(R.string.pref_force_dark_summary, getString(R.string.pref_force_dark_summary_root))
         }
     }
 

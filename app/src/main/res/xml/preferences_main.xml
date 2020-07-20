@@ -30,19 +30,19 @@
             android:defaultValue="false"
             android:key="dark_mode_force"
             android:shouldDisableView="true"
-            android:title="@string/pref_force_dark_root"
+            tools:title="@string/pref_force_dark"
             tools:summary="@string/pref_force_dark_summary" />
 
         <Preference
             android:key="dark_mode_force_xposed"
-            android:title="@string/pref_force_dark"
+            tools:title="@string/pref_force_dark"
             tools:summary="@string/pref_force_dark_summary" />
 
         <Preference
             android:icon="@drawable/ic_extension"
             android:key="dark_mode_xposed"
             android:summary="@string/pref_block_summary"
-            android:title="@string/pref_block_title" />
+            tools:title="@string/pref_block_title" />
     </PreferenceCategory>
 
     <Preference
