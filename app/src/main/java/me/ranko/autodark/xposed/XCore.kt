@@ -1,5 +1,6 @@
 package me.ranko.autodark.xposed
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AndroidAppHelper
 import android.app.UiModeManager
@@ -26,6 +27,7 @@ import java.nio.file.Paths
  *
  * @author  0Ranko0P
  * */
+@SuppressLint("LogNotTimber")
 class XCore : IXposedHookLoadPackage, IXposedHookZygoteInit {
     companion object {
 

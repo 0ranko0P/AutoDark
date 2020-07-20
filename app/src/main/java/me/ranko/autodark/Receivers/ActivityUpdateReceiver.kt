@@ -1,5 +1,6 @@
 package me.ranko.autodark.Receivers
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -11,6 +12,7 @@ import me.ranko.autodark.BuildConfig
 import me.ranko.autodark.Constant
 import me.ranko.autodark.Utils.FileUtil
 
+@SuppressLint("LogNotTimber")
 class ActivityUpdateReceiver(private val context: Context) : BroadcastReceiver() {
 
     companion object {
