@@ -8,6 +8,7 @@ import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
+import android.os.SystemClock
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.MenuItem
@@ -21,7 +22,6 @@ import me.ranko.autodark.BuildConfig
 import me.ranko.autodark.Constant
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.Receivers.ActivityUpdateReceiver
-import me.ranko.autodark.Receivers.ActivityUpdateReceiver.Companion.STATUS_LIST_LOAD_FAILED
 import me.ranko.autodark.Receivers.ActivityUpdateReceiver.Companion.STATUS_LIST_LOAD_START
 import me.ranko.autodark.Receivers.ActivityUpdateReceiver.Companion.STATUS_LIST_LOAD_SUCCEED
 import me.ranko.autodark.Utils.FileUtil
@@ -276,13 +276,14 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         val watcher = uploadTimeOutWatcher.getAndSet(null)
         if (watcher?.isActive == true) watcher.cancel("Response received: $response")
 
+        val cost = Duration.between(timer, Instant.now()).toMillis()
+        if (cost < 600L) SystemClock.sleep(1000L) // wait longer
+        Timber.i("onNewResponse: Response time cost: ${cost}ms")
+
         uploadStatus.set(if (response == STATUS_LIST_LOAD_SUCCEED) JOB_STATUS_SUCCEED else JOB_STATUS_FAILED)
 
-        if (BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG)
             mContext.sendBroadcast(Intent(ActivityUpdateReceiver.ACTION_SERVER_PRINT_LIST))
-            val cost = Duration.between(timer, Instant.now()).toMillis()
-            Timber.w("${if (response == STATUS_LIST_LOAD_SUCCEED) "Succeed" else "Failed"}: ${cost}ms")
-        }
     }
 
     fun isUploading(): Boolean = uploadStatus.get() == JOB_STATUS_PENDING
