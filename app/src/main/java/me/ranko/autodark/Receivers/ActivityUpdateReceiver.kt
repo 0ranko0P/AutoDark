@@ -14,7 +14,7 @@ import me.ranko.autodark.Utils.FileUtil
 class ActivityUpdateReceiver(private val context: Context) : BroadcastReceiver() {
 
     companion object {
-        private const val TAG = "XCore: Receiver"
+        private const val TAG = "XCore"
 
         /**
          * Holds blocked apps
