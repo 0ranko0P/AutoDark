@@ -13,10 +13,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.content_permission_scroll.view.*
-import kotlinx.coroutines.launch
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.CircularAnimationUtil
 import me.ranko.autodark.Utils.ViewUtil
@@ -24,8 +22,7 @@ import me.ranko.autodark.core.ShizukuApi
 import me.ranko.autodark.core.ShizukuStatus
 import me.ranko.autodark.databinding.PermissionActivityBinding
 import me.ranko.autodark.ui.widget.PermissionLayout
-import moe.shizuku.api.ShizukuApiConstants
-import moe.shizuku.api.ShizukuProvider
+import rikka.shizuku.ShizukuProvider
 import timber.log.Timber
 
 class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutListener {
@@ -105,7 +102,7 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
     /**
      * Called on grant with Shizuku button clicked
      * */
-    fun onShizukuClick(v: View?) { lifecycleScope.launch {
+    fun onShizukuClick(v: View?) {
         when (ShizukuApi.checkShizuku(this@PermissionActivity)) {
 
             ShizukuStatus.DEAD -> showShizukuDeadDialog()
@@ -115,11 +112,11 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
             }
 
             ShizukuStatus.UNAUTHORIZED -> {
-                requestPermissions(arrayOf(ShizukuApiConstants.PERMISSION), REQUEST_CODE_SHIZUKU_PERMISSION)
+                requestPermissions(arrayOf(ShizukuProvider.PERMISSION), REQUEST_CODE_SHIZUKU_PERMISSION)
             }
 
             ShizukuStatus.AVAILABLE -> viewModel.grantWithShizuku()
-        }}
+        }
     }
 
     private fun showShizukuDeadDialog() {

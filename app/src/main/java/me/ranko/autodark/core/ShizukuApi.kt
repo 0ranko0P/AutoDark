@@ -6,11 +6,10 @@ import android.content.Intent
 import android.content.pm.IPackageManager
 import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import me.ranko.autodark.BuildConfig
-import moe.shizuku.api.*
+import rikka.shizuku.*
 import timber.log.Timber
+import java.lang.Exception
 
 enum class ShizukuStatus {
     NOT_INSTALL, DEAD, UNAUTHORIZED,
@@ -22,31 +21,40 @@ enum class ShizukuStatus {
 }
 
 object ShizukuApi {
+    private const val MANAGER_APPLICATION_ID = "moe.shizuku.privileged.api"
 
     private val mManager:IPackageManager by lazy {
         IPackageManager.Stub.asInterface(ShizukuBinderWrapper(SystemServiceHelper.getSystemService("package")))
     }
 
-    suspend fun checkShizuku(context: Context): ShizukuStatus {
+    fun checkShizuku(context: Context): ShizukuStatus {
         if (!ShizukuProvider.isShizukuInstalled(context)) return ShizukuStatus.NOT_INSTALL
 
-        if (!checkPermission(context)) return ShizukuStatus.UNAUTHORIZED
-
-        return withContext(Dispatchers.IO) {
-            if (ShizukuService.pingBinder()) {
-                // Shizuku v3 binder received
-                Timber.d("checkShizuku: binder received")
+        try {
+            val permission = if (!Shizuku.isPreV11() && Shizuku.getVersion() >= 11) {
+                Shizuku.checkSelfPermission()
+            } else {
+                ContextCompat.checkSelfPermission(context, ShizukuProvider.PERMISSION)
+            }
+            return if (permission == PackageManager.PERMISSION_GRANTED) {
                 ShizukuStatus.AVAILABLE
             } else {
-                // Shizuku v3 may not running, notify user
-                Timber.d("checkShizuku: Failed to pingBinder ")
-                ShizukuStatus.DEAD
+                ShizukuStatus.UNAUTHORIZED
             }
+        } catch (e: SecurityException) {
+            // service version below v11 and the app have't get the permission
+            return ShizukuStatus.UNAUTHORIZED
+        } catch (e: IllegalStateException) {
+            Timber.d("checkShizuku: Failed to pingBinder")
+            return ShizukuStatus.DEAD
+        } catch (e: Exception) {
+            Timber.d(e, "checkShizuku: WTF")
+            return ShizukuStatus.DEAD
         }
     }
 
     fun startManagerActivity(context: Context): Boolean {
-        val intent = context.packageManager.getLaunchIntentForPackage(ShizukuApiConstants.MANAGER_APPLICATION_ID) ?: return false
+        val intent = context.packageManager.getLaunchIntentForPackage(MANAGER_APPLICATION_ID) ?: return false
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
         ContextCompat.startActivity(context, intent, null)
         return true
@@ -55,7 +63,4 @@ object ShizukuApi {
     fun grantWithShizuku() {
         mManager.grantRuntimePermission(BuildConfig.APPLICATION_ID, Manifest.permission.WRITE_SECURE_SETTINGS, android.os.Process.ROOT_UID)
     }
-
-    fun checkPermission(context: Context): Boolean =
-        ContextCompat.checkSelfPermission(context, ShizukuApiConstants.PERMISSION) == PackageManager.PERMISSION_GRANTED
 }

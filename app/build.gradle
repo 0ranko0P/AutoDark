@@ -73,7 +73,9 @@ dependencies {
     implementation "com.jakewharton.timber:timber:$ver_timber"
 
     // Shizuku API
-    implementation project(':Shizuku-API:api')
+    implementation project(':api')
+    implementation project(':aidl')
+    implementation project(':provider')
     compileOnly project(':hidden-api-dark')
 
     // Simple License Display

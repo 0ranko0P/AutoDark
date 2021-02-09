@@ -11,7 +11,7 @@ buildscript {
         ver_lifecycle_extensions = "2.2.0"
         ver_kotlin = '1.3.72'
         ver_kotlin_coroutines = "1.3.3"
-        ver_material = "1.3.0-alpha01"
+        ver_material = "1.3.0"
         ver_navigation = '2.1.0-beta02'
         ver_preference = "1.1.1"
         ver_rikka_design = "3.1.8"
@@ -20,6 +20,9 @@ buildscript {
         ver_timber = "4.7.1"
         ver_junit = "4.13"
         ver_xposed = "82"
+
+        // Shizuku manifest
+        apply from: 'Shizuku-API/manifest.gradle'
     }
 
     repositories {
@@ -45,12 +48,4 @@ allprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
-}
-
-// Shizuku-API version def here
-ext {
-    minSdkVersion = 23
-    targetSdkVersion = 29
-
-    apiVersionName = '4.0.0'
 }
