@@ -21,18 +21,18 @@ class DarkLocationUtil private constructor(context: Context) {
         context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
     private val mListener = object : LocationListener {
-        override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
 
         }
 
-        override fun onProviderEnabled(provider: String?) {
+        override fun onProviderEnabled(provider: String) {
         }
 
-        override fun onProviderDisabled(provider: String?) {
+        override fun onProviderDisabled(provider: String) {
 
         }
 
-        override fun onLocationChanged(location: Location?) {
+        override fun onLocationChanged(location: Location) {
 
         }
     }
@@ -93,6 +93,7 @@ class DarkLocationUtil private constructor(context: Context) {
      * @see     LocationManager.getProviders
      * @see     LocationManager.requestLocationUpdates
      * */
+    @RequiresPermission(allOf = [android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION])
     private suspend fun updateLocation() {
         mManager.getProviders(true).forEach {
             mManager.requestLocationUpdates(it, 50L, 0f, mListener)
