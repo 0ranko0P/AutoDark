@@ -1,5 +1,6 @@
 package me.ranko.autodark.core
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -125,7 +126,7 @@ class DarkModeSettings private constructor(private val context: Context) :
          *
          * @see     Constant.SYSTEM_PROP_FORCE_DARK
          * */
-        fun getForceDark(): Boolean  = SystemProperties.getBoolean(Constant.SYSTEM_PROP_FORCE_DARK, false)
+        fun getForceDark(): Boolean  = SystemProperties.getBoolean(SYSTEM_PROP_FORCE_DARK, false)
     }
 
     /**
@@ -141,6 +142,7 @@ class DarkModeSettings private constructor(private val context: Context) :
      *
      * @see     UiModeManager.setNightMode
      * */
+    @SuppressLint("WrongConstant")
     fun setDarkMode(enabled: Boolean): Boolean {
         val newMode = if (enabled) UiModeManager.MODE_NIGHT_YES else UiModeManager.MODE_NIGHT_NO
 
