@@ -64,7 +64,7 @@
             app:description="@string/adb_description"
             app:expandDescription="true"
             app:iconColor="teal"
-            app:src="@drawable/ic_adb"
+            app:srcIcon="@drawable/ic_adb"
             app:title="@string/adb_title">
 
             <TextView
@@ -96,7 +96,7 @@
             app:description="@string/root_description"
             app:expandDescription="true"
             app:iconColor="red"
-            app:src="@drawable/ic_root"
+            app:srcIcon="@drawable/ic_root"
             app:title="@string/root_title">
 
             <TextView android:id="@+id/btnRoot"

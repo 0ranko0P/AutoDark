@@ -36,7 +36,7 @@ public class PermissionLayout extends LinearLayout implements View.OnClickListen
         LayoutInflater.from(context).inflate(R.layout.widget_permission, this, true);
 
         mIcon = findViewById(R.id.icon);
-        mIcon.setImageResource(a.getResourceId(R.styleable.PermissionLayout_src, android.R.drawable.ic_btn_speak_now));
+        mIcon.setImageResource(a.getResourceId(R.styleable.PermissionLayout_srcIcon, android.R.drawable.ic_btn_speak_now));
         if (a.hasValue(R.styleable.PermissionLayout_iconColor)) {
             mIcon.setColorName(Objects.requireNonNull(a.getString(R.styleable.PermissionLayout_iconColor)));
         }

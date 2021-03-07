@@ -18,7 +18,7 @@
         app:description="@string/shizuku_description"
         app:expandDescription="true"
         app:iconColor="indigo"
-        app:src="@drawable/ic_shizuku"
+        app:srcIcon="@drawable/ic_shizuku"
         app:title="@string/shizuku_title">
 
         <TextView
