@@ -20,7 +20,6 @@ import androidx.preference.PreferenceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import me.ranko.autodark.Constant
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.R
 import me.ranko.autodark.Receivers.DarkModeAlarmReceiver
@@ -68,7 +67,7 @@ class DarkModeSettings private constructor(private val context: Context) :
     override fun onStart(owner: LifecycleOwner) {
         mSupplier = (owner as DarkPreferenceSupplier).apply {
             get(DARK_PREFERENCE_START).onPreferenceChangeListener = this@DarkModeSettings
-            get(DARK_PREFERENCE_START).onPreferenceChangeListener = this@DarkModeSettings
+            get(DARK_PREFERENCE_END).onPreferenceChangeListener = this@DarkModeSettings
         }
     }
 
@@ -145,13 +144,14 @@ class DarkModeSettings private constructor(private val context: Context) :
     @SuppressLint("WrongConstant")
     fun setDarkMode(enabled: Boolean): Boolean {
         val newMode = if (enabled) UiModeManager.MODE_NIGHT_YES else UiModeManager.MODE_NIGHT_NO
+        val currentMode = mManager.nightMode
 
-        if (mManager.nightMode == newMode) {
+        if (currentMode == newMode) {
             Timber.v("Already in %s mode", newMode)
             return true
         }
 
-        Timber.d("Current mode: ${mManager.currentModeType} change to $newMode")
+        Timber.d("Current mode: $currentMode change to $newMode")
         try {
             Settings.Secure.putInt(
                 context.contentResolver,
