@@ -28,6 +28,8 @@ enum class ShizukuStatus {
 object ShizukuApi {
     private const val MANAGER_APPLICATION_ID = "moe.shizuku.privileged.api"
 
+    const val REQUEST_CODE_SHIZUKU_PERMISSION = 7
+
     private val mManager:IPackageManager by lazy {
         IPackageManager.Stub.asInterface(ShizukuBinderWrapper(SystemServiceHelper.getSystemService("package")))
     }
@@ -55,6 +57,26 @@ object ShizukuApi {
         } catch (e: Exception) {
             Timber.i(e, "WTF")
             return ShizukuStatus.DEAD
+        }
+    }
+
+    /**
+     * Register callbacks before request
+     *
+     * @see Shizuku.addRequestPermissionResultListener
+     * @see Shizuku.removeRequestPermissionResultListener
+     * */
+    fun requestPermission(activity: Activity) {
+        val isPreV11: Boolean  = try {
+            Shizuku.isPreV11() && Shizuku.getVersion() <= 10
+        } catch (e: SecurityException) {
+            true
+        }
+
+        if (isPreV11) {
+            activity.requestPermissions(arrayOf(ShizukuProvider.PERMISSION), REQUEST_CODE_SHIZUKU_PERMISSION)
+        } else {
+            Shizuku.requestPermission(REQUEST_CODE_SHIZUKU_PERMISSION)
         }
     }
 

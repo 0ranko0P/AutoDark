@@ -17,9 +17,11 @@ import me.ranko.autodark.R
 import me.ranko.autodark.Utils.CircularAnimationUtil
 import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.core.ShizukuApi
+import me.ranko.autodark.core.ShizukuApi.REQUEST_CODE_SHIZUKU_PERMISSION
 import me.ranko.autodark.core.ShizukuStatus
 import me.ranko.autodark.databinding.PermissionActivityBinding
 import me.ranko.autodark.ui.widget.PermissionLayout
+import rikka.shizuku.Shizuku
 import rikka.shizuku.ShizukuProvider
 import timber.log.Timber
 
@@ -35,6 +37,14 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
     private var coordinate: IntArray? = null
 
     private var shizukuDialog: AlertDialog? = null
+
+    private val shizukuListener = Shizuku.OnRequestPermissionResultListener { _, grantResult ->
+        if (grantResult == PackageManager.PERMISSION_GRANTED) {
+            viewModel.grantWithShizuku()
+        } else {
+            Snackbar.make(binding.coordRoot, R.string.permission_failed, Snackbar.LENGTH_SHORT).show()
+        }
+    }
 
     private val viewModel: PermissionViewModel by lazy(LazyThreadSafetyMode.NONE) {
         ViewModelProvider(this, PermissionViewModel.Companion.Factory(application)).get(
@@ -56,6 +66,7 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
         binding.viewModel = viewModel
 
         initShizukuCard()
+        Shizuku.addRequestPermissionResultListener(shizukuListener)
         ViewUtil.setAppBarPadding(binding.appbarPermission)
 
         viewModel.permissionResult.observe(this, Observer<Boolean> { result ->
@@ -87,13 +98,7 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == REQUEST_CODE_SHIZUKU_PERMISSION) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                onShizukuClick(null)
-            } else {
-                // denied
-                Snackbar.make(binding.coordRoot, R.string.permission_failed, Snackbar.LENGTH_SHORT)
-                    .show()
-            }
+            shizukuListener.onRequestPermissionResult(REQUEST_CODE_SHIZUKU_PERMISSION, grantResults[0])
         }
     }
 
@@ -109,9 +114,7 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
                 Snackbar.make(binding.coordRoot, R.string.shizuku_not_install, Snackbar.LENGTH_SHORT).show()
             }
 
-            ShizukuStatus.UNAUTHORIZED -> {
-                requestPermissions(arrayOf(ShizukuProvider.PERMISSION), REQUEST_CODE_SHIZUKU_PERMISSION)
-            }
+            ShizukuStatus.UNAUTHORIZED -> ShizukuApi.requestPermission(this)
 
             ShizukuStatus.AVAILABLE -> viewModel.grantWithShizuku()
         }
@@ -148,13 +151,12 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
 
     override fun onDestroy() {
         shizukuDialog?.dismiss()
+        Shizuku.removeRequestPermissionResultListener(shizukuListener)
         super.onDestroy()
     }
 
     companion object {
         private const val ARG_COORDINATE: String = "ARG_COORDINATE"
-
-        const val REQUEST_CODE_SHIZUKU_PERMISSION = 7
 
         const val REQUEST_CODE_PERMISSION = 2233
 
