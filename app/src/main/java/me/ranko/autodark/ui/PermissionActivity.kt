@@ -1,14 +1,12 @@
 package me.ranko.autodark.ui
 
 import android.app.Activity
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
 import android.view.animation.AnimationUtils
-import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -103,7 +101,7 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
      * Called on grant with Shizuku button clicked
      * */
     fun onShizukuClick(v: View?) {
-        when (ShizukuApi.checkShizuku(this@PermissionActivity)) {
+        when (ShizukuApi.checkShizuku(this)) {
 
             ShizukuStatus.DEAD -> showShizukuDeadDialog()
 
@@ -120,22 +118,10 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
     }
 
     private fun showShizukuDeadDialog() {
-        val onDialogClick = DialogInterface.OnClickListener { dialog, which ->
-            dialog.dismiss()
-            if (which == DialogInterface.BUTTON_NEUTRAL)
-                ShizukuApi.startManagerActivity(this@PermissionActivity)
+        if (shizukuDialog == null) {
+            shizukuDialog = ShizukuApi.buildShizukuDeadDialog(this)
         }
-
-        shizukuDialog = AlertDialog.Builder(this, R.style.SimpleDialogStyle)
-            .setView(android.R.layout.simple_list_item_1)
-            .setNeutralButton(R.string.shizuku_open_manager, onDialogClick)
-            .setPositiveButton(android.R.string.cancel, onDialogClick)
-            .show()
-        shizukuDialog?.findViewById<TextView>(android.R.id.text1)!!.apply {
-            val padding = resources.getDimensionPixelOffset(R.dimen.permission_padding_description_horizontal)
-            setText(R.string.shizuku_connect_failed)
-            setPadding(padding, padding, padding, padding)
-        }
+        shizukuDialog?.show()
     }
 
     override fun onGlobalLayout() {
@@ -168,7 +154,7 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
     companion object {
         private const val ARG_COORDINATE: String = "ARG_COORDINATE"
 
-        private const val REQUEST_CODE_SHIZUKU_PERMISSION = 7
+        const val REQUEST_CODE_SHIZUKU_PERMISSION = 7
 
         const val REQUEST_CODE_PERMISSION = 2233
 

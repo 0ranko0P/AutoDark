@@ -1,15 +1,20 @@
 package me.ranko.autodark.core
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.IPackageManager
 import android.content.pm.PackageManager
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import me.ranko.autodark.BuildConfig
-import rikka.shizuku.*
+import me.ranko.autodark.R
+import rikka.shizuku.Shizuku
+import rikka.shizuku.ShizukuBinderWrapper
+import rikka.shizuku.ShizukuProvider
+import rikka.shizuku.SystemServiceHelper
 import timber.log.Timber
-import java.lang.Exception
 
 enum class ShizukuStatus {
     NOT_INSTALL, DEAD, UNAUTHORIZED,
@@ -45,10 +50,10 @@ object ShizukuApi {
             // service version below v11 and the app have't get the permission
             return ShizukuStatus.UNAUTHORIZED
         } catch (e: IllegalStateException) {
-            Timber.d("checkShizuku: Failed to pingBinder")
+            Timber.d(e,"Failed to pingBinder")
             return ShizukuStatus.DEAD
         } catch (e: Exception) {
-            Timber.d(e, "checkShizuku: WTF")
+            Timber.i(e, "WTF")
             return ShizukuStatus.DEAD
         }
     }
@@ -58,6 +63,14 @@ object ShizukuApi {
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
         ContextCompat.startActivity(context, intent, null)
         return true
+    }
+
+    fun buildShizukuDeadDialog(activity: Activity): AlertDialog {
+        return AlertDialog.Builder(activity, R.style.SimpleDialogStyle)
+            .setMessage(R.string.shizuku_connect_failed)
+            .setNeutralButton(android.R.string.cancel, null)
+            .setPositiveButton(R.string.shizuku_open_manager) { _, _ -> startManagerActivity(activity) }
+            .create()
     }
 
     fun grantWithShizuku() {
