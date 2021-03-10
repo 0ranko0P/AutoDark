@@ -18,10 +18,69 @@
     <dimen name="permission_title_text_size">18sp</dimen>
     <dimen name="permission_padding_expand_icon_size">32dp</dimen>
     <dimen name="permission_padding_expand_icon_margin">8dp</dimen>
-    <dimen name="permission_padding_description_horizontal">16dp</dimen>
     <dimen name="permission_margin_description_vertical">16dp</dimen>
     <dimen name="permission_margin_title_start">16dp</dimen>
     <dimen name="permission_progress_padding">12dp</dimen>
     <dimen name="app_bar_height">180dp</dimen>
     <dimen name="text_margin">16dp</dimen>
+
+    <!-- The size of lock screen widget on the full screen. -->
+    <dimen name="lock_screen_preview_lock_icon_size">42dp</dimen>
+    <dimen name="lock_screen_preview_time_text_size">54dp</dimen>
+    <dimen name="lock_screen_preview_date_text_size">18dp</dimen>
+    <dimen name="smartspace_preview_key_ambient_shadow_blur">1.5dp</dimen>
+
+    <!-- Dimensions for the bottom bar. -->
+    <dimen name="bottom_navbar_height">76dp</dimen>
+    <dimen name="bottom_action_bar_padding_horizontal">4dp</dimen>
+    <dimen name="bottom_action_bar_padding_top">6dp</dimen>
+    <dimen name="bottom_action_bar_preview_info_padding_vertical">20dp</dimen>
+    <dimen name="bottom_action_bar_elevation">10dp</dimen>
+    <dimen name="bottom_action_button_size">48dp</dimen>
+    <dimen name="bottom_action_button_padding">12dp</dimen>
+    <dimen name="bottom_action_icon_size">24dp</dimen>
+
+    <!-- Dimensions for the "disabled by admin" UI in desktop mode. -->
+    <dimen name="disabled_by_admin_desktop_message_text_size">13sp</dimen>
+    <dimen name="preview_bottom_sheet_corner_radius">?android:attr/dialogCornerRadius</dimen>
+
+    <!-- Dimensions for full preview page -->
+    <dimen name="full_preview_page_default_padding_top">24dp</dimen>
+    <dimen name="full_preview_page_default_padding_bottom">32dp</dimen>
+
+    <dimen name="grid_padding">4dp</dimen>
+    <dimen name="grid_edge_space">8dp</dimen>
+    <dimen name="grid_item_wallpaper_label_padding_top">12dp</dimen>
+    <dimen name="grid_item_wallpaper_label_padding_bottom">4dp</dimen>
+    <dimen name="grid_item_wallpaper_label_minimum_height">16dp</dimen>
+
+    <dimen name="wallpaper_grid_padding_top">4dp</dimen>
+    <dimen name="wallpaper_grid_padding_bottom">16dp</dimen>
+
+    <dimen name="option_title_font_text_size">12sp</dimen>
+    <dimen name="option_title_line_height">16dp</dimen>
+
+    <dimen name="preview_attribution_pane_collapsed_height">0dp</dimen>
+
+    <!-- Dimensions for PreviewPager and PageIndicator. -->
+    <dimen name="preview_indicator_width">16dp</dimen>
+    <dimen name="preview_indicator_height">8dp</dimen>
+    <dimen name="indicator_container_height">48dp</dimen>
+    <dimen name="indicator_arrow_size">24dp</dimen>
+    <dimen name="indicator_arrow_touch_area_size">48dp</dimen>
+    <dimen name="indicator_arrow_container_margin_horizontal">4dp</dimen>
+    <dimen name="preview_page_gap">16dp</dimen>
+    <dimen name="preview_page_horizontal_margin">32dp</dimen>
+    <dimen name="preview_page_top_margin">0dp</dimen>
+    <dimen name="preview_page_bottom_margin">0dp</dimen>
+    <dimen name="preview_card_padding">20dp</dimen>
+    <dimen name="preview_pager_max_height">450dp</dimen>
+    <dimen name="preview_pager_min_height">350dp</dimen>
+    <dimen name="preview_pager_height">450dp</dimen>
+
+    <!-- Dimensions for the "Set wallpaper" destination dialog. -->
+    <dimen name="set_wallpaper_dialog_padding_bottom">8dp</dimen>
+    <dimen name="set_wallpaper_dialog_padding_top">15dp</dimen>
+    <dimen name="set_wallpaper_dialog_item_min_height">48dp</dimen>
+    <dimen name="set_wallpaper_dialog_item_drawable_padding">32dp</dimen>
 </resources>

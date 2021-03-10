@@ -97,6 +97,25 @@
 
     <style name="SimpleDialogStyle" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
         <item name="textAppearanceListItemSmall">@style/BaseDialogTextAppearance</item>
+        <item name="windowActionBar">false</item>
+        <item name="android:background">@color/bottom_sheet_background</item>
+    </style>
+
+    <!-- Set wallpaper destination item -->
+    <style name="set_wallpaper_destination_item" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:minHeight">@dimen/set_wallpaper_dialog_item_min_height</item>
+        <item name="android:textAlignment">viewStart</item>
+        <item name="android:textAppearance">?attr/textAppearanceListItemSmall</item>
+        <item name="android:textSize">@dimen/abc_text_size_subhead_material</item>
+        <item name="android:textColor">@color/set_wallpaper_item_color</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:alpha">.87</item>
+        <item name="android:paddingStart">?attr/dialogPreferredPadding</item>
+        <item name="android:paddingEnd">?attr/dialogPreferredPadding</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:drawablePadding">@dimen/set_wallpaper_dialog_item_drawable_padding</item>
+        <item name="android:drawableTint">?android:colorAccent</item>
+        <item name="android:drawableTintMode">src_atop</item>
     </style>
 
     <style name="BaseDialogTextAppearance">
@@ -107,4 +126,19 @@
         <item name="android:textSize">16sp</item>
     </style>
 
+    <!-- Option tiles -->
+    <style name="OptionTitleTextAppearance" parent="TitleTextAppearance">
+        <item name="android:textAlignment">center</item>
+        <item name="android:textSize">@dimen/option_title_font_text_size</item>
+        <item name="android:lineHeight">@dimen/option_title_line_height</item>
+    </style>
+
+    <style name="PreviewCard" parent="CardView">
+        <item name="android:clipChildren">true</item>
+        <item name="contentPadding">0dp</item>
+        <item name="cardCornerRadius">?android:dialogCornerRadius</item>
+    </style>
+
+    <!-- Individual components / Widgets -->
+    <style name="TitleTextAppearance" parent="@android:style/TextAppearance.DeviceDefault.Widget.ActionBar.Title"/>
 </resources>

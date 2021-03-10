@@ -22,4 +22,17 @@
         <attr name="title" format="string" localization="suggested" />
         <attr name="description" format="string" localization="suggested" />
     </declare-styleable>
+
+    <!-- PreviewPager specific attributes. -->
+    <declare-styleable name="PreviewPager">
+        <attr name="card_style" format="integer">
+            <!-- The cards are sized so that a small part of the next card in the pager can be seen
+                peeking from the side. -->
+            <enum name="peeking" value="0" />
+            <!-- Cards are sized to match the screen's aspect ratio (based on available height) -->
+            <enum name="screen_aspect_ratio" value="1" />
+
+            <enum name="disable" value="-1" />
+        </attr>
+    </declare-styleable>
 </resources>

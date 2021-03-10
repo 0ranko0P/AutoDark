@@ -55,4 +55,8 @@ public class Binder implements IBinder {
                                  int flags) throws RemoteException {
         throw new RuntimeException("STUB");
     }
+
+    public static native int getCallingPid();
+
+    public static native int getCallingUid();
 }
