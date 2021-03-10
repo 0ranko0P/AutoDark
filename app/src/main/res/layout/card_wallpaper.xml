@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/PreviewCard"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="true"
+    tools:cardCornerRadius="8dp"
+    tools:layout_margin="8dp"
+    tools:showIn="@layout/preview_wallpaper">
+
+    <ImageView android:id="@+id/card_preview_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/card_preview_background"
+        android:scaleType="centerCrop"
+        tools:layout_height="380dp"
+        tools:layout_width="180dp"
+        tools:src="@drawable/ic_launcher_background" />
+</androidx.cardview.widget.CardView>
