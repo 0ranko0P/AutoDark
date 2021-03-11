@@ -36,27 +36,28 @@ public class PermissionLayout extends LinearLayout implements View.OnClickListen
     public PermissionLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.PermissionLayout, defStyleAttr, 0);
+        setOrientation(VERTICAL);
 
-        LayoutInflater.from(context).inflate(R.layout.widget_permission, this, true);
+        View container = LayoutInflater.from(context).inflate(R.layout.widget_permission, this, true);
 
-        mIcon = findViewById(R.id.icon);
+        mIcon = container.findViewById(R.id.icon);
         mIcon.setImageResource(a.getResourceId(R.styleable.PermissionLayout_srcIcon, android.R.drawable.ic_btn_speak_now));
         if (a.hasValue(R.styleable.PermissionLayout_iconColor)) {
             mIcon.setColorName(Objects.requireNonNull(a.getString(R.styleable.PermissionLayout_iconColor)));
         }
 
-        mTitle = findViewById(R.id.title);
+        mTitle = container.findViewById(R.id.title);
         if (a.hasValue(R.styleable.PermissionLayout_title))
             mTitle.setText(a.getText(R.styleable.PermissionLayout_title));
 
-        mExpandableButton = findViewById(R.id.button);
+        mExpandableButton = container.findViewById(R.id.button);
         if (a.getBoolean(R.styleable.PermissionLayout_expandable, true)) {
             mExpandableButton.setOnClickListener(this);
         } else {
             mExpandableButton.setVisibility(View.GONE);
         }
 
-        mExpandableLayout = findViewById(R.id.expandable);
+        mExpandableLayout = container.findViewById(R.id.expandable);
         if (a.hasValue(R.styleable.PermissionLayout_expandDescription)) {
             isExpanded = a.getBoolean(R.styleable.PermissionLayout_expandDescription, false);
             if (isExpanded ^ mExpandableLayout.isExpanded()) {
@@ -65,7 +66,7 @@ public class PermissionLayout extends LinearLayout implements View.OnClickListen
             }
         }
 
-        mDescription = findViewById(R.id.description);
+        mDescription = container.findViewById(R.id.description);
         if (a.hasValue(R.styleable.PermissionLayout_description)) {
             mDescription.setText(a.getText(R.styleable.PermissionLayout_description));
         }
