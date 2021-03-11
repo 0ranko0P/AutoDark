@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 
 import java.util.Objects;
 
@@ -20,6 +21,9 @@ public class PermissionLayout extends LinearLayout implements View.OnClickListen
 
     private ExpandableLayout mExpandableLayout;
     private CheckedImageView mExpandableButton;
+
+    private final TextView mTitle;
+    private final TextView mDescription;
 
     private boolean isExpanded;
 
@@ -41,7 +45,7 @@ public class PermissionLayout extends LinearLayout implements View.OnClickListen
             mIcon.setColorName(Objects.requireNonNull(a.getString(R.styleable.PermissionLayout_iconColor)));
         }
 
-        TextView mTitle = findViewById(R.id.title);
+        mTitle = findViewById(R.id.title);
         if (a.hasValue(R.styleable.PermissionLayout_title))
             mTitle.setText(a.getText(R.styleable.PermissionLayout_title));
 
@@ -61,7 +65,7 @@ public class PermissionLayout extends LinearLayout implements View.OnClickListen
             }
         }
 
-        TextView mDescription = findViewById(R.id.description);
+        mDescription = findViewById(R.id.description);
         if (a.hasValue(R.styleable.PermissionLayout_description)) {
             mDescription.setText(a.getText(R.styleable.PermissionLayout_description));
         }
@@ -72,6 +76,30 @@ public class PermissionLayout extends LinearLayout implements View.OnClickListen
 
     public MaterialCircleIconView getTitleIcon() {
         return mIcon;
+    }
+
+    public void setTitle(@StringRes int title) {
+        mTitle.setText(title);
+    }
+
+    public void setTitle(String title) {
+        mTitle.setText(title);
+    }
+
+    public String getTitle() {
+        return mTitle.getText().toString();
+    }
+
+    public void setDescription(@StringRes int description) {
+         mDescription.setText(description);
+    }
+
+    public void setDescription(String description) {
+        mDescription.setText(description);
+    }
+
+    public String getDescription() {
+        return mDescription.getText().toString();
     }
 
     @Override
