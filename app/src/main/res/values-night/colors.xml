@@ -5,5 +5,5 @@
     <color name="secondary">#03DAC6</color>
     <color name="surface">#121212</color>
     <color name="appbar_background">#E62A2A2A</color>
-    <color name="bottom_sheet_background">#353535</color>
+    <color name="bottom_sheet_background">@color/appbar_background</color>
 </resources>

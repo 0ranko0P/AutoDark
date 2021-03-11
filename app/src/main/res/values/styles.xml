@@ -5,18 +5,21 @@
         <item name="colorPrimaryVariant">@color/primaryVariant</item>
         <item name="colorSecondary">@color/secondary</item>
         <item name="colorAccent">@color/primary</item>
-
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:statusBarColor">@color/appbar_background</item>
+        <item name="android:navigationBarColor">?android:colorBackground</item>
         <item name="materialCircleIconViewStyle">@style/MaterialCircleIconView</item>
-        <item name="homeCardStyle">@style/CardStyle</item>
     </style>
 
-    <style name="AppTransparentTheme" parent="AppTheme">
-        <item name="android:windowBackground">@android:color/transparent</item>
+    <style name="AppTheme.LightActionBar">
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+
+    <style name="AppTheme.Transparent">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:backgroundDimEnabled">false</item>
@@ -24,8 +27,13 @@
         <item name="actionBarTheme">@style/Widget.ActionBar</item>
     </style>
 
-    <style name="AppTheme.TransparentActionBar" parent="AppTransparentTheme">
+    <style name="AppTheme.Transparent.ActionBar">
         <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+
+    <style name="AppTheme.Transparent.DarkActionBar">
+        <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar">true</item>
     </style>
 
