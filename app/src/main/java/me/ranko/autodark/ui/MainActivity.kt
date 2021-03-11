@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.view.View
 import android.view.WindowManager
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
@@ -101,7 +102,9 @@ class MainActivity : BaseListActivity(), FragmentManager.OnBackStackChangedListe
         }
     }
 
-    override fun onNavBarHeightAvailable(height: Int) {
+    override fun getListView(): View? = null
+
+    override fun applyInsetsToListPadding(top: Int, bottom: Int) {
         onBackStackChanged()
     }
 

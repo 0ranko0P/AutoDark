@@ -22,19 +22,27 @@ abstract class BaseListActivity : AppCompatActivity(), OnApplyWindowInsetsListen
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) return
 
         window.statusBarColor = Color.TRANSPARENT
-        ViewUtil.setImmersiveNavBar(window)
+        if (!ViewUtil.isLandscape(this)) {
+            ViewUtil.setImmersiveNavBar(window)
+        }
         // get navBar height then set it as bottom padding to RecyclerView
         ViewCompat.setOnApplyWindowInsetsListener(window!!.decorView.rootView, this)
     }
 
     override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat? {
         bottomNavHeight = insets.systemWindowInsetBottom
-        onNavBarHeightAvailable(bottomNavHeight)
+        applyInsetsToListPadding(insets.systemWindowInsetTop, bottomNavHeight)
         v.setOnApplyWindowInsetsListener(null)
         return insets.consumeSystemWindowInsets()
     }
 
-    abstract fun onNavBarHeightAvailable(height: Int)
+    open fun applyInsetsToListPadding(top: Int, bottom: Int) {
+        getListView()?.apply {
+            setPadding(paddingLeft, paddingTop + top, paddingRight, paddingBottom + bottom)
+        }
+    }
+
+    abstract fun getListView(): View?
 
     fun getNavBarHeight(): Int = bottomNavHeight
 }

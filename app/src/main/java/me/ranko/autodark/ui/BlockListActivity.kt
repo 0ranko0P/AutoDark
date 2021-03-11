@@ -7,6 +7,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.Window
 import androidx.annotation.StringRes
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.children
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
@@ -146,11 +147,14 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
         return true
     }
 
-    override fun onNavBarHeightAvailable(height: Int) {
-        binding.recyclerView.apply {
-            setPadding(paddingLeft, paddingTop + ViewUtil.getStatusBarHeight(resources) + 24, paddingRight, paddingBottom + height)
-        }
-        binding.swipeRefresh.setProgressViewOffset(false, 0, binding.recyclerView.paddingTop + 32)
+    override fun getListView(): View = binding.recyclerView
+
+    override fun applyInsetsToListPadding(top: Int, bottom: Int) {
+        super.applyInsetsToListPadding(top, bottom)
+        binding.swipeRefresh.setProgressViewOffset(false, 0, getListView().paddingTop + top)
+        val fabParams = binding.fab.layoutParams as CoordinatorLayout.LayoutParams
+        fabParams.bottomMargin = fabParams.bottomMargin + bottom
+        binding.fab.layoutParams = fabParams
     }
 
     fun getSearchEditText() = binding.toolbarEdit

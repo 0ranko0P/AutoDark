@@ -59,7 +59,6 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
             overridePendingTransition(R.anim.do_not_move, R.anim.do_not_move)
         }
         super.onCreate(savedInstanceState)
-        if (!ViewUtil.isLandscape(this)) ViewUtil.setImmersiveNavBar(window)
 
         binding = DataBindingUtil.setContentView(this, R.layout.permission_activity)
         binding.lifecycleOwner = this
@@ -90,11 +89,7 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
         }
     }
 
-    override fun onNavBarHeightAvailable(height: Int) {
-        with(binding.content.permissionRoot) {
-            setPadding(paddingLeft, paddingTop + height, paddingRight, paddingBottom + height)
-        }
-    }
+    override fun getListView(): View = binding.content.permissionRoot
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == REQUEST_CODE_SHIZUKU_PERMISSION) {
