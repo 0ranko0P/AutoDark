@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <attr name="homeCardStyle" format="reference" />
-
     <attr name="materialCircleIconViewStyle" format="reference" />
 
     <declare-styleable name="MaterialCircleIconView">

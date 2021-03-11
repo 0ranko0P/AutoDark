@@ -12,7 +12,6 @@
 
     <style name="CardStyle" parent="CardBaseStyle">
         <item name="android:background">@drawable/material_button_outline_background_dark</item>
-        <item name="android:backgroundTint">@color/appbar_background</item>
     </style>
 
     <style name="MaterialCircleIconView">
