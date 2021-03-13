@@ -43,6 +43,7 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import com.android.wallpaper.asset.Asset;
 import com.android.wallpaper.model.WallpaperInfo;
 import com.android.wallpaper.module.WallpaperPersister;
+import com.android.wallpaper.module.WallpaperSetter;
 import com.android.wallpaper.util.ScreenSizeCalculator;
 import com.android.wallpaper.util.WallpaperCropUtils;
 import com.android.wallpaper.widget.BottomActionBar;
@@ -80,6 +81,7 @@ public final class ImagePreviewFragment extends PreviewFragment
     }
 
     private WallpaperInfo mWallpaper;
+    private WallpaperSetter mWallpaperSetter;
     private boolean noDestination;
 
     private static final float DEFAULT_WALLPAPER_MAX_ZOOM = 8f;
@@ -116,6 +118,8 @@ public final class ImagePreviewFragment extends PreviewFragment
         //noinspection ResourceType
         mWallpaper = Objects.requireNonNull(requireArguments().getParcelable(ARG_WALLPAPER));
         noDestination = requireArguments().getBoolean(ARG_NO_DESTINATION, false);
+        Context appContext = requireContext().getApplicationContext();
+        mWallpaperSetter = new WallpaperSetter(new WallpaperPersister(appContext));
     }
 
     @Override
@@ -205,6 +209,8 @@ public final class ImagePreviewFragment extends PreviewFragment
             mLoadingProgressBar.hide();
         }
         mFullResImageView.recycle();
+        mWallpaperSetter.cleanUp();
+        mWallpaperSetter = null;
     }
 
     @Override

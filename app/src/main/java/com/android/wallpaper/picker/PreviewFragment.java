@@ -16,7 +16,6 @@
 package com.android.wallpaper.picker;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,9 +25,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
 
-import com.android.wallpaper.module.WallpaperPersister;
 import com.android.wallpaper.module.WallpaperPersister.Destination;
-import com.android.wallpaper.module.WallpaperSetter;
 
 import me.ranko.autodark.R;
 
@@ -39,7 +36,6 @@ public abstract class PreviewFragment extends AppbarFragment
         implements LoadWallpaperErrorDialogFragment.Listener,
         SetWallpaperErrorDialogFragment.Listener {
 
-    protected WallpaperSetter mWallpaperSetter;
     private static final String TAG_SET_WALLPAPER_ERROR_DIALOG_FRAGMENT =
             "set_wallpaper_error_dialog";
 
@@ -59,8 +55,6 @@ public abstract class PreviewFragment extends AppbarFragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Context appContext = requireContext().getApplicationContext();
-        mWallpaperSetter = new WallpaperSetter(new WallpaperPersister(appContext));
         setHasOptionsMenu(true);
     }
 
@@ -103,12 +97,6 @@ public abstract class PreviewFragment extends AppbarFragment
     @Override
     public void onDismissError() {
         // no-op
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mWallpaperSetter.cleanUp();
     }
 
     @Override
