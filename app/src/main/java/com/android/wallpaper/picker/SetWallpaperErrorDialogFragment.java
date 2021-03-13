@@ -18,36 +18,43 @@ package com.android.wallpaper.picker;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
-
-import com.android.wallpaper.module.WallpaperPersister.Destination;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
+import com.android.wallpaper.module.WallpaperPersister.Destination;
+
+import java.io.Serializable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.TimeoutException;
+
 import me.ranko.autodark.R;
+
+import static com.android.wallpaper.picker.LoadWallpaperErrorDialogFragment.getExceptionString;
 
 /**
  * Dialog fragment which communicates a message that setting the wallpaper failed with an option to
  * try again.
- *
+ * <p>
  * [0ranko0P] changes:
- *     1. Reuse this fragment for persisting wallpapers.
- *     2. Change message type to String so it can display error message.
+ * 1. Reuse this fragment for persisting wallpapers.
+ * 2. Change message type to exception so it can display error stack.
  */
 public final class SetWallpaperErrorDialogFragment extends DialogFragment {
 
-    private static final String ARG_MESSAGE = "message";
+    private static final String ARG_EXCEPTION = "exception";
     private static final String ARG_WALLPAPER_DESTINATION = "destination";
 
-    public static SetWallpaperErrorDialogFragment newInstance(@Nullable String message,
+    public static SetWallpaperErrorDialogFragment newInstance(@Nullable Exception e,
                                                               @Destination int wallpaperDestination) {
         SetWallpaperErrorDialogFragment dialogFrag = new SetWallpaperErrorDialogFragment();
         Bundle args = new Bundle();
-        if (message != null){ args.putString(ARG_MESSAGE, message);}
+        if (e != null) {
+            args.putSerializable(ARG_EXCEPTION, e);
+        }
         args.putInt(ARG_WALLPAPER_DESTINATION, wallpaperDestination);
         dialogFrag.setArguments(args);
         return dialogFrag;
@@ -57,33 +64,36 @@ public final class SetWallpaperErrorDialogFragment extends DialogFragment {
     @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         super.onCreateDialog(savedInstanceState);
-
-        @Nullable String message = requireArguments().getString(ARG_MESSAGE);
+        Serializable exception = requireArguments().getSerializable(ARG_EXCEPTION);
+        String message;
+        if (exception instanceof TimeoutException) {
+            message = getString(R.string.service_wallpaper_failed_timeout);
+        } else if (exception instanceof CancellationException) {
+            message = getString(android.R.string.cancel);
+        } else {
+            message = exception == null ? "" : getExceptionString((Exception) exception);
+        }
         @Destination final int wallpaperDestination = requireArguments().getInt(ARG_WALLPAPER_DESTINATION);
 
-        return new AlertDialog.Builder(getActivity())
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.save_wallpaper_error_title)
                 .setMessage(message)
-                .setPositiveButton(R.string.app_try_again,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                // The component hosting this DialogFragment could be either a Fragment or an
-                                // Activity, so check if a target Fragment was explicitly set--if not then the
-                                // appropriate Listener would be the containing Activity.
-                                Fragment fragment = getTargetFragment();
-                                Activity activity = getActivity();
+                .setNegativeButton(android.R.string.cancel, null);
+        if (!(exception instanceof TimeoutException || exception instanceof CancellationException)) {
+            builder.setPositiveButton(R.string.app_try_again, (dialogInterface, i) -> {
+                // The component hosting this DialogFragment could be either a Fragment or an
+                // Activity, so check if a target Fragment was explicitly set--if not then the
+                // appropriate Listener would be the containing Activity.
+                Fragment fragment = getTargetFragment();
+                Activity activity = getActivity();
 
-                                Listener callback = (Listener) (fragment == null ? activity : fragment);
-
-                                if (callback != null) {
-                                    callback.onClickTryAgain(wallpaperDestination);
-                                }
-                            }
-                        }
-                )
-                .setNegativeButton(android.R.string.cancel, null)
-                .create();
+                Listener callback = (Listener) (fragment == null ? activity : fragment);
+                if (callback != null) {
+                    callback.onClickTryAgain(wallpaperDestination);
+                }
+            });
+        }
+        return builder.create();
     }
 
     /**

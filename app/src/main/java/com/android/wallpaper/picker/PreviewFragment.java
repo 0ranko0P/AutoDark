@@ -133,9 +133,8 @@ public abstract class PreviewFragment extends AppbarFragment
         }
     }
 
-    protected void showSaveWallpaperErrorDialog(@Nullable String message, @Destination int destination) {
-        SetWallpaperErrorDialogFragment newFragment =
-                SetWallpaperErrorDialogFragment.newInstance(message, destination);
+    protected void showSaveWallpaperErrorDialog(@Nullable Exception e, @Destination int destination) {
+        SetWallpaperErrorDialogFragment newFragment = SetWallpaperErrorDialogFragment.newInstance(e, destination);
         newFragment.setTargetFragment(this, UNUSED_REQUEST_CODE);
 
         // Show 'set wallpaper' error dialog now if it's safe to commit fragment transactions,
@@ -143,7 +142,7 @@ public abstract class PreviewFragment extends AppbarFragment
         // transactions.
         BasePreviewActivity activity = (BasePreviewActivity) requireActivity();
         if (activity.isSafeToCommitFragmentTransaction()) {
-            newFragment.show(requireFragmentManager(), TAG_SET_WALLPAPER_ERROR_DIALOG_FRAGMENT);
+            newFragment.show(getParentFragmentManager(), TAG_SET_WALLPAPER_ERROR_DIALOG_FRAGMENT);
         } else {
             mStagedSetWallpaperErrorDialogFragment = newFragment;
         }

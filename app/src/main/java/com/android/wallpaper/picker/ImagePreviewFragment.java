@@ -415,8 +415,7 @@ public final class ImagePreviewFragment extends PreviewFragment
 
             @Override
             public void onError(@Nullable Exception e) {
-                Timber.e(e);
-                showSaveWallpaperErrorDialog(LoadWallpaperErrorDialogFragment.getExceptionString(e), destination);
+                showSaveWallpaperErrorDialog(e, destination);
             }
         });
     }
