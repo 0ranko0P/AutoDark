@@ -1,5 +1,6 @@
 package com.android.wallpaper.module;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.IWallpaperManager;
 import android.app.ProgressDialog;
@@ -26,12 +27,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
-import kotlin.Pair;
 import me.ranko.autodark.R;
 import me.ranko.autodark.core.ShizukuApi;
 import me.ranko.autodark.model.DarkWallpaperInfo;
-import me.ranko.autodark.model.Wallpaper;
-import rikka.shizuku.Shizuku;
 import timber.log.Timber;
 
 import static com.android.wallpaper.module.WallpaperPersister.DEST_BOTH;
@@ -44,6 +42,7 @@ import static com.android.wallpaper.module.WallpaperPersister.DEST_LOCK_SCREEN;
  * It is expected to be instantiated within a Fragment or Activity, and {@link #cleanUp()} should
  * be called from its owner's onDestroy method (or equivalent).
  */
+@SuppressLint("MissingPermission")
 public final class WallpaperSetter {
 
     private static final String PROGRESS_DIALOG_NO_TITLE = null;
@@ -146,17 +145,23 @@ public final class WallpaperSetter {
         }
     }
 
-    public void setCurrentLiveWallpaper(Context context, LiveWallpaperInfo wallpaper,
-                                        @Nullable SetWallpaperCallback callback) {
+    public void setCurrentLiveWallpaper(LiveWallpaperInfo wallpaper, @Nullable SetWallpaperCallback callback) {
         try {
-            IWallpaperManager iWallpaperManager = ShizukuApi.INSTANCE.get_IWallpaperManager();
+            WallpaperManager mManager = mWallpaperPersister.mWallpaperManager;
+            IWallpaperManager iWallpaperManager = ShizukuApi.INSTANCE.getIWallpaperManager();
             iWallpaperManager.setWallpaperComponent(wallpaper.getWallpaperComponentName());
 
             if (callback != null) {
-                WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
-                String id = String.valueOf(wallpaperManager.getWallpaperId(WallpaperManager.FLAG_SYSTEM));
+                String id = String.valueOf(mManager.getWallpaperId(WallpaperManager.FLAG_SYSTEM));
                 callback.onSuccess(id);
             }
+
+            if (mManager.getWallpaperId(WallpaperManager.FLAG_LOCK) != -1 ||
+                    mManager.getWallpaperFile(WallpaperManager.FLAG_LOCK) != null) {
+                mManager.clear(WallpaperManager.FLAG_LOCK);
+            }
+        } catch (IOException e) {
+            Timber.e(e);
         } catch (RuntimeException e) {
             if (callback != null) {
                 callback.onError(e);
