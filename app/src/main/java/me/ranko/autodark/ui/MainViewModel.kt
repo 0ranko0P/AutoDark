@@ -26,7 +26,6 @@ import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.core.DarkModeSettings
 import me.ranko.autodark.databinding.DialogBottomResstrictedBinding
 import timber.log.Timber
-import java.time.LocalTime
 
 enum class DarkSwitch(val id: Int) {
     ON(1),
@@ -139,6 +138,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 // dark mode has changed
                 // prepare delayed summary message
                 hasDelayedMessage = true
+                // change wallpaper too
+                DarkWallpaperHelper.getInstance(mContext, null).onBoot(oldNightMode.not())
             } else {
                 // show summary message now
                 makeTriggeredSummary()?.apply { summaryText.set(this) }

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <me.ranko.autodark.ui.widget.PermissionLayout
+        android:id="@+id/permissionStorage"
+        style="@style/CardStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:orientation="vertical"
+        app:description="@string/permission_wallpaper"
+        app:expandDescription="true"
+        app:iconColor="teal"
+        app:srcIcon="@drawable/ic_info_gm2_24px"
+        app:title="@string/permission_title">
+
+        <TextView android:id="@+id/btnStorage"
+            style="@style/CardButton"
+            android:onClick="requestPermission"
+            android:text="@string/root_grant"
+            app:drawableStartCompat="@drawable/ic_grant" />
+    </me.ranko.autodark.ui.widget.PermissionLayout>
+
+    <include
+        android:id="@+id/permissionShizuku"
+        layout="@layout/content_permission_shizuku_card" />
+</LinearLayout>

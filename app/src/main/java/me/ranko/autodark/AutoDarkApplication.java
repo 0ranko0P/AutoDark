@@ -12,14 +12,14 @@ import timber.log.Timber;
 
 public final class AutoDarkApplication extends Application {
 
-    @SuppressWarnings("FieldCanBeLocal")
+    @SuppressWarnings({"FieldCanBeLocal", "FieldMayBeFinal"})
     private boolean isXposed = false;
 
     @Override
     public void onCreate() {
         super.onCreate();
         if (BuildConfig.DEBUG) {
-            Timber.plant(DebugTree.INSTANCE);
+            Timber.plant(new DebugTree());
         } else {
             Timber.plant(ReleaseTree.INSTANCE);
         }

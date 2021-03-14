@@ -6,5 +6,32 @@
     <color name="surface">#BDBDBD</color>
     <color name="appbar_background">#E6FFFFFF</color>
     <color name="bottom_sheet_background">@color/material_white_1000</color>
+    <color name="bottom_sheet_icon_unchecked_color">@color/material_grey_600</color>
     <color name="color_ripple">#516200EE</color>
+
+    <color name="google_grey900">#202124</color>
+
+    <color name="white_54_alpha">#8AFFFFFF</color>
+    <color name="white_88_alpha">#E0FFFFFF</color>
+
+    <color name="text_color_dark">#2d2d2d</color>
+    <color name="text_color_light">@color/material_white_1000</color>
+
+    <!-- Color for material black text @ 60% opacity. -->
+    <color name="translucent_black_60_alpha">#99000000</color>
+    <color name="translucent_black">@color/translucent_black_60_alpha</color>
+
+    <color name="fullscreen_preview_background">#F5F5F5</color>
+    <color name="full_preview_tab_unselected_text_color">#8C000000</color>
+
+    <color name="preview_pager_arrow_disabled">@android:color/darker_gray</color>
+    <color name="preview_pager_background">@color/fullscreen_preview_background</color>
+    <color name="card_preview_background">@color/appbar_background</color>
+
+    <color name="set_wallpaper_item_color">#DE000000</color>
+    <color name="smartspace_preview_shadow_color_dark">#B0000000</color>
+    <color name="smartspace_preview_shadow_color_transparent">@android:color/transparent</color>
+
+    <color name="scrollbar_thumb_color_dark">#43000000</color>
+    <color name="wallpaper_title_scrim_color">@color/translucent_black</color>
 </resources>

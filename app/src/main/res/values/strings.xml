@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_about">About AutoDark</string>
+    <string name="app_apply">Apply</string>
+    <string name="app_clear">Clear</string>
     <string name="app_confirm">OK</string>
+    <string name="app_crop">Crop wallpaper</string>
     <string name="app_do_not_show">Do not show this again</string>
+    <string name="app_exit">exit</string>
     <string name="app_hook_ime">Try Hook input method</string>
     <string name="app_hook_ime_restart">Reboot to take effect</string>
     <string name="app_hook_system">Hook System App</string>
@@ -19,10 +23,14 @@
     <string name="app_restricted_warning">Problems detected</string>
     <string name="app_save">Save</string>
     <string name="app_search_hint">Search</string>
+    <string name="app_try_again">Try again</string>
     <string name="app_upload_fail">Unable to save app list, please send debugging logs to the developer to help solve the issue.</string>
     <string name="app_upload_success">Success, restart these blocked apps to see effects</string>
     <string name="app_upload_busy">Can\'t save list at this moment.</string>
     <string name="app_upload_start">Saving block list, please wait...</string>
+
+    <!-- Accessibility label for paging indicator in theme picker preview [CHAR LIMIT=NONE] -->
+    <string name="accessibility_preview_pager" msgid="3548503287402185430">Page <xliff:g name="current_page" example="1">%1$d</xliff:g> of <xliff:g name="num_pages" example="2">%2$d</xliff:g></string>
 
     <string name="dark_mode_disabled">Master switch is off now.</string>
     <string name="dark_mode_permission_denied">Failed to set darkMode: Permission denied!</string>
@@ -40,6 +48,8 @@
     <string name="pref_contact">Contact me</string>
     <string name="pref_category_dev">Experimental features</string>
     <string name="pref_category_time">Schedule start and end time.</string>
+    <string name="pref_dark_wallpaper_title">AutoDark wallpaper</string>
+    <string name="pref_dark_wallpaper_summary">Change dark/light wallpapers base on scheduled time</string>
     <string name="pref_feedback_title">Feedback</string>
     <string name="pref_feedback_summary">Any suggestions are welcome</string>
     <string name="pref_force_dark">Force dark mode%1$s</string>
@@ -73,21 +83,61 @@
     <string name="adb_share_text">Share with</string>
     <string name="adb_title">Grant permission with ADB</string>
 
+    <string name="chooser_category_wallpaper">Wallpapers</string>
+    <string name="chooser_category_live_wallpaper">Live wallpapers</string>
+    <string name="chooser_live_wallpaper_restricted_description">Changing Live wallpapers requires
+        Shizuku to access privilege API.
+        \nThis is Optional, dismiss if you don\'t need LiveWallpaper.\n
+        \nSee also: <a href="https://android.googlesource.com/platform/frameworks/base/+/android-11.0.0_r1/core/java/android/app/IWallpaperManager.aidl">android.googlesource.com</a>
+    </string>
+    <string name="chooser_live_wallpaper_restricted_hide">Hide</string>
+    <string name="chooser_live_wallpaper_restricted_title">Live wallpapers unavailable</string>
+
+    <string name="load_wallpaper_error_message">Unable to load wallpaper. The image is either corrupted or unavailable.</string>
+
     <string name="permission_title">Grant permission</string>
     <string name="permission_description">AutoDark needs your permission to change the system dark mode. Use one of three ways below to grant that permission.</string>
     <string name="permission_granted">Permission granted</string>
     <string name="permission_failed">Failed to grant permission!</string>
+
+    <string name="permission_wallpaper">Access system Wallpaper Manager needs storage permission.</string>
+    <string name="permission_wallpaper_manually_title">Open [App Info page]</string>
+    <string name="permission_wallpaper_manually"><xliff:g name="permission_wallpaper">%1$s</xliff:g>\n\n
+        <xliff:g name="permission_wallpaper_manually_title">%2$s</xliff:g>
+        :\nClick permission -> Set [Storage] permission to Allow.
+    </string>
 
     <string name="root_check_failed">Failed to get root permission!</string>
     <string name="root_description">If your device is rooted, you can grant permission with root now.</string>
     <string name="root_grant">Grant Permission</string>
     <string name="root_title">Grant permission using root</string>
 
+    <string name="service_wallpaper_channel_name">Set <xliff:g name="chooser_category_live_wallpaper">%1$s</xliff:g></string>
+    <string name="service_wallpaper_waiting">Waiting for Shizuku&#8230;</string>
+    <string name="service_wallpaper_waiting_count_down"><xliff:g name="service_wallpaper_waiting">%1$s</xliff:g> <xliff:g name="second">%2$s</xliff:g>s.</string>
+    <string name="service_wallpaper_setting">Shizuku is online, applying wallpaper&#8230;</string>
+    <string name="service_wallpaper_failed_title">Unable to set Live Wallpaper</string>
+    <string name="service_wallpaper_failed_timeout">Time out waiting Shizuku</string>
+    <string name="service_wallpaper_failed_error">Error occurred: <xliff:g name="error">%1$s</xliff:g></string>
+
     <string name="shizuku_connect_failed">Unable to connect the Shizuku core service, please make sure it is running.</string>
     <string name="shizuku_open_manager">Open Shizuku</string>
     <string name="shizuku_description">Grant permission directly using Shizuku.</string>
     <string name="shizuku_not_install">Shizuku is not installed!</string>
     <string name="shizuku_service_not_running">Shizuku service is not running!</string>
+
+    <string name="save_wallpaper_error_title">Unable to save wallpaper</string>
+    <string name="save_wallpaper_dialog_title">Apply to</string>
+    <string name="save_wallpaper_success_message">Wallpaper saved</string>
+
+    <string name="set_wallpaper_home_screen_destination">Home screen</string>
+    <string name="set_wallpaper_lock_screen_destination">Lock screen</string>
+    <string name="set_wallpaper_both_destination">Home screen and lock screen</string>
+
+    <string name="prepare_wallpaper_progress_message">Preparing wallpaper&#8230;</string>
+    <string name="pick_wallpaper">Pick <xliff:g name="type">%1$s</xliff:g></string>
+    <string name="pick_wallpaper_type_normal">@string/chooser_category_wallpaper</string>
+    <string name="pick_wallpaper_type_dark">Dark Wallpapers</string>
 
     <string name="tile_dark_theme">Dark theme</string>
 

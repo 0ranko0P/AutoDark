@@ -101,6 +101,13 @@
         <item name="android:backgroundTintMode">src_in</item>
     </style>
 
+    <style name="MaterialPickerButton" parent="Widget.MaterialComponents.Button">
+        <item name="android:layout_marginStart">@dimen/picker_button_margin_horizontal</item>
+        <item name="android:layout_marginTop">@dimen/picker_button_margin_vertical</item>
+        <item name="android:layout_marginEnd">@dimen/picker_button_margin_horizontal</item>
+        <item name="android:outlineSpotShadowColor">?android:attr/colorPrimary</item>
+    </style>
+
     <style name="SimpleDialogStyle" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">
         <item name="textAppearanceListItemSmall">@style/BaseDialogTextAppearance</item>
         <item name="windowActionBar">false</item>

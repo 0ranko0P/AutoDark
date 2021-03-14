@@ -19,7 +19,6 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreference
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.ranko.autodark.AutoDarkApplication
@@ -54,6 +53,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
         const val DARK_PREFERENCE_FORCE_ROOT = "dark_mode_force"
         const val DARK_PREFERENCE_FORCE_XPOSED = "dark_mode_force_xposed"
         const val DARK_PREFERENCE_XPOSED = "dark_mode_xposed"
+        const val DARK_PREFERENCE_WALLPAPER = "dark_mode_wallpaper"
     }
 
     /**
@@ -166,20 +166,15 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
     }
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
-        return when (preference.key) {
-            DARK_PREFERENCE_START -> false
+        when (preference.key) {
+            DARK_PREFERENCE_START, DARK_PREFERENCE_END -> return false
 
-            DARK_PREFERENCE_END -> false
+            DARK_PREFERENCE_WALLPAPER -> startActivity(Intent(requireActivity(), DarkWallpaperPickerActivity::class.java))
 
-            DARK_PREFERENCE_FORCE_ROOT -> { // handle result in observer
-                onForceDarkPreferenceClick()
-                true
-            }
+            // handle result in observer
+            DARK_PREFERENCE_FORCE_ROOT -> onForceDarkPreferenceClick()
 
-            DARK_PREFERENCE_AUTO -> {
-                onAutoPreferenceClick()
-                true
-            }
+            DARK_PREFERENCE_AUTO -> onAutoPreferenceClick()
 
             DARK_PREFERENCE_XPOSED -> {
                 val activity = requireActivity() as MainActivity
@@ -190,16 +185,13 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
                 val intent = Intent(activity, BlockListActivity::class.java)
                 val options = ActivityOptions.makeSceneTransitionAnimation(activity, appBarShared, fabShared)
                 activity.startActivity(intent, options.toBundle())
-                true
             }
 
-            aboutPreference.key -> {
-                AboutFragment.replace(requireActivity().supportFragmentManager, R.id.container, "about")
-                true
-            }
+            aboutPreference.key -> AboutFragment.replace(parentFragmentManager, R.id.container, "about")
 
-            else -> super.onPreferenceTreeClick(preference)
+            else -> return super.onPreferenceTreeClick(preference)
         }
+        return true
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_about">O aplikacji AutoDark</string>
+    <string name="app_apply">Zastosuj</string>
     <string name="app_confirm">OK</string>
     <string name="app_do_not_show">Nie wyświetlaj więcej</string>
     <string name="app_later">Przypomnij mi później</string>
@@ -12,6 +13,10 @@
         "\nJeśli używany jest optymalizator/aplikacja oszczędzająca baterię, proszę o dodanie AutoDark do jej białej listy.</string>
     <string name="app_restricted_title">Problemy na niektórych urządzeniach</string>
     <string name="app_restricted_warning">Wykryto problem</string>
+
+    <string name="app_try_again">Spróbuj ponownie</string>
+
+    <string name="accessibility_preview_pager" msgid="1839869637405028575">"Strona <xliff:g id="ID_1">%1$d</xliff:g> z <xliff:g id="ID_2">%2$d</xliff:g>"</string>
 
     <string name="dark_mode_disabled">Przełącznik główny jest wyłączony.</string>
     <string name="dark_mode_permission_denied">Włączanie trybu nocnego nie powiodło się: brak uprawnień!</string>
@@ -46,6 +51,11 @@
     <string name="adb_share_text">Prześlij używając</string>
     <string name="adb_title">Przyznaj uprawnienia z użyciem ADB</string>
 
+    <string name="chooser_category_wallpaper">Tapeta</string>
+    <string name="chooser_category_live_wallpaper">Animowane tapety</string>
+
+    <string name="load_wallpaper_error_message">Nie można załadować tapety. Obraz jest uszkodzony lub niedostępny.</string>
+
     <string name="permission_title">Przyznaj uprawnienia</string>
     <string name="permission_description">AutoDark potrzebuje uprawnień, by zmienić systemowy tryb nocny. Użyj jednej z poniższych metod, by przyznać uprawnienia.</string>
     <string name="permission_granted">Uprawnienia przyznane.</string>
@@ -59,6 +69,10 @@
     <string name="shizuku_description">Przyznaj uprawnienia używając Shizuku.</string>
     <string name="shizuku_not_install">Shizuku nie jest zainstalowane!</string>
     <string name="shizuku_service_not_running">Usługa Shizuku nie działa!</string>
+
+    <string name="set_wallpaper_home_screen_destination">Ekran główny</string>
+    <string name="set_wallpaper_lock_screen_destination">Ekran blokady</string>
+    <string name="set_wallpaper_both_destination">Ekran główny i ekran blokady</string>
 
     <string name="tile_dark_theme">Ciemny motyw</string>
 </resources>

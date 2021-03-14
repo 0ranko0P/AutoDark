@@ -4,15 +4,26 @@
     package="me.ranko.autodark"
     tools:ignore="ProtectedPermissions">
 
-    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
+
     <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
     <uses-permission android:name="moe.shizuku.manager.permission.EXEC_COMMAND" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <uses-permission android:name="me.ranko0p.permission.RECEIVE_DARK_BROADCAST" />
 
     <permission android:name="me.ranko0p.permission.RECEIVE_DARK_BROADCAST" />
-    <uses-permission android:name="me.ranko0p.permission.RECEIVE_DARK_BROADCAST" />
+
+    <queries>
+        <intent>
+            <action android:name="android.service.wallpaper.WallpaperService" />
+        </intent>
+    </queries>
 
     <application
         android:name=".AutoDarkApplication"
@@ -42,6 +53,13 @@
             android:multiprocess="false"
             android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
 
+        <activity android:name=".ui.BlockListActivity" />
+
+        <activity
+            android:name=".ui.DarkWallpaperPickerActivity"
+            android:resizeableActivity="false"
+            android:theme="@style/AppTheme.LightActionBar" />
+
         <activity android:name=".ui.LicenseActivity" />
 
         <activity
@@ -54,11 +72,14 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.BlockListActivity" />
-
         <activity
             android:name=".ui.PermissionActivity"
             android:launchMode="singleTop" />
+
+        <activity
+            android:name=".ui.StandalonePreviewActivity"
+            android:resizeableActivity="false"
+            android:theme="@style/AppTheme.LightActionBar" />
 
         <service
             android:name=".Services.DarkModeTileService"
@@ -66,11 +87,15 @@
             android:icon="@drawable/ic_dark_theme"
             android:label="@string/tile_dark_theme"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
-
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
         </service>
+
+        <service
+            android:name=".Services.DarkLiveWallpaperService"
+            android:enabled="true"
+            android:exported="false"/>
 
         <meta-data
             android:name="xposedmodule"
@@ -82,4 +107,5 @@
             android:name="xposedminversion"
             android:value="90+" />
     </application>
+
 </manifest>

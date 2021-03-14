@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal|bottom"
+    android:animateLayoutChanges="true"
+    android:background="@drawable/bottom_sheet_background"
+    android:orientation="vertical"
+    android:paddingTop="8dp">
+
+    <ViewStub android:id="@+id/permissionStub"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:layout="@layout/content_permission_shizuku_card" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnWallpaper"
+        style="@style/MaterialPickerButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/chooser_category_wallpaper" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnLiveWallpaper"
+        style="@style/MaterialPickerButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/picker_button_margin_vertical"
+        android:text="@string/chooser_category_live_wallpaper" />
+</LinearLayout>

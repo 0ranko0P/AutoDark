@@ -66,7 +66,7 @@ class DarkModeTileService : TileService() {
                 Timber.d("Not ${Constant.BRAND_ONE_PLUS}, disabling tile service")
 
                 context.packageManager.setComponentEnabledSetting(
-                    ComponentName(context, DarkModeTileService::class.java),
+                    ComponentName(context.packageName, DarkModeTileService::class.java.name),
                     PackageManager.COMPONENT_ENABLED_STATE_DISABLED
                     , PackageManager.DONT_KILL_APP
                 )

@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_about">关于 AutoDark</string>
+    <string name="app_apply">应用</string>
+    <string name="app_clear">清除</string>
     <string name="app_confirm">好的</string>
+    <string name="app_crop">裁剪壁纸</string>
     <string name="app_do_not_show">不再显示</string>
+    <string name="app_exit">退出</string>
     <string name="app_hook_ime">尝试Hook 输入法</string>
     <string name="app_hook_ime_restart">重启生效</string>
     <string name="app_hook_system">Hook 系统应用</string>
@@ -18,10 +22,13 @@
     <string name="app_restricted_warning">发现问题</string>
     <string name="app_save">保存</string>
     <string name="app_search_hint">搜索</string>
+    <string name="app_try_again">重试</string>
     <string name="app_upload_fail">无法保存列表, 请将调试日志发送给开发者以帮助解决问题.</string>
     <string name="app_upload_success">成功, 重启黑名单中的应用来查看效果</string>
     <string name="app_upload_busy">现在无法保存</string>
-    <string name="app_upload_start">正在保存, 请稍候...</string>
+    <string name="app_upload_start">正在保存, 请稍候&#8230;</string>
+
+    <string name="accessibility_preview_pager" msgid="1839869637405028575">"第 <xliff:g id="ID_1">%1$d</xliff:g> 页，共 <xliff:g id="ID_2">%2$d</xliff:g> 页"</string>
 
     <string name="dark_mode_disabled">主开关已关闭</string>
     <string name="dark_mode_permission_denied">设置失败, 无权限!</string>
@@ -39,6 +46,8 @@
     <string name="pref_category_dev">试验性功能</string>
     <string name="pref_bug_title">报告bug</string>
     <string name="pref_category_time">设置开始与结束时间</string>
+    <string name="pref_dark_wallpaper_title">AutoDark 壁纸</string>
+    <string name="pref_dark_wallpaper_summary">根据设置的时间自动切换亮色与暗色壁纸</string>
     <string name="pref_feedback_title">反馈</string>
     <string name="pref_feedback_summary">欢迎提出任何建议</string>
     <string name="pref_force_dark">SmartDark 模式%1$s</string>
@@ -71,15 +80,40 @@
     <string name="adb_share_text">分享给</string>
     <string name="adb_title">使用 ADB 授权</string>
 
+    <string name="chooser_category_wallpaper">壁纸</string>
+    <string name="chooser_category_live_wallpaper">动态壁纸</string>
+    <string name="chooser_live_wallpaper_restricted_description">设置动态壁纸需通过Shizuku 访问系统API.
+        \n这是可选项, 点击隐藏如果您不使用动态壁纸.\n
+        \n查看详细: <a href="https://github.com/aosp-mirror/platform_frameworks_base/blob/android-11.0.0_r1/core/java/android/app/IWallpaperManager.aidl">github.com</a>
+    </string>
+    <string name="chooser_live_wallpaper_restricted_hide">隐藏</string>
+    <string name="chooser_live_wallpaper_restricted_title">动态壁纸不可用</string>
+
+    <string name="load_wallpaper_error_message">无法加载壁纸, 图片已损坏或不可用.</string>
+
     <string name="permission_title">授予权限</string>
     <string name="permission_description">AutoDark 需要您的授权以更改系统黑暗模式. 使用下列三种方式之一来授予该权限.</string>
     <string name="permission_granted">权限已授予</string>
     <string name="permission_failed">获取权限失败!</string>
 
+    <string name="permission_wallpaper">访问系统壁纸管理器需要存储空间权限.</string>
+    <string name="permission_wallpaper_manually_title">打开 [应用信息]</string>
+    <string name="permission_wallpaper_manually"><xliff:g name="permission_wallpaper">%1$s</xliff:g>\n\n
+        <xliff:g name="permission_wallpaper_manually_title">%2$s</xliff:g>
+        :\n点击权限 -> 选择允许 [存储空间].
+    </string>
+
     <string name="root_check_failed">获取 Root 权限失败</string>
     <string name="root_description">如果你的设备拥有 Root 权限, 现在就可授权.</string>
     <string name="root_grant">授权</string>
     <string name="root_title">使用 Root 授权</string>
+
+    <string name="service_wallpaper_channel_name">设置 <xliff:g name="chooser_category_live_wallpaper">%1$s</xliff:g></string>
+    <string name="service_wallpaper_waiting">正在等待Shizuku&#8230;</string>
+    <string name="service_wallpaper_setting">Shizuku 已启动, 正在应用壁纸&#8230;</string>
+    <string name="service_wallpaper_failed_title">无法设置动态壁纸</string>
+    <string name="service_wallpaper_failed_timeout">等待Shizuku 超时</string>
+    <string name="service_wallpaper_failed_error">出现错误: <xliff:g name="error">%1$s</xliff:g></string>
 
     <string name="shizuku_connect_failed">无法连接到Shizuku 核心服务, 请确保Shizuku 正在运行.</string>
     <string name="shizuku_open_manager">打开 Shizuku</string>
@@ -87,6 +121,20 @@
     <string name="shizuku_not_install">Shizuku 并未安装!</string>
     <string name="shizuku_service_not_running">Shizuku 服务未运行</string>
 
+    <string name="save_wallpaper_error_title">无法保存壁纸</string>
+    <string name="save_wallpaper_dialog_title">应用到</string>
+    <string name="save_wallpaper_success_message">壁纸已保存</string>
+
+    <string name="set_wallpaper_home_screen_destination">主屏幕</string>
+    <string name="set_wallpaper_lock_screen_destination">锁定屏幕</string>
+    <string name="set_wallpaper_both_destination">主屏幕和锁定屏幕</string>
+
+    <string name="prepare_wallpaper_progress_message">正在准备壁纸&#8230;</string>
+    <string name="pick_wallpaper">选取<xliff:g name="type">%1$s</xliff:g></string>
+    <string name="pick_wallpaper_type_normal">@string/chooser_category_wallpaper</string>
+    <string name="pick_wallpaper_type_dark">深色壁纸</string>
+
     <string name="tile_dark_theme">深色主题</string>
+
     <string name="xposed_description">激活 SmartDark 黑名单: 您添加到名单里的应用不会被强制SmartDark (试验性功能).</string>
 </resources>

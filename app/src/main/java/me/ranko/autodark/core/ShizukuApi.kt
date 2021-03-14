@@ -2,6 +2,7 @@ package me.ranko.autodark.core
 
 import android.Manifest
 import android.app.Activity
+import android.app.IWallpaperManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.IPackageManager
@@ -29,6 +30,10 @@ object ShizukuApi {
     private const val MANAGER_APPLICATION_ID = "moe.shizuku.privileged.api"
 
     const val REQUEST_CODE_SHIZUKU_PERMISSION = 7
+
+    private val mWallpaperManager: IWallpaperManager by lazy {
+        IWallpaperManager.Stub.asInterface(ShizukuBinderWrapper(SystemServiceHelper.getSystemService("wallpaper")))
+    }
 
     private val mManager:IPackageManager by lazy {
         IPackageManager.Stub.asInterface(ShizukuBinderWrapper(SystemServiceHelper.getSystemService("package")))
@@ -94,6 +99,8 @@ object ShizukuApi {
             .setPositiveButton(R.string.shizuku_open_manager) { _, _ -> startManagerActivity(activity) }
             .create()
     }
+
+    fun getIWallpaperManager(): IWallpaperManager = mWallpaperManager
 
     fun grantWithShizuku() {
         mManager.grantRuntimePermission(BuildConfig.APPLICATION_ID, Manifest.permission.WRITE_SECURE_SETTINGS, android.os.Process.ROOT_UID)

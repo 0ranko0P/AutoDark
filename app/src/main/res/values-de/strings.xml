@@ -4,7 +4,7 @@
     <string name="app_confirm">OK</string>
     <string name="app_do_not_show">Nicht erneut zeigen</string>
     <string name="app_later">Später erinnern</string>
-    <string name="app_loading">Lädt...</string>
+    <string name="app_loading">Lädt&#8230;</string>
     <string name="app_location_failed">Standort ist nicht verfügbar, bitte Zeit manuell konfigurieren.</string>
     <string name="app_location_disabled">Standort ist ausgeschaltet.</string>
 
@@ -18,7 +18,9 @@
     <string name="app_upload_fail">Appliste konnte nicht gespeichert werden, bitte Debugglogs an den Entwickler schicken um das Problem zu lösen.</string>
     <string name="app_upload_success">Erfolg, geblockte Apps neustarten um den Effekt zu sehen</string>
     <string name="app_upload_busy">Liste kann im Moment nicht gespeichert werden.</string>
-    <string name="app_upload_start">Blockliste wird gespeichert, bitte warten...</string>
+    <string name="app_upload_start">Blockliste wird gespeichert, bitte warten&#8230;</string>
+
+    <string name="accessibility_preview_pager" msgid="1839869637405028575">"Seite <xliff:g id="ID_1">%1$d</xliff:g> von <xliff:g id="ID_2">%2$d</xliff:g>"</string>
 
     <string name="dark_mode_disabled">Hauptschalter ist jetzt aus.</string>
     <string name="dark_mode_permission_denied">Dark Mode umschalten fehlgeschlagen: Berechtigung abgelehnt!</string>
@@ -68,6 +70,8 @@
     <string name="adb_send">Kommando senden</string>
     <string name="adb_share_text">Teilen</string>
     <string name="adb_title">Berechtigung mit ADB erteilen</string>
+
+    <string name="load_wallpaper_error_message">Der Hintergrund konnte nicht geladen werden. Das Bild ist entweder beschädigt oder nicht verfügbar.</string>
 
     <string name="permission_title">Berechtigung erteilen</string>
     <string name="permission_description">AutoDark benötigt die Berechtigung um den System-Dark-Mode zu ändern. Eine der drei folgenden Methoden verwenden um die Berechtigung zu erteilen.</string>

@@ -18,7 +18,6 @@
     android:id="@+id/recyclerView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_background"
     android:clipToPadding="false"
     android:paddingHorizontal="@dimen/grid_edge_space"
     android:paddingTop="@dimen/wallpaper_grid_padding_top"

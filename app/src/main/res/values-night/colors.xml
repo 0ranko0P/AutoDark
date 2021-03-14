@@ -5,5 +5,12 @@
     <color name="secondary">#03DAC6</color>
     <color name="surface">#121212</color>
     <color name="appbar_background">#E62A2A2A</color>
-    <color name="bottom_sheet_background">@color/appbar_background</color>
+
+    <color name="bottom_sheet_background">#ff212121</color>
+    <color name="bottom_sheet_icon_unchecked_color">@color/white_54_alpha</color>
+
+    <color name="fullscreen_preview_background">@color/material_black_1000</color>
+    <color name="full_preview_tab_unselected_text_color">@color/white_54_alpha</color>
+    <color name="preview_pager_background">@color/google_grey900</color>
+    <color name="set_wallpaper_item_color">@color/full_preview_tab_unselected_text_color</color>
 </resources>

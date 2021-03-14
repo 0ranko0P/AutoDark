@@ -24,6 +24,9 @@
     <dimen name="app_bar_height">180dp</dimen>
     <dimen name="text_margin">16dp</dimen>
 
+    <dimen name="picker_button_margin_horizontal">22dp</dimen>
+    <dimen name="picker_button_margin_vertical">12dp</dimen>
+
     <!-- The size of lock screen widget on the full screen. -->
     <dimen name="lock_screen_preview_lock_icon_size">42dp</dimen>
     <dimen name="lock_screen_preview_time_text_size">54dp</dimen>

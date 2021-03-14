@@ -28,6 +28,7 @@ import me.ranko.autodark.Utils.DarkTimeUtil
 import me.ranko.autodark.Utils.DarkTimeUtil.getPersistFormattedString
 import me.ranko.autodark.Utils.DarkTimeUtil.getTodayOrNextDay
 import me.ranko.autodark.Utils.ShellJobUtil
+import me.ranko.autodark.ui.DarkWallpaperHelper
 import me.ranko.autodark.ui.MainFragment.Companion.DARK_PREFERENCE_END
 import me.ranko.autodark.ui.MainFragment.Companion.DARK_PREFERENCE_FORCE_ROOT
 import me.ranko.autodark.ui.MainFragment.Companion.DARK_PREFERENCE_START
@@ -173,16 +174,19 @@ class DarkModeSettings private constructor(private val context: Context) :
     /**
      * Switch dark mode **on/off** if current time at the user-selected range.
      *
-     * @return  **True** if is in range
+     * @return  **True** If dark mode adjusted
      *
      * @see     DarkTimeUtil.isInTime
      * */
     private fun adjustModeOnTime(start: LocalTime, end: LocalTime): Boolean {
-        val shouldActive = DarkTimeUtil.isInTime(start, end, LocalTime.now())
-        setDarkMode(shouldActive)
+        val currentMode = isDarkMode() == true
+        val isInRange = DarkTimeUtil.isInTime(start, end, LocalTime.now())
+        if (isInRange.xor(currentMode)) {
+            setDarkMode(isInRange)
+        }
 
-        Timber.v("User currently ${if (shouldActive) "in" else "not in"} mode range")
-        return shouldActive
+        Timber.v("User currently %s mode range", if (isInRange) "in" else "not in")
+        return isInRange.xor(currentMode)
     }
 
     /**
@@ -198,10 +202,14 @@ class DarkModeSettings private constructor(private val context: Context) :
         setNextAlarm(time, key)
 
         // Adjust dark mode if needed
-        if (key == DARK_PREFERENCE_START) {
+        val adjusted = if (key == DARK_PREFERENCE_START) {
             adjustModeOnTime(time, getEndTime())
         } else {
             adjustModeOnTime(getStartTime(), time)
+        }
+
+        if (adjusted) {
+            DarkWallpaperHelper.getInstance(context, null).onAlarm(isDarkMode() == true)
         }
         return true
     }
@@ -347,6 +355,8 @@ class DarkModeSettings private constructor(private val context: Context) :
             (context.getSystemService(Activity.ALARM_SERVICE) as AlarmManager)
                 .set(AlarmManager.RTC, nextAlarm, pendingIntent)
             Timber.v("Dark job $type finished, pending next alarm: $nextAlarm")
+            // change wallpaper now
+            DarkWallpaperHelper.getInstance(context, null).onAlarm(switch)
         } catch (e: Exception) {
             Timber.i(e)
             Toast.makeText(context, R.string.dark_mode_permission_denied, Toast.LENGTH_SHORT).show()
@@ -362,18 +372,17 @@ class DarkModeSettings private constructor(private val context: Context) :
      * */
     fun onBoot() {
         val masterSwitch = sp.getBoolean(SP_KEY_MASTER_SWITCH, false)
+        if (!masterSwitch) return
+
         val autoMode = sp.getBoolean(SP_AUTO_mode, false)
         val forceDark = sp.getBoolean(DARK_PREFERENCE_FORCE_ROOT, false)
 
-        val startTime =
-            sp.getString(if (autoMode) SP_AUTO_TIME_SUNSET else DARK_PREFERENCE_START, null)
-
-        val endTime =
-            sp.getString(if (autoMode) SP_AUTO_TIME_SUNRISE else DARK_PREFERENCE_END, null)
+        val startTime = sp.getString(if (autoMode) SP_AUTO_TIME_SUNSET else DARK_PREFERENCE_START, null)
+        val endTime = sp.getString(if (autoMode) SP_AUTO_TIME_SUNRISE else DARK_PREFERENCE_END, null)
 
         Timber.i("onBootBroadcast: Switch $masterSwitch, AutoMode: $autoMode, ForceDark: $forceDark")
 
-        if (!masterSwitch || startTime == null || endTime == null) {
+        if (startTime == null || endTime == null) {
             Timber.v("No job to do.")
             return
         } else {
@@ -382,7 +391,7 @@ class DarkModeSettings private constructor(private val context: Context) :
 
         // adjust dark mode if need after boot up
         // renew alarm
-        setAllAlarm(
+        val darkModeChanged= setAllAlarm(
             DarkTimeUtil.getPersistLocalTime(startTime),
             DarkTimeUtil.getPersistLocalTime(endTime)
         )
@@ -391,8 +400,12 @@ class DarkModeSettings private constructor(private val context: Context) :
             CoroutineScope(Dispatchers.Default).launch {
                 // Check set job result
                 val result = setForceDark(true)
-                Timber.v("Force-dark job ${if(result) "Succeed"  else "Failed"}")
+                Timber.v("Force-dark job %s.", if (result) "Succeed" else "Failed")
             }
+        }
+
+        if (darkModeChanged) { // Change wallpaper now
+            DarkWallpaperHelper.getInstance(context, null).onBoot(isDarkMode() == true)
         }
     }
 

@@ -48,7 +48,7 @@ import timber.log.Timber;
  *
  * [0ranko0P] changes:
  *     0. setIndividualWallpaper to saveCroppedWallpaper.
- *     1. Use compress to lossless WEBP by default.
+ *     1. Compress to lossless WEBP by default.
  *     2. Drop WallpaperChangedNotifier
  */
 @SuppressLint({"MissingPermission"})
