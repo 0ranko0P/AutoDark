@@ -88,7 +88,7 @@
     <string name="chooser_live_wallpaper_restricted_description">Changing Live wallpapers requires
         Shizuku to access privilege API.
         \nThis is Optional, dismiss if you don\'t need LiveWallpaper.\n
-        \nSee also: <a href="https://android.googlesource.com/platform/frameworks/base/+/android-11.0.0_r1/core/java/android/app/IWallpaperManager.aidl">android.googlesource.com</a>
+        \nSee also: <a href="https://android.googlesource.com/platform/frameworks/base/+/android-11.0.0_r1/services/core/java/com/android/server/wallpaper/WallpaperManagerService.java">WallpaperManagerService.java</a>
     </string>
     <string name="chooser_live_wallpaper_restricted_hide">Hide</string>
     <string name="chooser_live_wallpaper_restricted_title">Live wallpapers unavailable</string>
