@@ -18,11 +18,11 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.ViewUtil
-import me.ranko.autodark.databinding.MainActivityBinding
+import me.ranko.autodark.databinding.ActivityMainBinding
 
 class MainActivity : BaseListActivity(), FragmentManager.OnBackStackChangedListener {
     private lateinit var viewModel: MainViewModel
-    private lateinit var binding: MainActivityBinding
+    private lateinit var binding: ActivityMainBinding
 
     private var restrictedDialog: BottomSheetDialog? = null
 
@@ -35,7 +35,7 @@ class MainActivity : BaseListActivity(), FragmentManager.OnBackStackChangedListe
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.main_activity)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.lifecycleOwner = this
         viewModel = ViewModelProvider(this, MainViewModel.Companion.Factory(application))
                 .get(MainViewModel::class.java)

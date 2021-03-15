@@ -14,7 +14,6 @@
         android:id="@+id/coordRoot"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/colorOnPrimary"
         android:fitsSystemWindows="true"
         android:visibility="invisible"
         tools:context=".ui.PermissionActivity"

@@ -58,7 +58,7 @@
         <activity
             android:name=".ui.DarkWallpaperPickerActivity"
             android:resizeableActivity="false"
-            android:theme="@style/AppTheme.LightActionBar" />
+            android:theme="@style/AppTheme.LightActionBar.Preview" />
 
         <activity android:name=".ui.LicenseActivity" />
 

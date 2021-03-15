@@ -24,6 +24,7 @@ import androidx.lifecycle.get
 import com.android.wallpaper.picker.BasePreviewActivity
 import com.google.android.material.snackbar.Snackbar
 import me.ranko.autodark.R
+import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.core.ShizukuApi
 import me.ranko.autodark.core.ShizukuStatus
 import me.ranko.autodark.model.CroppedWallpaperInfo
@@ -90,6 +91,7 @@ class DarkWallpaperPickerActivity : BasePreviewActivity() {
         shizukuProgressBar = shizukuPermission!!.findViewById(R.id.progressShizuku)
         permissionRoot = root as LinearLayout
         initShizukuPermissionCard(shizukuPermission!!)
+        adjustStatusBarColor(false)
     }
 
     /**
@@ -159,6 +161,7 @@ class DarkWallpaperPickerActivity : BasePreviewActivity() {
                     targetCard.visibility = View.GONE
                     if (shizukuPermission!!.visibility == View.GONE && storagePermission!!.visibility == View.GONE) {
                         initPickerFragment()
+                        adjustStatusBarColor(true)
                     }
                 }
             })
@@ -224,6 +227,17 @@ class DarkWallpaperPickerActivity : BasePreviewActivity() {
             }
 
             else -> super.onActivityResult(requestCode, resultCode, data)
+        }
+    }
+
+    /**
+     * Change status bar color for permission view
+     * */
+    private fun adjustStatusBarColor(restore: Boolean) {
+        window.statusBarColor = if (restore) {
+            ViewUtil.getAttrColor(this, android.R.attr.colorBackground)
+        } else {
+            getColor(R.color.bottom_sheet_background)
         }
     }
 

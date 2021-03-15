@@ -7,6 +7,7 @@
         <item name="colorAccent">@color/primary</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:colorBackground">@color/bottom_sheet_background</item>
         <item name="android:statusBarColor">@color/appbar_background</item>
         <item name="android:navigationBarColor">?android:colorBackground</item>
         <item name="materialCircleIconViewStyle">@style/MaterialCircleIconView</item>
@@ -15,6 +16,10 @@
     <style name="AppTheme.LightActionBar">
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar">true</item>
+    </style>
+
+    <style name="AppTheme.LightActionBar.Preview">
+        <item name="android:statusBarColor">@color/material_white_1000</item>
     </style>
 
     <style name="AppTheme.Transparent">

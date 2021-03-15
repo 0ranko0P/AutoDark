@@ -10,6 +10,11 @@
         <item name="android:windowLightNavigationBar">false</item>
     </style>
 
+    <style name="AppTheme.LightActionBar.Preview">
+        <item name="android:statusBarColor">@color/material_black_1000</item>
+        <item name="android:colorBackground">@color/material_black_1000</item>
+    </style>
+
     <style name="CardStyle" parent="CardBaseStyle">
         <item name="android:background">@drawable/material_button_outline_background_dark</item>
     </style>

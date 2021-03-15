@@ -340,6 +340,8 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
         activity.setSupportActionBar(toolbar)
         activity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        toolbar.setBackgroundColor(activity.window.statusBarColor)
+
         if (savedInstanceState != null) {
             val pos = savedInstanceState.getInt(BROWSER_STATE_POSITION_INDEX, -1)
             if (pos != -1) {

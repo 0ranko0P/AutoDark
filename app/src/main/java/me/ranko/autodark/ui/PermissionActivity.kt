@@ -19,14 +19,14 @@ import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.core.ShizukuApi
 import me.ranko.autodark.core.ShizukuApi.REQUEST_CODE_SHIZUKU_PERMISSION
 import me.ranko.autodark.core.ShizukuStatus
-import me.ranko.autodark.databinding.PermissionActivityBinding
+import me.ranko.autodark.databinding.ActivityPermissionBinding
 import me.ranko.autodark.ui.widget.PermissionLayout
 import rikka.shizuku.Shizuku
 import rikka.shizuku.ShizukuProvider
 import timber.log.Timber
 
 class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutListener {
-    private lateinit var binding: PermissionActivityBinding
+    private lateinit var binding: ActivityPermissionBinding
 
     /**
      * Coordinates that circle animate starts
@@ -60,7 +60,7 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
         }
         super.onCreate(savedInstanceState)
 
-        binding = DataBindingUtil.setContentView(this, R.layout.permission_activity)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_permission)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
 

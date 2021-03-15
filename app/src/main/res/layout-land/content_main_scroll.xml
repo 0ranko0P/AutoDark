@@ -9,7 +9,7 @@
     app:behavior_overlapTop="@dimen/scroll_card_overlap"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".ui.MainActivity"
-    tools:showIn="@layout/main_activity">
+    tools:showIn="@layout/activity_main">
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
