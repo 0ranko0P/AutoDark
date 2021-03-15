@@ -12,7 +12,6 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
-import kotlinx.android.synthetic.main.content_permission_scroll.view.*
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.CircularAnimationUtil
 import me.ranko.autodark.Utils.ViewUtil
@@ -132,8 +131,8 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
 
     private fun initShizukuCard() {
         val shizukuInstalled = ShizukuProvider.isShizukuInstalled(this)
-        val viewStub = (if(shizukuInstalled) binding.coordRoot.stubShizukuFirst else binding.coordRoot.stubShizukuLast)
-        val view = viewStub.inflate()
+        val viewStub = if (shizukuInstalled) binding.content.stubShizukuFirst else binding.content.stubShizukuLast
+        val view = viewStub.viewStub!!.inflate()
         if (shizukuInstalled) {
             val rotate = AnimationUtils.loadAnimation(view.context, R.anim.rotate_infinite)
             (view as PermissionLayout).titleIcon.startAnimation(rotate)
