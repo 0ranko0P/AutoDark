@@ -474,7 +474,12 @@ class DarkWallpaperHelper private constructor(context: Context) {
         return if (persisted != null) {
             persisted[home] != mPicked[home] || persisted[lock] != mPicked[lock]
         } else {
-            mPicked[home] !is SystemWallpaperInfo || mPicked[lock] !is SystemWallpaperInfo
+            if (mPicked[home] is LiveWallpaperInfo) {
+                mManager.wallpaperInfo?.component?.className?.equals(mPicked[home].wallpaperId)?.not()?: true
+            } else {
+                // live wallpaper not set, check is SystemWallpaper
+                mPicked[home] !is SystemWallpaperInfo || mPicked[lock] !is SystemWallpaperInfo
+            }
         }
     }
 
