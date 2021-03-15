@@ -253,9 +253,9 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
     }
 
     fun refreshWallpaperPreview() {
-        if (refreshWallpaperJob != null) return
+        refreshWallpaperJob?.cancel()
 
-        refreshWallpaperJob = viewModelScope.launch {
+        refreshWallpaperJob = viewModelScope.launch(Dispatchers.Main) {
             val wallpapers = mHelper.loadPreviewWallpapers()
             _pickedLightWallpapers.value = Pair(wallpapers[DEST_HOME_SCREEN], wallpapers[DEST_LOCK_SCREEN])
             _pickedDarkWallpapers.value = Pair(wallpapers[DEST_HOME_SCREEN + 2], wallpapers[DEST_LOCK_SCREEN + 2])
