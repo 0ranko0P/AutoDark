@@ -42,6 +42,7 @@ import me.ranko.autodark.R;
 
 import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED;
 import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED;
+import static com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HALF_EXPANDED;
 
 /** A {@code ViewGroup} which provides the specific actions for the user to interact with. */
 public class BottomActionBar extends FrameLayout {
@@ -182,12 +183,17 @@ public class BottomActionBar extends FrameLayout {
      *
      * @param contentView the view with content to be added on the bottom sheet
      * @param action the action to be bound to expand / collapse the bottom sheet
+     * @param halfExpandOnFirstClick set state to half-expanded instead of full
+     * when the action button clicked in the first time
      */
-    public void attachViewToBottomSheetAndBindAction(View contentView, BottomAction action) {
+    public void attachViewToBottomSheetAndBindAction(View contentView, BottomAction action, Boolean halfExpandOnFirstClick) {
         contentView.setVisibility(GONE);
         contentView.setFocusable(true);
         mContentViewMap.put(action, contentView);
         mBottomSheetView.addView(contentView);
+        if (halfExpandOnFirstClick) {
+            mActionMap.get(action).setTag(R.id.appID, halfExpandOnFirstClick);
+        }
         setActionClickListener(action, actionView -> {
             if (mBottomSheetBehavior.getState() == STATE_COLLAPSED) {
                 updateContentViewFor(action);
@@ -233,7 +239,12 @@ public class BottomActionBar extends FrameLayout {
                 mSelectedAction = bottomAction;
                 updateSelectedState(mSelectedAction, /* selected= */ true);
                 if (isExpandable(mSelectedAction)) {
-                    mBottomSheetBehavior.enqueue(STATE_EXPANDED);
+                    if (view.getTag(R.id.appID) != null) {
+                        view.setTag(R.id.appID, null);
+                        mBottomSheetBehavior.enqueue(STATE_HALF_EXPANDED);
+                    } else {
+                        mBottomSheetBehavior.enqueue(STATE_EXPANDED);
+                    }
                 }
             }
             actionClickListener.onClick(view);

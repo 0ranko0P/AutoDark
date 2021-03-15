@@ -141,7 +141,7 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
             }
             mRecycler.setItemViewCacheSize(0)
             mRecycler.adapter = mAdapter
-            mBinding.bottomActionbar.attachViewToBottomSheetAndBindAction(mRecycler, BottomAction.APPLY)
+            mBinding.bottomActionbar.attachViewToBottomSheetAndBindAction(mRecycler, BottomAction.APPLY, true)
             behavior.addBottomSheetCallback(this)
         }
 
@@ -167,7 +167,6 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
         fun show() {
             if (mBinding.bottomActionbar.isVisible.not()) {
                 requireActivity().window.navigationBarColor = bottomBarNavBar
-                behavior.state = BottomSheetBehavior.STATE_COLLAPSED
                 mBinding.bottomActionbar.show()
                 mBinding.bottomActionbar.animate()
                         .setDuration(animTime)
