@@ -63,9 +63,10 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$ver_kotlin_coroutines"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$ver_kotlin_coroutines"
 
+    // LiveData
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$ver_lifecycle_extensions"
     // ViewModel
     implementation "androidx.lifecycle:lifecycle-common-java8:$ver_lifecycle_extensions"
-    implementation "androidx.lifecycle:lifecycle-extensions:$ver_lifecycle_extensions"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$ver_lifecycle_extensions"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$ver_lifecycle_extensions"
 
