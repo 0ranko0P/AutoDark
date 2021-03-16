@@ -368,7 +368,7 @@ class DarkWallpaperHelper private constructor(context: Context) {
                 val old = mPersisted!![type.ordinal]
                 val new = newWallpaperArr[type.ordinal]
                 // skip LiveWallpaper or unchanged wallpaper
-                if (old is LiveWallpaperInfo || new is DarkWallpaperInfo) continue
+                if (old is LiveWallpaperInfo || old == new) continue
                 if (isDarkWallpaperInUse(old as DarkWallpaperInfo, newWallpaperArr)) continue
                 val file = getWallpaperFile(mContext!!, old.wallpaperId)
                 // check exists, home & lock screen usually using same wallpaper
