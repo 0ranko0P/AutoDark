@@ -160,6 +160,8 @@ class DarkWallpaperPickerActivity : BasePreviewActivity() {
                 override fun onAnimationEnd(animation: Animator?) {
                     targetCard.visibility = View.GONE
                     if (shizukuPermission!!.visibility == View.GONE && storagePermission!!.visibility == View.GONE) {
+                        // conflict background color, remove parent
+                        container.removeView(targetCard.parent as View)
                         initPickerFragment()
                         adjustStatusBarColor(true)
                     }
