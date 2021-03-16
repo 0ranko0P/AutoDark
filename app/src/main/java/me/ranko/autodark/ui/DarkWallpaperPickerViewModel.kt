@@ -354,8 +354,9 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
         // no-op
     }
 
-    fun getLiveWallpapersAsync(): Deferred<List<LiveWallpaperInfo>> {
-        return viewModelScope.async { mHelper.getLiveWallpapers().values.toList() }
+    fun getLiveWallpapersAsync(): Deferred<List<LiveWallpaperInfo>> = viewModelScope.async {
+        val pm = mApp.packageManager
+        mHelper.getLiveWallpapers().values.sortedBy { it.wallpaperComponent.loadLabel(pm).toString() }
     }
 
     fun getException(): Exception? {
