@@ -31,7 +31,7 @@
             android:id="@+id/action_bottom_sheet"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/bottom_sheet_background"
+            android:background="?android:attr/colorBackground"
             android:clickable="true"
             android:elevation="@dimen/bottom_action_bar_elevation"
             app:behavior_peekHeight="@dimen/preview_attribution_pane_collapsed_height"

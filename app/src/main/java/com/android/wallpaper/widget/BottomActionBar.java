@@ -26,7 +26,6 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.android.wallpaper.util.SizeCalculator;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback;
 
@@ -120,7 +119,6 @@ public class BottomActionBar extends FrameLayout {
         mActionMap.put(BottomAction.APPLY, findViewById(R.id.action_apply));
 
         mBottomSheetView = findViewById(R.id.action_bottom_sheet);
-        SizeCalculator.adjustBackgroundCornerRadius(mBottomSheetView);
 
         mBottomSheetBehavior = (QueueStateBottomSheetBehavior<ViewGroup>) BottomSheetBehavior.from(
                 mBottomSheetView);

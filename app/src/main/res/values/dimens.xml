@@ -43,8 +43,6 @@
     <dimen name="bottom_action_button_padding">12dp</dimen>
     <dimen name="bottom_action_icon_size">24dp</dimen>
 
-    <dimen name="preview_bottom_sheet_corner_radius">?android:attr/dialogCornerRadius</dimen>
-
     <!-- Dimensions for full preview page -->
     <dimen name="full_preview_page_default_padding_top">24dp</dimen>
     <dimen name="full_preview_page_default_padding_bottom">32dp</dimen>

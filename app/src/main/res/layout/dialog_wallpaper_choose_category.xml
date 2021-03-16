@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:layout_gravity="center_horizontal|bottom"
     android:animateLayoutChanges="true"
-    android:background="@drawable/bottom_sheet_background"
+    android:background="@color/bottom_sheet_background"
     android:orientation="vertical"
     android:paddingTop="8dp">
 
