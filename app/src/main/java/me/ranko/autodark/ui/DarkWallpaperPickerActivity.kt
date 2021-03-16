@@ -179,6 +179,7 @@ class DarkWallpaperPickerActivity : BasePreviewActivity() {
 
     fun requestPermission(v: View?) {
         if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            showManualInstruction()
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
             val uri = Uri.fromParts("package", packageName, null)
             intent.data = uri;
@@ -194,7 +195,7 @@ class DarkWallpaperPickerActivity : BasePreviewActivity() {
             if (grantResults.isNotEmpty() && grantResults[0] == PERMISSION_GRANTED) {
                 hidePermissionCard(false)
             } else {
-                showManualText()
+                showManualInstruction()
             }
         } else if (requestCode == ShizukuApi.REQUEST_CODE_SHIZUKU_PERMISSION) {
             shizukuListener!!.onRequestPermissionResult(requestCode, grantResults[0])
@@ -243,11 +244,14 @@ class DarkWallpaperPickerActivity : BasePreviewActivity() {
         }
     }
 
-    private fun showManualText() {
+    private fun showManualInstruction() {
+        if (storagePermission!!.getTag(R.id.appID) != null) return
+
         val text = storagePermission!!.findViewById<TextView>(R.id.description)
         val button = storagePermission!!.findViewById<TextView>(R.id.btnStorage)
         button.text = getString(R.string.permission_wallpaper_manually_title)
         text.text = getString(R.string.permission_wallpaper_manually, text.text.toString(), button.text.toString())
+        storagePermission!!.setTag(R.id.appID, true)
     }
 
     override fun onDestroy() {
