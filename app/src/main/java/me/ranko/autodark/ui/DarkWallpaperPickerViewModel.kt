@@ -1,7 +1,11 @@
 package me.ranko.autodark.ui
 
 import android.app.Application
+import android.content.DialogInterface
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.ObservableField
+import androidx.databinding.ObservableInt
 import androidx.lifecycle.*
 import androidx.viewpager.widget.ViewPager
 import com.android.wallpaper.asset.Asset
@@ -90,9 +94,17 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
     val clearButtonAvailable: LiveData<Boolean>
         get() = _clearAvailable
 
-    private val _applyStatus = MutableLiveData<Int>()
-    val applyStatus: LiveData<Int>
-        get() = _applyStatus
+    private val _deleteAvailable = MutableLiveData(mHelper.isDarWallpaperPersisted())
+    val deleteAvailable: LiveData<Boolean>
+        get() = _deleteAvailable
+
+    private val _loadingStatus = MutableLiveData<Int>()
+    val loadStatus: LiveData<Int>
+        get() = _loadingStatus
+
+    val loadingText = ObservableField<String>()
+
+    val message = ObservableInt()
 
     private val _wallpaperPickRequest = MutableLiveData<WallpaperRequest>()
     val wallpaperPickRequest: LiveData<WallpaperRequest>
@@ -108,7 +120,8 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
 
     init {
         if (mHelper.isApplyingLiveWallpaper()) {
-            _applyStatus.value = Constant.JOB_STATUS_PENDING
+            _loadingStatus.value = Constant.JOB_STATUS_PENDING
+            loadingText.set(mApp.getString(R.string.app_loading))
         }
     }
 
@@ -168,7 +181,8 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
      * @see DarkWallpaperHelper.DefaultWallpaperSetterCallback
      * */
     fun onApplyWallpaperClicked() = viewModelScope.launch(Dispatchers.Main) {
-        _applyStatus.value = Constant.JOB_STATUS_PENDING
+        _loadingStatus.value = Constant.JOB_STATUS_PENDING
+        loadingText.set(mApp.getString(R.string.prepare_wallpaper_progress_message))
 
         val isDarkMode = DarkModeSettings.getInstance(mApp).isDarkMode() == true
         // skip apply wallpapers on these two rare condition
@@ -190,12 +204,13 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
                 // receive results through callback
                 mHelper.onAlarm(isDarkMode)
             } else {
-                _applyStatus.value = Constant.JOB_STATUS_SUCCEED
+                _loadingStatus.value = Constant.JOB_STATUS_SUCCEED
+                message.set(R.string.save_wallpaper_success_message)
             }
         } catch (e: Exception) {
             exception = e
             Timber.w(e)
-            _applyStatus.value = Constant.JOB_STATUS_FAILED
+            _loadingStatus.value = Constant.JOB_STATUS_FAILED
         }
     }
 
@@ -206,8 +221,9 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
      * @see DarkWallpaperHelper.DefaultWallpaperSetterCallback
      * */
     override fun onSuccess(id: String) {
-        if (_applyStatus.value != Constant.JOB_STATUS_SUCCEED)
-            _applyStatus.value = Constant.JOB_STATUS_SUCCEED
+        if (_loadingStatus.value != Constant.JOB_STATUS_SUCCEED)
+            _loadingStatus.value = Constant.JOB_STATUS_SUCCEED
+        message.set(R.string.save_wallpaper_success_message)
     }
 
     /**
@@ -219,7 +235,7 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
     override fun onError(e: java.lang.Exception?) {
         Timber.w(e, "onApplyWallpaper: failed to apply wallpapers")
         exception = e
-        _applyStatus.value = Constant.JOB_STATUS_FAILED
+        _loadingStatus.value = Constant.JOB_STATUS_FAILED
     }
 
     fun onWallpaperCorrupted(asset: Asset) {
@@ -250,6 +266,21 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
         if (hasErrorAsset().not()) {
             mErrorAsset = null
         }
+    }
+
+    fun deleteAll() = viewModelScope.launch(Dispatchers.Main) {
+        val start = System.currentTimeMillis()
+        _loadingStatus.value = Constant.JOB_STATUS_PENDING
+        val systemWallpaper = mHelper.deleteAll()
+        _pickedLightWallpapers.value = systemWallpaper
+        _pickedDarkWallpapers.value = systemWallpaper
+        val cost = System.currentTimeMillis() - start
+        Timber.d("deleteAll time cost: %s.", cost)
+        if (cost < 1000L) delay(2000L)
+
+        updateButtonsState()
+        _loadingStatus.value = Constant.JOB_STATUS_SUCCEED
+        message.set(R.string.app_success)
     }
 
     fun refreshWallpaperPreview() {
@@ -288,12 +319,14 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
     private fun updateButtonsState() {
         _clearAvailable.value = mHelper.isLightWallpaperPicked() || mHelper.isDarkWallpaperPicked()
 
-        when {
-            hasErrorAsset() -> _applyAvailable.value = false
+        _deleteAvailable.value = mHelper.isDarWallpaperPersisted()
 
-            mHelper.isDarWallpaperPersisted() -> _applyAvailable.value = _clearAvailable.value!!
+        _applyAvailable.value = when {
+            hasErrorAsset() -> false
 
-            else -> _applyAvailable.value = mHelper.isDarkWallpaperPicked()
+            _deleteAvailable.value!! -> _clearAvailable.value!!
+
+            else -> mHelper.isDarkWallpaperPicked()
         }
     }
 

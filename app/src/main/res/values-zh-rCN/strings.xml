@@ -22,6 +22,7 @@
     <string name="app_restricted_warning">发现问题</string>
     <string name="app_save">保存</string>
     <string name="app_search_hint">搜索</string>
+    <string name="app_success">操作成功完成</string>
     <string name="app_try_again">重试</string>
     <string name="app_upload_fail">无法保存列表, 请将调试日志发送给开发者以帮助解决问题.</string>
     <string name="app_upload_success">成功, 重启黑名单中的应用来查看效果</string>
@@ -36,6 +37,9 @@
     <string name="dark_mode_summary_auto_on">将在日落到日出期间开启黑暗模式.</string>
     <string name="dark_mode_summary_will_on">将在 <xliff:g name="time">%1$s</xliff:g> 开启黑暗模式</string>
     <string name="dark_mode_summary_will_off">将在 <xliff:g name="time">%1$s</xliff:g> 关闭黑暗模式</string>
+
+    <string name="delete_wallpapers">删除<xliff:g name="pref_dark_wallpaper_title">%1$s</xliff:g></string>
+    <string name="delete_wallpapers_confirm">此操作将不可逆</string>
 
     <string name="feedback_send">发送邮件</string>
     <string name="feedback_subject">AutoDark 反馈</string>

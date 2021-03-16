@@ -23,6 +23,7 @@
     <string name="app_restricted_warning">Problems detected</string>
     <string name="app_save">Save</string>
     <string name="app_search_hint">Search</string>
+    <string name="app_success">Operation succeeded</string>
     <string name="app_try_again">Try again</string>
     <string name="app_upload_fail">Unable to save app list, please send debugging logs to the developer to help solve the issue.</string>
     <string name="app_upload_success">Success, restart these blocked apps to see effects</string>
@@ -38,6 +39,9 @@
     <string name="dark_mode_summary_auto_on">Will turn on dark mode from sunset to sunrise.</string>
     <string name="dark_mode_summary_will_off">Will turn off dark mode at <xliff:g name="time">%1$s</xliff:g></string>
     <string name="dark_mode_summary_will_on">Will turn on dark mode at <xliff:g name="time">%1$s</xliff:g></string>
+
+    <string name="delete_wallpapers">Delete <xliff:g name="pref_dark_wallpaper_title">%1$s</xliff:g></string>
+    <string name="delete_wallpapers_confirm">this operation cannot be undone</string>
 
     <string name="feedback_send">Send Email</string>
     <string name="feedback_subject">AutoDark Feedback</string>

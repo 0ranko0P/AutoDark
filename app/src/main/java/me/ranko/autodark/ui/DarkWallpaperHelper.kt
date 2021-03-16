@@ -415,6 +415,22 @@ class DarkWallpaperHelper private constructor(context: Context) {
         }
     }
 
+    suspend fun deleteAll(): Pair<WallpaperInfo, WallpaperInfo> = withContext(Dispatchers.IO) {
+        val editor = mPreference.edit()
+        WallpaperType.values().forEach { type ->
+            editor.remove(type.name)
+        }
+        editor.remove(KEY_LAST_SETTING_SUCCEED).apply()
+        try {
+            getWallpaperFile(mContext!!, "null").parentFile?.deleteRecursively()
+        } catch (e: Exception) {
+            Timber.w(e)
+        }
+        mPersisted = null
+        clearPicked()
+        return@withContext Pair(mPicked[0], mPicked[1])
+    }
+
     suspend fun getLiveWallpapers(): ArrayMap<ComponentName, LiveWallpaperInfo> = withContext(Dispatchers.IO) {
         if (mLiveWallpapers == null) {
             synchronized(this@DarkWallpaperHelper) {

@@ -3,19 +3,18 @@ package me.ranko.autodark.ui
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.annotation.SuppressLint
-import android.app.ProgressDialog
 import android.content.Context
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffColorFilter
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageView
 import androidx.annotation.NonNull
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
 import androidx.core.util.Consumer
-import androidx.core.view.children
+import androidx.databinding.Observable
+import androidx.databinding.ObservableInt
 import androidx.lifecycle.*
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -46,7 +45,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.ranko.autodark.Constant
 import me.ranko.autodark.R
-import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.databinding.FragmentDarkWallpaperBinding
 import me.ranko.autodark.model.CroppedWallpaperInfo
 import me.ranko.autodark.ui.DarkWallpaperPickerViewModel.WallpaperRequest
@@ -267,10 +265,7 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
 
     private var mLiveWallpaperBrowser: LiveWallpaperBrowser? = null
 
-    private var mMenuSave: MenuItem? = null
-    private var mMenuApply: MenuItem? = null
-
-    private var mApplyLoadingDialog: ProgressDialog? = null
+    private var mMenuDelete: MenuItem? = null
 
     private lateinit var mLightWallpaperObserver: WallpaperObserver
     private lateinit var mDarkWallpaperObserver: WallpaperObserver
@@ -356,20 +351,10 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
 
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
-        mMenuSave = menu.findItem(R.id.action_clear)
-        mMenuApply = menu.findItem(R.id.action_apply)
-        val filter = PorterDuffColorFilter(ViewUtil.getAttrColor(requireContext(), R.attr.colorOnSurface), PorterDuff.Mode.SRC_ATOP)
-        for (child in menu.children) {
-            val icon = child.icon
-            icon.mutate()
-            icon.colorFilter = filter
-        }
-        viewModel.clearButtonAvailable.observe(this, Observer { available ->
-            mMenuSave?.isVisible = available
-        })
-
-        viewModel.applyButtonAvailable.observe(this, Observer { available ->
-            mMenuApply?.isVisible = available
+        mMenuDelete = menu.findItem(R.id.action_delete)
+        mMenuDelete?.title = getString(R.string.delete_wallpapers, getString(R.string.pref_dark_wallpaper_title))
+        viewModel.deleteAvailable.observe(this, Observer { available ->
+            mMenuDelete?.isVisible = available
         })
     }
 
@@ -377,18 +362,20 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
         when (item.itemId) {
             android.R.id.home -> finishActivity(false)
 
-            R.id.action_clear -> viewModel.onClearWallpaperClicked()
-
-            R.id.action_apply -> viewModel.onApplyWallpaperClicked()
+            R.id.action_delete -> showDeleteConfirmDialog()
 
             else -> return super.onOptionsItemSelected(item)
         }
         return true
     }
 
-    override fun onResume() {
-        super.onResume()
-        mApplyLoadingDialog?.show()
+    private fun showDeleteConfirmDialog() {
+        AlertDialog.Builder(requireActivity())
+            .setTitle(mMenuDelete?.title)
+            .setMessage(R.string.delete_wallpapers_confirm)
+            .setNegativeButton(android.R.string.cancel, null)
+            .setPositiveButton(android.R.string.ok) { _, _ -> viewModel.deleteAll() }
+            .show()
     }
 
     override fun onGlobalLayout() {
@@ -421,21 +408,16 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
         viewModel.pickedLightWallpapers.observe(viewLifecycleOwner, mLightWallpaperObserver)
         viewModel.pickedDarkWallpapers.observe(viewLifecycleOwner, mDarkWallpaperObserver)
 
-        viewModel.applyStatus.observe(viewLifecycleOwner, Observer<Int> { status ->
-            when (status) {
-                Constant.JOB_STATUS_PENDING -> showApplyLoadingDialog()
+        viewModel.loadStatus.observe(viewLifecycleOwner, Observer { status ->
+            if (status == Constant.JOB_STATUS_FAILED) {
+                showSaveWallpaperErrorDialog(viewModel.getException(), DEST_BOTH)
+            }
+        })
 
-                Constant.JOB_STATUS_FAILED -> {
-                    hideApplyLoadingDialog()
-                    showSaveWallpaperErrorDialog(viewModel.getException(), DEST_BOTH)
-                }
-
-                Constant.JOB_STATUS_SUCCEED -> {
-                    hideApplyLoadingDialog()
-                    Snackbar.make(mBinding.root, R.string.save_wallpaper_success_message, Snackbar.LENGTH_SHORT)
-                            .setAction(R.string.app_exit) { finishActivity(true) }
-                            .show()
-                }
+        viewModel.message.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable, propertyId: Int) {
+                val message = (sender as ObservableInt).get()
+                Snackbar.make(mBinding.root, message, Snackbar.LENGTH_SHORT).show()
             }
         })
 
@@ -494,26 +476,6 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
 
     override fun onClickTryAgain(wallpaperDestination: Int) {
         viewModel.onApplyWallpaperClicked()
-    }
-
-    private fun showApplyLoadingDialog() {
-        val container = activity ?: return
-
-        if (mApplyLoadingDialog == null) {
-            val dialog = ProgressDialog(container, R.style.SimpleDialogStyle)
-            dialog.setMessage(getString(R.string.prepare_wallpaper_progress_message))
-            dialog.isIndeterminate = true
-            dialog.setCancelable(false)
-            mApplyLoadingDialog = dialog
-        }
-        mApplyLoadingDialog!!.show()
-    }
-
-    private fun hideApplyLoadingDialog() {
-        if (activity != null) {
-            mApplyLoadingDialog?.dismiss()
-        }
-        mApplyLoadingDialog = null
     }
 
     override fun onDestroyView() {

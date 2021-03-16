@@ -5,6 +5,10 @@
 
     <data>
 
+        <import type="android.view.View" />
+
+        <import type="me.ranko.autodark.Constant" />
+
         <variable
             name="viewModel"
             type="me.ranko.autodark.ui.DarkWallpaperPickerViewModel" />
@@ -27,6 +31,7 @@
                 android:layout_height="wrap_content"
                 android:background="@color/preview_pager_background"
                 android:paddingTop="@dimen/fab_margin"
+                android:visibility="@{viewModel.loadStatus == Constant.JOB_STATUS_PENDING ? View.GONE : View.VISIBLE}"
                 app:card_style="disable"
                 tools:layout_height="320dp" />
 
@@ -35,7 +40,8 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:gravity="bottom"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:visibility="@{viewModel.loadStatus == Constant.JOB_STATUS_PENDING ? View.GONE : View.VISIBLE}">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnPick"
@@ -67,6 +73,29 @@
                     android:outlineSpotShadowColor="?android:attr/colorPrimary"
                     android:text="@string/app_clear" />
             </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/progressRoot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:visibility="@{viewModel.loadStatus == Constant.JOB_STATUS_PENDING ? View.VISIBLE : View.GONE}">
+
+            <ProgressBar
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center_horizontal" />
+
+            <TextView
+                android:id="@+id/progressText"
+                style="@style/CardTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@{viewModel.loadingText}"
+                android:textAlignment="center" />
         </LinearLayout>
 
         <com.android.wallpaper.widget.BottomActionBar
