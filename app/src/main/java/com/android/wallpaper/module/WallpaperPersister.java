@@ -48,13 +48,13 @@ import timber.log.Timber;
  *
  * [0ranko0P] changes:
  *     0. setIndividualWallpaper to saveCroppedWallpaper.
- *     1. Compress to lossless WEBP by default.
+ *     1. Compress to lossy WEBP by default.
  *     2. Drop WallpaperChangedNotifier
  */
 @SuppressLint({"MissingPermission"})
 public final class WallpaperPersister {
 
-    private static final int DEFAULT_COMPRESS_QUALITY = 100;
+    private static final int DEFAULT_COMPRESS_QUALITY = 90;
     private static final Bitmap.CompressFormat DEFAULT_COMPRESS_FORMAT = Bitmap.CompressFormat.WEBP;
 
     public static final int DEST_HOME_SCREEN = 0;
