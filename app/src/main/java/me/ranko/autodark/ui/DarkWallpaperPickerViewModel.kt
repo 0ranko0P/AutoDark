@@ -271,6 +271,7 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
     fun deleteAll() = viewModelScope.launch(Dispatchers.Main) {
         val start = System.currentTimeMillis()
         _loadingStatus.value = Constant.JOB_STATUS_PENDING
+        loadingText.set(mApp.getString(R.string.delete_wallpapers, mApp.getString(R.string.pref_dark_wallpaper_title)))
         val systemWallpaper = mHelper.deleteAll()
         _pickedLightWallpapers.value = systemWallpaper
         _pickedDarkWallpapers.value = systemWallpaper
