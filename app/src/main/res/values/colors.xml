@@ -24,6 +24,7 @@
     <color name="fullscreen_preview_background">#F5F5F5</color>
     <color name="full_preview_tab_unselected_text_color">#8C000000</color>
 
+    <color name="preview_lock_screen_mask_color">#32000000</color>
     <color name="preview_pager_arrow_disabled">@android:color/darker_gray</color>
     <color name="preview_pager_background">@color/fullscreen_preview_background</color>
     <color name="card_preview_background">@color/material_white_1000</color>
