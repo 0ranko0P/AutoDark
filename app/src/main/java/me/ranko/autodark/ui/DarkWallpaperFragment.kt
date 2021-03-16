@@ -114,7 +114,6 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
         private val originNavBar = requireActivity().window.navigationBarColor
         private val bottomBarNavBar = context.getColor(R.color.bottom_sheet_background)
 
-        private val animTime = resources.getInteger(android.R.integer.config_mediumAnimTime).toLong()
         private val behavior = BottomSheetBehavior.from(mBinding.bottomActionbar.findViewById<View>(R.id.action_bottom_sheet))
 
         init {
@@ -167,7 +166,7 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
                 requireActivity().window.navigationBarColor = bottomBarNavBar
                 mBinding.bottomActionbar.show()
                 mBinding.bottomActionbar.animate()
-                        .setDuration(animTime)
+                        .setDuration(resources.getInteger(android.R.integer.config_mediumAnimTime).toLong())
                         .alpha(1f)
                         .setListener(object : AnimatorListenerAdapter() {
                             override fun onAnimationEnd(animation: Animator?) {
@@ -180,13 +179,13 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
         fun hide() {
             if (mBinding.bottomActionbar.isVisible.not()) return
             mBinding.bottomActionbar.deselectAction(BottomAction.APPLY)
+            activity?.window?.navigationBarColor = originNavBar
             mBinding.bottomActionbar.animate()
-                    .setDuration(animTime)
+                    .setDuration(resources.getInteger(android.R.integer.config_shortAnimTime).toLong())
                     .alpha(0f)
                     .setListener(object : AnimatorListenerAdapter() {
                         override fun onAnimationEnd(animation: Animator?) {
                             mBinding.bottomActionbar.hide()
-                            requireActivity().window.navigationBarColor = originNavBar
                         }
                     })
         }
