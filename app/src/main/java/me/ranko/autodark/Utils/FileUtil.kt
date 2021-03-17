@@ -1,8 +1,8 @@
 package me.ranko.autodark.Utils
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.annotation.WorkerThread
-import me.ranko.autodark.Constant
 import java.io.IOException
 import java.nio.file.FileSystems
 import java.nio.file.Files
@@ -11,12 +11,16 @@ import java.nio.file.Path
 import java.nio.file.attribute.PosixFileAttributeView
 import java.nio.file.attribute.PosixFilePermissions
 
+@SuppressLint("LogNotTimber")
 object FileUtil {
 
+    private const val TAG = "FileUtil"
+
     @JvmStatic
-    val PERMISSION_770 = "rwxrwx---"
+    val PERMISSION_755 = "rwxr-xr-x"
+
     @JvmStatic
-    val PERMISSION_764 = "rwxrw-r--"
+    val PERMISSION_744 = "rwxr--r--"
 
     @JvmStatic
     fun chgrop(path: Path, group: String) {
@@ -31,34 +35,57 @@ object FileUtil {
         Files.setPosixFilePermissions(path, permissions)
     }
 
+    /**
+     * @return **True** target path is newly created
+     * */
     @JvmStatic
     @Throws(IOException::class)
-    fun crateIfNotExists(path:Path, permissionNum: String) {
-        if(path.toFile().exists()) return
+    fun createIfNotExists(path: Path, isFolder: Boolean, permissionNum: String): Boolean {
+        if (path.toFile().exists()) return false
 
         val permissions = PosixFilePermissions.fromString(permissionNum)
         val attr = PosixFilePermissions.asFileAttribute(permissions)
-        Files.createFile(path, attr)
+        if (isFolder) {
+            Files.createDirectory(path, attr)
+        } else {
+            Files.createFile(path, attr)
+        }
         Files.setPosixFilePermissions(path, permissions)
+        return true
     }
 
     @JvmStatic
     @WorkerThread
-    fun readList(path: Path, knowSize: Int = 16): ArrayList<String>? {
-        if (!path.toFile().exists()) {
-            println("onReadList: File not exists or readable: $path")
+    fun readList(path: Path): List<String>? {
+        if (Files.exists(path).not()) {
+            Log.w(TAG,"onReadList: File not exists or readable: $path")
             return null
         }
 
-        val list = ArrayList<String>(knowSize)
-        try {
-            Files.readAllLines(Constant.BLOCK_LIST_PATH).forEach {
-                list.add(it)
-            }
-            return list
+        return try {
+            Files.readAllLines(path)
         } catch (e: Exception) {
-            println("onReadList:${Log.getStackTraceString(e)}")
-            return null
+            Log.w(TAG, "Read list failed", e)
+            null
+        }
+    }
+
+
+    @JvmStatic
+    @WorkerThread
+    fun saveFlagAsFile(flagPath: Path, setFlag: Boolean): Boolean {
+        return try {
+            if (setFlag) {
+                if (createIfNotExists(flagPath, false, PERMISSION_744)) {
+                    chmod(flagPath.parent, PERMISSION_755)
+                }
+            } else {
+                Files.deleteIfExists(flagPath)
+            }
+            true
+        } catch (e: IOException) {
+            Log.w(TAG, e)
+            false
         }
     }
 }

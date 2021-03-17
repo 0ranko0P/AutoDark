@@ -65,7 +65,6 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
         binding.recyclerView.adapter = mAdapter
 
         viewModel.mAppList.observe(this, Observer { list -> mAdapter.setData(list) })
-        viewModel.attachViewModel()
         viewModel.uploadStatus.addOnPropertyChangedCallback(statusObserver)
 
         viewModel.isRefreshing.observe(this, Observer { isRefreshing ->
@@ -84,6 +83,7 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
         )
 
         lifecycle.addObserver(viewModel.mSearchHelper)
+        viewModel.refreshList()
     }
 
     private fun showMessage(@StringRes str: Int, @Duration duration: Int = Snackbar.LENGTH_SHORT) =
@@ -115,7 +115,7 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         super.onPrepareOptionsMenu(menu)
         this.menu = menu
-        menu.findItem(R.id.action_hook_sys).isChecked = Files.exists(Constant.BLOCK_LIST_SYSTEM_APP_CONFIG_PATH)
+        menu.findItem(R.id.action_hook_sys).isChecked = viewModel.shouldShowSystemApp()
         menu.findItem(R.id.action_hook_ime).isChecked = Files.exists(Constant.BLOCK_LIST_INPUT_METHOD_CONFIG_PATH)
         setMenuVisible(binding.toolbarEdit.hasFocus().not())
         return true
@@ -123,17 +123,11 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_save -> onRequestSave(null)
+            R.id.action_save -> binding.fab.performClick()
 
             R.id.action_hook_sys -> {
-                viewModel.updateMenuFlag(item, Constant.BLOCK_LIST_SYSTEM_APP_CONFIG_PATH, Consumer { succeed ->
-                    if (succeed) {
-                        if (item.isChecked) showMessage(R.string.app_hook_system_restart, Snackbar.LENGTH_LONG)
-                        viewModel.refreshList()
-                    } else {
-                        showMessage(R.string.app_upload_fail)
-                    }
-                })
+                viewModel.onShowSysAppSelected(item.isChecked.not())
+                if (item.isChecked.not()) showMessage(R.string.app_hook_system_message, Snackbar.LENGTH_LONG)
             }
 
             R.id.action_hook_ime -> {
@@ -143,6 +137,8 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
             }
 
             android.R.id.home -> onBackPressed()
+
+            else -> super.onOptionsItemSelected(item)
         }
         return true
     }

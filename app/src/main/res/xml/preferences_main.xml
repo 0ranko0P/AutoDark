@@ -32,22 +32,19 @@
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_category_dev">
-        <SwitchPreference
+        <me.ranko.autodark.ui.Preference.DarkSwitchPreference
             android:defaultValue="false"
             android:key="dark_mode_force"
             android:shouldDisableView="true"
-            tools:summary="@string/pref_force_dark_summary"
-            tools:title="@string/pref_force_dark" />
-
-        <Preference
-            android:key="dark_mode_force_xposed"
-            tools:summary="@string/pref_force_dark_summary"
+            android:enabled="false"
+            android:summary="@string/pref_force_dark_summary"
             tools:title="@string/pref_force_dark" />
 
         <Preference
             android:icon="@drawable/ic_extension"
             android:key="dark_mode_xposed"
             android:summary="@string/pref_block_summary"
+            android:enabled="false"
             tools:title="@string/pref_block_title" />
     </PreferenceCategory>
 

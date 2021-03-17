@@ -2,11 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="me.ranko.autodark"
-    tools:ignore="ProtectedPermissions">
+    tools:ignore="ProtectedPermissions, SignatureOrSystemPermissions, QueryAllPackagesPermission">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
@@ -16,8 +17,12 @@
     <uses-permission android:name="moe.shizuku.manager.permission.EXEC_COMMAND" />
 
     <uses-permission android:name="me.ranko0p.permission.RECEIVE_DARK_BROADCAST" />
+    <uses-permission android:name="me.ranko0p.permission.SEND_DARK_BROADCAST" />
 
-    <permission android:name="me.ranko0p.permission.RECEIVE_DARK_BROADCAST" />
+    <permission android:name="me.ranko0p.permission.SEND_DARK_BROADCAST" />
+
+    <permission android:name="me.ranko0p.permission.RECEIVE_DARK_BROADCAST"
+        android:protectionLevel="signatureOrSystem" />
 
     <queries>
         <intent>
