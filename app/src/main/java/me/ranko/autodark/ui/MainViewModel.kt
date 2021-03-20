@@ -220,8 +220,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _requirePermission.value = false
     }
 
-    fun onPermissionResult(granted: Boolean) {
-        val summary = if (granted) {
+    fun onPermissionResult() {
+        val summary = if (PermissionViewModel.checkSecurePermission(mContext)) {
             darkSettings.overrideIfNeeded()
             R.string.permission_granted
         } else {

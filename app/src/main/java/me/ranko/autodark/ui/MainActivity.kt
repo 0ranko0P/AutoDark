@@ -1,6 +1,5 @@
 package me.ranko.autodark.ui
 
-import android.app.Activity
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
@@ -87,7 +86,7 @@ class MainActivity : BaseListActivity(), FragmentManager.OnBackStackChangedListe
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == PermissionActivity.REQUEST_CODE_PERMISSION) {
-            viewModel.onPermissionResult(resultCode == Activity.RESULT_OK)
+            viewModel.onPermissionResult()
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }
