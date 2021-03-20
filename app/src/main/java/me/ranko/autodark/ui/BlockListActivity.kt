@@ -1,5 +1,6 @@
 package me.ranko.autodark.ui
 
+import android.os.Build
 import android.os.Bundle
 import android.transition.Fade
 import android.view.Menu
@@ -8,6 +9,7 @@ import android.view.View
 import android.view.Window
 import androidx.annotation.StringRes
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
@@ -18,7 +20,6 @@ import com.google.android.material.snackbar.BaseTransientBottomBar.Duration
 import com.google.android.material.snackbar.Snackbar
 import me.ranko.autodark.Constant
 import me.ranko.autodark.R
-import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.databinding.ActivityBlockListBinding
 import java.nio.file.Files
 import java.util.function.Consumer
@@ -58,7 +59,6 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        ViewUtil.setAppBarPadding(binding.appBar)
         if (!viewModel.isUploading()) binding.progressText.setText(R.string.app_loading)
 
         mAdapter = BlockListAdapter(viewModel)
@@ -143,11 +143,24 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
         return true
     }
 
+    override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
+        super.onApplyWindowInsets(v, insets)
+        val endOffset = if (isLandScape || Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
+            getListView().paddingTop + statusBarHeight * 2
+        } else {
+            getListView().paddingTop + statusBarHeight
+        }
+        binding.swipeRefresh.setProgressViewOffset(false, 0, endOffset)
+        return WindowInsetsCompat.CONSUMED
+    }
+
     override fun getListView(): View = binding.recyclerView
+
+    override fun getAppbar(): View = binding.appBar
 
     override fun applyInsetsToListPadding(top: Int, bottom: Int) {
         super.applyInsetsToListPadding(top, bottom)
-        binding.swipeRefresh.setProgressViewOffset(false, 0, getListView().paddingTop + top)
+
         val fabParams = binding.fab.layoutParams as CoordinatorLayout.LayoutParams
         fabParams.bottomMargin = fabParams.bottomMargin + bottom
         binding.fab.layoutParams = fabParams

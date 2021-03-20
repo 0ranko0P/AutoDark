@@ -65,7 +65,6 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
 
         initShizukuCard()
         Shizuku.addRequestPermissionResultListener(shizukuListener)
-        ViewUtil.setAppBarPadding(binding.appbarPermission)
 
         viewModel.permissionResult.observe(this, Observer<Boolean> { result ->
             Timber.v("Access ${if (result) "granted" else "denied"}.")
@@ -89,6 +88,8 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
     }
 
     override fun getListView(): View = binding.content.permissionRoot
+
+    override fun getAppbar(): View = binding.appbarPermission
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == REQUEST_CODE_SHIZUKU_PERMISSION) {

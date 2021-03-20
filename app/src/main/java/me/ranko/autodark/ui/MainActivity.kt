@@ -48,7 +48,7 @@ class MainActivity : BaseListActivity(), FragmentManager.OnBackStackChangedListe
             viewModel.onRequirePermissionConsumed()
         })
 
-        if (ViewUtil.isLandscape(this)) {
+        if (isLandScape) {
             val collapsingToolbar =
                     binding.appbar.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbar)!!
             val transparent = ColorStateList.valueOf(getColor(android.R.color.transparent))
@@ -95,12 +95,14 @@ class MainActivity : BaseListActivity(), FragmentManager.OnBackStackChangedListe
     override fun onBackStackChanged() {
         val frag = supportFragmentManager.findFragmentById(R.id.container) as PreferenceFragmentCompat
         frag.listView.apply {
-            setPadding(paddingLeft, paddingTop, paddingRight, getNavBarHeight())
+            setPadding(paddingLeft, paddingTop, paddingRight, bottomNavHeight)
             if (clipToPadding) clipToPadding = false
         }
     }
 
     override fun getListView(): View? = null
+
+    override fun getAppbar(): View? = null
 
     override fun applyInsetsToListPadding(top: Int, bottom: Int) {
         onBackStackChanged()

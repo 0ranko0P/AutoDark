@@ -12,37 +12,45 @@ import me.ranko.autodark.Utils.ViewUtil
 
 abstract class BaseListActivity : AppCompatActivity(), OnApplyWindowInsetsListener {
 
-    companion object{
-        private var bottomNavHeight = 0
+    protected var bottomNavHeight = 0
+    protected var statusBarHeight = 0
+
+    protected val isLandScape by lazy(LazyThreadSafetyMode.NONE) {
+        ViewUtil.isLandscape(this) // avoid null resource
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // don't apply insets on R
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) return
 
-        window.statusBarColor = Color.TRANSPARENT
-        if (!ViewUtil.isLandscape(this)) {
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.R && isLandScape.not()) {
+            window.statusBarColor = Color.TRANSPARENT
             ViewUtil.setImmersiveNavBar(window)
         }
-        // get navBar height then set it as bottom padding to RecyclerView
         ViewCompat.setOnApplyWindowInsetsListener(window!!.decorView.rootView, this)
     }
 
     override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat? {
-        bottomNavHeight = insets.systemWindowInsetBottom
-        applyInsetsToListPadding(insets.systemWindowInsetTop, bottomNavHeight)
+        val systemBarInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+        bottomNavHeight = systemBarInsets.bottom
+        statusBarHeight = systemBarInsets.top
+
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.R && isLandScape.not()) {
+            applyInsetsToListPadding(statusBarHeight, bottomNavHeight)
+        }
         v.setOnApplyWindowInsetsListener(null)
-        return insets.consumeSystemWindowInsets()
+        return WindowInsetsCompat.CONSUMED
     }
 
     open fun applyInsetsToListPadding(top: Int, bottom: Int) {
         getListView()?.apply {
             setPadding(paddingLeft, paddingTop + top, paddingRight, paddingBottom + bottom)
         }
+        getAppbar()?.apply {
+            setPadding(paddingLeft, top, paddingRight, paddingBottom)
+        }
     }
 
     abstract fun getListView(): View?
 
-    fun getNavBarHeight(): Int = bottomNavHeight
+    abstract fun getAppbar(): View?
 }
