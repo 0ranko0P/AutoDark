@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.app.UiModeManager
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.SystemProperties
 import android.provider.Settings
 import android.widget.Toast
@@ -54,27 +55,6 @@ annotation class DARK_JOB_TYPE
 class DarkModeSettings private constructor(private val context: Context) :
     OnPreferenceChangeListener,
     DefaultLifecycleObserver {
-
-    private val mManager:UiModeManager by lazy(LazyThreadSafetyMode.NONE) { context.getSystemService(UiModeManager::class.java)!! }
-
-    private val mAlarmManager: AlarmManager by lazy(LazyThreadSafetyMode.NONE) { context.getSystemService(Activity.ALARM_SERVICE) as AlarmManager }
-
-    private var mSupplier: DarkPreferenceSupplier? = null
-
-    private val sp = PreferenceManager.getDefaultSharedPreferences(context)
-
-    private var isAutoMode = sp.getBoolean(SP_AUTO_mode, false)
-
-    override fun onStart(owner: LifecycleOwner) {
-        mSupplier = (owner as DarkPreferenceSupplier).apply {
-            get(DARK_PREFERENCE_START).onPreferenceChangeListener = this@DarkModeSettings
-            get(DARK_PREFERENCE_END).onPreferenceChangeListener = this@DarkModeSettings
-        }
-    }
-
-    override fun onStop(owner: LifecycleOwner) {
-        mSupplier = null
-    }
 
     companion object {
         private const val PARAM_ALARM_TYPE = "ALARM_TYPE"
@@ -127,6 +107,27 @@ class DarkModeSettings private constructor(private val context: Context) :
          * @see     Constant.SYSTEM_PROP_FORCE_DARK
          * */
         fun getForceDark(): Boolean  = SystemProperties.getBoolean(SYSTEM_PROP_FORCE_DARK, false)
+    }
+
+    private val mManager: UiModeManager by lazy(LazyThreadSafetyMode.NONE) { context.getSystemService(UiModeManager::class.java)!! }
+
+    private val mAlarmManager: AlarmManager by lazy(LazyThreadSafetyMode.NONE) { context.getSystemService(Activity.ALARM_SERVICE) as AlarmManager }
+
+    private var mSupplier: DarkPreferenceSupplier? = null
+
+    private val sp = PreferenceManager.getDefaultSharedPreferences(context)
+
+    private var isAutoMode = sp.getBoolean(SP_AUTO_mode, false)
+
+    override fun onStart(owner: LifecycleOwner) {
+        mSupplier = (owner as DarkPreferenceSupplier).apply {
+            get(DARK_PREFERENCE_START).onPreferenceChangeListener = this@DarkModeSettings
+            get(DARK_PREFERENCE_END).onPreferenceChangeListener = this@DarkModeSettings
+        }
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        mSupplier = null
     }
 
     /**
@@ -437,6 +438,16 @@ class DarkModeSettings private constructor(private val context: Context) :
     fun getStartTime(): LocalTime = getPreferenceTime(DARK_PREFERENCE_START)
 
     fun getEndTime(): LocalTime = getPreferenceTime(DARK_PREFERENCE_END)
+
+    fun overrideIfNeeded(mode: Boolean = false) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+            val nightMode = mManager.nightMode
+            val override = nightMode != UiModeManager.MODE_NIGHT_NO && nightMode != UiModeManager.MODE_NIGHT_YES
+            if (override) {
+                setDarkMode(mode)
+            }
+        }
+    }
 
     private fun getPreferenceTime(type: String): LocalTime {
         requireNotNull(mSupplier) { "Exception call: Preference has been detached." }

@@ -2,9 +2,6 @@ package me.ranko.autodark.ui
 
 import android.app.Application
 import android.app.UiModeManager
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -221,6 +218,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun onRequirePermissionConsumed() {
         _requirePermission.value = false
+    }
+
+    fun onPermissionResult(granted: Boolean) {
+        val summary = if (granted) {
+            darkSettings.overrideIfNeeded()
+            R.string.permission_granted
+        } else {
+            R.string.permission_failed
+        }
+        summaryText.set(newSummary(summary))
     }
 
     fun getDelayedSummary(): Summary? {
