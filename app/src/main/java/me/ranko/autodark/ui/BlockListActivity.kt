@@ -83,7 +83,6 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
         )
 
         lifecycle.addObserver(viewModel.mSearchHelper)
-        viewModel.refreshList()
     }
 
     private fun showMessage(@StringRes str: Int, @Duration duration: Int = Snackbar.LENGTH_SHORT) =
@@ -151,6 +150,7 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
             getListView().paddingTop + statusBarHeight
         }
         binding.swipeRefresh.setProgressViewOffset(false, 0, endOffset)
+        viewModel.refreshList()
         return WindowInsetsCompat.CONSUMED
     }
 
