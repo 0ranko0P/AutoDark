@@ -12,31 +12,37 @@ import android.os.SystemClock
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.MenuItem
+import android.view.View
 import android.widget.EditText
-import androidx.annotation.MainThread
-import androidx.databinding.ObservableInt
+import androidx.annotation.StringRes
+import androidx.databinding.ObservableField
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.*
-import me.ranko.autodark.Constant.*
+import me.ranko.autodark.Constant
+import me.ranko.autodark.Constant.BLOCK_LIST_PATH
+import me.ranko.autodark.Constant.PERMISSION_SEND_DARK_BROADCAST
+import me.ranko.autodark.R
 import me.ranko.autodark.Receivers.BlockListReceiver
 import me.ranko.autodark.Utils.FileUtil
 import me.ranko.autodark.core.LoadStatus
-import me.ranko.autodark.ui.BlockListAdapter.Companion.EMPTY_APP_LIST
+import me.ranko.autodark.ui.MainViewModel.Companion.Summary
 import timber.log.Timber
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Duration
 import java.time.Instant
+import java.util.*
 import java.util.concurrent.atomic.AtomicReference
-import java.util.function.Consumer
 import java.util.stream.Collectors
+import kotlin.collections.ArrayList
+import kotlin.collections.HashSet
 
 class BlockListViewModel(application: Application) : AndroidViewModel(application) {
 
     companion object {
 
-        private const val MAX_UPLOAD_TIME_MILLIS = 9000L
+        private const val MAX_UPLOAD_TIME_MILLIS = 5000L
 
         private const val KEY_SHOW_SYSTEM_APP = "show_sys"
 
@@ -49,101 +55,97 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
                 throw IllegalArgumentException("Unable to construct viewModel")
             }
         }
+    }
 
-        fun isAppendChars(old: CharSequence, new: CharSequence): Boolean {
-            if (old.isEmpty() || old.length >= new.length) return false
-            for ((index, sChar) in old.withIndex()) {
-                if (new[index] != sChar) return false
-            }
-            return true
+    private inner class SearchHelper(owner: LifecycleOwner, private val edit: EditText) : TextWatcher,
+            DefaultLifecycleObserver, View.OnFocusChangeListener {
+
+        private var originList: List<ApplicationInfo> = emptyList()
+        private var appendSearch = false
+
+        init {
+            owner.lifecycle.addObserver(this)
+            edit.onFocusChangeListener = this
+            edit.addTextChangedListener(this)
         }
 
-        class SearchHelper(private val viewModel: BlockListViewModel) : TextWatcher,
-            DefaultLifecycleObserver {
-            private var _mAppList: MutableLiveData<List<ApplicationInfo>> = viewModel._mAppList
-            private var list: List<ApplicationInfo> = EMPTY_APP_LIST
-            private var mEdit: EditText? = null
-            private var lastInput: String = ""
+        override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+            appendSearch = count != 0 && after > count && start == 0
+        }
 
-            override fun onTextChanged(str: CharSequence, start: Int, before: Int, count: Int) {
-                val input = str.toString()
-                if (lastInput == input) return
-                lastInput = input
-
-                if (input.isEmpty()) {
-                    _mAppList.value = EMPTY_APP_LIST
-                } else {
-                    val isAppend = isAppendChars(lastInput, input)
-                    val result = ArrayList<ApplicationInfo>()
-                    // iterate old list if isAppendInput
-                    val appList = if (isAppend) _mAppList.value!! else list
-                    for (app in appList) {
-                        if (app.packageName.contains(str, true) || viewModel.getAppName(app).contains(str, true)) {
-                            result.add(app)
-                        }
+        override fun onTextChanged(str: CharSequence, start: Int, before: Int, count: Int) {
+            if (str.isEmpty()) {
+                _mAppList.value = emptyList()
+            } else {
+                val result = LinkedList<ApplicationInfo>()
+                // iterate old list if isAppendInput
+                val appList = if (appendSearch) _mAppList.value!! else originList
+                for (app in appList) {
+                    if (app.packageName.contains(str, true) || getAppName(app).contains(str, true)) {
+                        result.add(app)
                     }
-
-                    _mAppList.value = result
                 }
-            }
 
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+                _mAppList.value = ArrayList(result)
             }
+        }
 
-            override fun afterTextChanged(s: Editable?) {
-            }
+        override fun onDestroy(owner: LifecycleOwner) {
+            edit.onFocusChangeListener = null
+            edit.removeTextChangedListener(this)
+            originList = emptyList()
+            mSearchHelper = null
+        }
 
-            override fun onResume(owner: LifecycleOwner) {
-                mEdit = (owner as BlockListActivity).getSearchEditText().also {
-                    it.addTextChangedListener(this)
-                    it.onFocusChangeListener = owner
-                }
+        override fun onFocusChange(v: View, hasFocus: Boolean) {
+            _isSearching.value = hasFocus
+            if (hasFocus) {
+                originList = _mAppList.value!!
+                _mAppList.value = emptyList()
+            } else {
+                edit.text.clear()
+                _mAppList.value = originList
             }
+        }
 
-            override fun onPause(owner: LifecycleOwner) {
-                mEdit?.onFocusChangeListener = null
-                mEdit?.removeTextChangedListener(this)
-                mEdit = null
-            }
-
-            fun startSearch() {
-                if (lastInput.isEmpty()) {
-                    list = _mAppList.value!!
-                    _mAppList.value = EMPTY_APP_LIST
-                }
-            }
-
-            fun stopSearch() {
-                lastInput = ""
-                mEdit?.clearFocus()
-                mEdit?.text?.clear()
-                _mAppList.value = list
-            }
+        override fun afterTextChanged(s: Editable?) {
+            // no-op
         }
     }
 
     private val mContext = application
-    private var sp = PreferenceManager.getDefaultSharedPreferences(application)
-    private var mPackageManager: PackageManager = application.packageManager
+
+    private val sp = PreferenceManager.getDefaultSharedPreferences(mContext)
+
+    private val mPackageManager by lazy (LazyThreadSafetyMode.NONE) { mContext.packageManager }
 
     private val mBlockSet = HashSet<String>()
 
     private var timer: Instant = Instant.now()
+
     private val uploadTimeOutWatcher = AtomicReference<Job?>()
 
-    val uploadStatus = ObservableInt()
+    private val _uploadStatus = MutableLiveData<@LoadStatus Int>()
+    val uploadStatus: LiveData<Int>
+        get() = _uploadStatus
+
+    val updateMessage =  ObservableField<String>()
 
     private val _isRefreshing = MutableLiveData<Boolean>()
     val isRefreshing: LiveData<Boolean>
         get() = _isRefreshing
 
-    private val _mAppList = MutableLiveData<List<ApplicationInfo>>(EMPTY_APP_LIST)
+    private var _isSearching = MutableLiveData<Boolean>()
+    val isSearching: LiveData<Boolean>
+        get() = _isSearching
+
+    private val _mAppList = MutableLiveData<List<ApplicationInfo>>()
     val mAppList: LiveData<List<ApplicationInfo>>
         get() = _mAppList
 
-    val mSearchHelper by lazy(LazyThreadSafetyMode.NONE) {
-        SearchHelper(this)
-    }
+    private var mSearchHelper: SearchHelper? = null
+
+    val message =  ObservableField<Summary?>()
 
     private val updateStatusReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
@@ -171,18 +173,17 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun getAppName(app: ApplicationInfo): String = app.loadLabel(mPackageManager).toString()
 
-    fun onShowSysAppSelected(selected: Boolean) {
-        if (sp.edit().putBoolean(KEY_SHOW_SYSTEM_APP, selected).commit()) {
-            refreshList()
-        }
+    fun attachSearchHelper(owner: LifecycleOwner, editText: EditText) {
+        mSearchHelper = SearchHelper(owner, editText)
     }
 
     fun refreshList() {
-        if (_isRefreshing.value == true) return
+        if (_isRefreshing.value == true || isUploading()) return
 
         _isRefreshing.value = true
         viewModelScope.launch {
-            mBlockSet.clear()
+            if (mBlockSet.isNotEmpty()) mBlockSet.clear()
+
             val list = withContext(Dispatchers.IO) {
                 FileUtil.readList(BLOCK_LIST_PATH)?.let { mBlockSet.addAll(it) }
                 delay(1000L)
@@ -195,7 +196,6 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
                         .onEach { getAppIcon(it) }
             }
             _mAppList.value = list
-            uploadStatus.set(-1)
             _isRefreshing.value = false
         }
     }
@@ -215,12 +215,16 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    @MainThread
-    fun requestUploadList(): Boolean {
-        if (isUploading()) return false
+    fun requestUploadList() {
+        if (isUploading()) {
+            message.set(newSummary(R.string.app_upload_busy))
+            return
+        }
         timer = Instant.now()
 
-        uploadStatus.set(JOB_STATUS_PENDING)
+        _uploadStatus.value = LoadStatus.START
+        updateMessage.set(mContext.getString(R.string.app_upload_start))
+
         viewModelScope.launch(Dispatchers.Main) {
             val succeed = withContext(Dispatchers.IO) {
                 try {
@@ -238,15 +242,16 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
                     if (uploadTimeOutWatcher.getAndSet(null) != null) {
                         // system server no response, wtf happened
-                        Timber.e("onRequestUploadList: Upload time out! status: ${uploadStatus.get()}")
-                        uploadStatus.set(JOB_STATUS_FAILED)
+                        Timber.e("onRequestUploadList: Upload time out!")
+                        _uploadStatus.value = LoadStatus.FAILED
+                        updateMessage.set(mContext.getString(R.string.app_upload_fail))
                     }
                 })
             } else {
-                uploadStatus.set(JOB_STATUS_FAILED)
+                _uploadStatus.value = LoadStatus.FAILED
+                updateMessage.set(mContext.getString(R.string.app_upload_fail))
             }
         }
-        return true
     }
 
     private fun onNewResponse(@LoadStatus response: Int) {
@@ -260,27 +265,44 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         Timber.i("onNewResponse: Response time cost: ${cost}ms")
         viewModelScope.launch(Dispatchers.Main) {
             if (cost < 600L) SystemClock.sleep(1000L) // wait longer
-            uploadStatus.set(if (response == LoadStatus.SUCCEED) JOB_STATUS_SUCCEED else JOB_STATUS_FAILED)
+            if (response == LoadStatus.SUCCEED) {
+                _uploadStatus.value = LoadStatus.SUCCEED
+                message.set(newSummary(R.string.app_upload_success))
+            } else {
+                _uploadStatus.value = LoadStatus.FAILED
+                updateMessage.set(mContext.getString(R.string.app_upload_fail))
+            }
         }
     }
 
-    fun isUploading(): Boolean = uploadStatus.get() == JOB_STATUS_PENDING
+    fun isUploading(): Boolean = uploadStatus.value == LoadStatus.START
 
-    fun updateMenuFlag(menu: MenuItem, flagPath: Path, onResult: Consumer<Boolean>?) {
-        if (menu.isChecked.not() == Files.exists(flagPath)) return
+    fun onShowSysAppSelected(selected: Boolean) {
+        if (sp.edit().putBoolean(KEY_SHOW_SYSTEM_APP, selected).commit()) {
+            refreshList()
+        }
+        if (selected) {
+            message.set(newSummary(R.string.app_hook_system_message))
+        }
+    }
+
+    fun onHookImeSelected(menu: MenuItem) = viewModelScope.launch(Dispatchers.Main) {
+        val imeFlag: Path = Constant.BLOCK_LIST_INPUT_METHOD_CONFIG_PATH
+        if (menu.isChecked.not() == Files.exists(imeFlag)) return@launch
         menu.isEnabled = false
 
-        viewModelScope.launch (Dispatchers.Main) {
-            val result = withContext(Dispatchers.IO) {
-                FileUtil.saveFlagAsFile(flagPath, !menu.isChecked)
-            }
-            if (result) {
-                menu.isChecked = !menu.isChecked
-            }
-            menu.isEnabled = true
-            onResult?.accept(result)
+        val result = withContext(Dispatchers.IO) { FileUtil.saveFlagAsFile(imeFlag, !menu.isChecked) }
+        val resultMessage = if (result) {
+            menu.isChecked = !menu.isChecked
+            R.string.app_hook_ime_restart
+        } else {
+            R.string.app_upload_fail
         }
+        menu.isEnabled = true
+        message.set(newSummary(resultMessage))
     }
+
+    private fun newSummary(@StringRes message: Int) = Summary(mContext.getString(message))
 
     override fun onCleared() {
         super.onCleared()

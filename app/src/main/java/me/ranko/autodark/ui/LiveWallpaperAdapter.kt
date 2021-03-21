@@ -59,7 +59,6 @@ class LiveWallpaperAdapter(private val context: Context,
         sizeProvider.setView(holder.mImageView)
         mRequest.load(data[position].getThumbAsset(context))
                 .into(holder.mImageView)
-        holder.mImageView.tag = position
         holder.mImageView.setOnClickListener { mListener.accept(data[position]) }
         holder.mTitleView.text = data[position].getTitle(context)
     }

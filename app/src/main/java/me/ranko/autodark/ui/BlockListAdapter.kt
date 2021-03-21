@@ -19,7 +19,7 @@ import me.ranko.autodark.R
 import me.ranko.autodark.Utils.CircularAnimationUtil
 
 class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView.Adapter<BlockListAdapter.Companion.ViewHolder>(), View.OnClickListener {
-    private var data: List<ApplicationInfo> = EMPTY_APP_LIST
+    private var data: List<ApplicationInfo> = emptyList()
 
     private var isSearchMode = false
 
@@ -28,9 +28,6 @@ class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView
             .toLong()
 
     companion object {
-        @JvmStatic
-        val EMPTY_APP_LIST = ArrayList<ApplicationInfo>(0)
-
         class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             val rootRipple: View = view.findViewById(R.id.appRootBg)
             val rootView: RelativeLayout = view.findViewById(R.id.appRoot)
@@ -44,6 +41,16 @@ class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder = ViewHolder(
         LayoutInflater.from(parent.context).inflate(R.layout.item_block_list, parent, false)
     )
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        setData(emptyList())
+    }
+
+    override fun onViewDetachedFromWindow(holder: ViewHolder) {
+        holder.icon.tag = null
+        holder.rootView.tag = null
+        holder.rootView.setOnClickListener(null)
+    }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val app = data[position]

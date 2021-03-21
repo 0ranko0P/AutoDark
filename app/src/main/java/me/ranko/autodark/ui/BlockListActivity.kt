@@ -7,24 +7,24 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.Window
-import androidx.annotation.StringRes
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
-import androidx.databinding.ObservableInt
-import androidx.lifecycle.Observer
+import androidx.databinding.ObservableField
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.BaseTransientBottomBar.Duration
 import com.google.android.material.snackbar.Snackbar
 import me.ranko.autodark.Constant
 import me.ranko.autodark.R
+import me.ranko.autodark.core.LoadStatus
 import me.ranko.autodark.databinding.ActivityBlockListBinding
+import me.ranko.autodark.ui.MainViewModel.Companion.Summary
 import java.nio.file.Files
-import java.util.function.Consumer
 
-class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
+class BlockListActivity : BaseListActivity() {
 
     private lateinit var binding: ActivityBlockListBinding
     private lateinit var viewModel: BlockListViewModel
@@ -32,14 +32,30 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
 
     private var menu: Menu? = null
 
-    private val statusObserver = object : Observable.OnPropertyChangedCallback() {
-        override fun onPropertyChanged(sender: Observable, propertyId: Int) {
-            when ((sender as ObservableInt).get()) {
-                Constant.JOB_STATUS_PENDING -> binding.progressText.setText(R.string.app_upload_start)
+    /**
+     * Scroll listener version of HideBottomViewOnScrollBehavior to make SnackBar happy
+     * */
+    private val mScrollListener by lazy(LazyThreadSafetyMode.NONE) {
+        object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                if (dy != 0 && binding.fab.isShown) {
+                    binding.fab.hide()
+                }
+            }
 
-                Constant.JOB_STATUS_SUCCEED -> showMessage(R.string.app_upload_success)
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    binding.fab.show()
+                }
+            }
+        }
+    }
 
-                Constant.JOB_STATUS_FAILED -> binding.progressText.setText(R.string.app_upload_fail)
+    private val mMessageObserver by lazy(LazyThreadSafetyMode.NONE) {
+        object : Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable, propertyId: Int) {
+                val message = (sender as ObservableField<*>).get() ?: return
+                showMessage((message as Summary).message)
             }
         }
     }
@@ -59,21 +75,12 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        if (!viewModel.isUploading()) binding.progressText.setText(R.string.app_loading)
 
         mAdapter = BlockListAdapter(viewModel)
         binding.recyclerView.adapter = mAdapter
+        binding.recyclerView.addOnScrollListener(mScrollListener)
 
-        viewModel.mAppList.observe(this, Observer { list -> mAdapter.setData(list) })
-        viewModel.uploadStatus.addOnPropertyChangedCallback(statusObserver)
-
-        viewModel.isRefreshing.observe(this, Observer { isRefreshing ->
-            if (viewModel.isUploading()) return@Observer
-
-            binding.swipeRefresh.isRefreshing = isRefreshing
-            binding.toolbarEdit.visibility = if (isRefreshing) View.INVISIBLE else View.VISIBLE
-            setMenuVisible(isRefreshing.not())
-        })
+        viewModel.mAppList.observe(this, { list -> mAdapter.setData(list) })
 
         binding.swipeRefresh.setOnRefreshListener { viewModel.refreshList() }
         binding.swipeRefresh.setColorSchemeResources( // add RGB power
@@ -82,33 +89,52 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
             R.color.material_blue_A700
         )
 
-        lifecycle.addObserver(viewModel.mSearchHelper)
+        viewModel.attachSearchHelper(this, binding.toolbarEdit)
+        viewModel.isSearching.observe(this, { searching ->
+            mAdapter.setSearchMode(searching)
+            // hide menu icon while searching
+            setMenuVisible(searching.not())
+        })
+
+        // hide all the stuff when update failed
+        viewModel.uploadStatus.observe(this, { status ->
+            if (status == LoadStatus.SUCCEED) {
+                binding.fab.show()
+                setMenuVisible(true)
+            } else {
+                binding.fab.hide()
+                setMenuVisible(false)
+            }
+        })
+
+        viewModel.message.addOnPropertyChangedCallback(mMessageObserver)
+        if (savedInstanceState != null) {
+            val message = viewModel.message.get()?: return
+            showMessage(message.message)
+        }
     }
 
-    private fun showMessage(@StringRes str: Int, @Duration duration: Int = Snackbar.LENGTH_SHORT) =
-        Snackbar.make(binding.coordinatorRoot, str, duration).show()
+    private fun showMessage(message: String, @Duration duration: Int = Snackbar.LENGTH_SHORT) {
+        Snackbar.make(binding.coordinatorRoot, message, duration).show()
+        viewModel.message.set(null)
+    }
 
     override fun onBackPressed() {
         if (viewModel.isUploading()) {
             // prevent exit while uploading
-            showMessage(R.string.app_upload_start)
+            showMessage(getString(R.string.app_upload_busy))
         } else {
             if (binding.toolbarEdit.hasFocus()) {
-                mAdapter.setSearchMode(false)
-                viewModel.mSearchHelper.stopSearch()
+                binding.toolbar.clearFocus()
             } else {
                 super.onBackPressed()
             }
         }
     }
 
-    fun onRequestSave(v: View?) {
-        if (binding.swipeRefresh.isRefreshing || !viewModel.requestUploadList()) showMessage(R.string.app_upload_busy)
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_block_list, menu)
-        return super.onCreateOptionsMenu(menu)
+        return true
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
@@ -116,7 +142,18 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
         this.menu = menu
         menu.findItem(R.id.action_hook_sys).isChecked = viewModel.shouldShowSystemApp()
         menu.findItem(R.id.action_hook_ime).isChecked = Files.exists(Constant.BLOCK_LIST_INPUT_METHOD_CONFIG_PATH)
-        setMenuVisible(binding.toolbarEdit.hasFocus().not())
+
+        viewModel.isRefreshing.observe(this, { isRefreshing ->
+            if (isRefreshing) {
+                binding.toolbarEdit.visibility = View.INVISIBLE
+                binding.fab.hide()
+            } else {
+                binding.toolbarEdit.visibility = View.VISIBLE
+                binding.fab.show()
+            }
+            binding.swipeRefresh.isRefreshing = isRefreshing
+            setMenuVisible(isRefreshing.not())
+        })
         return true
     }
 
@@ -124,16 +161,9 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
         when (item.itemId) {
             R.id.action_save -> binding.fab.performClick()
 
-            R.id.action_hook_sys -> {
-                viewModel.onShowSysAppSelected(item.isChecked.not())
-                if (item.isChecked.not()) showMessage(R.string.app_hook_system_message, Snackbar.LENGTH_LONG)
-            }
+            R.id.action_hook_sys -> viewModel.onShowSysAppSelected(item.isChecked.not())
 
-            R.id.action_hook_ime -> {
-                viewModel.updateMenuFlag(item, Constant.BLOCK_LIST_INPUT_METHOD_CONFIG_PATH, Consumer {
-                    succeed -> showMessage(if(succeed) R.string.app_hook_ime_restart else R.string.app_upload_fail)
-                })
-            }
+            R.id.action_hook_ime -> viewModel.onHookImeSelected(item)
 
             android.R.id.home -> onBackPressed()
 
@@ -166,17 +196,6 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
         binding.fab.layoutParams = fabParams
     }
 
-    fun getSearchEditText() = binding.toolbarEdit
-
-    override fun onFocusChange(v: View?, hasFocus: Boolean) {
-        // hide menu icon while searching
-        if (hasFocus) {
-            mAdapter.setSearchMode(true)
-            viewModel.mSearchHelper.startSearch()
-        }
-        setMenuVisible(hasFocus.not())
-    }
-
     private fun setMenuVisible(visible: Boolean) {
         menu?.children?.forEach { item ->
             if (item.isVisible.xor(visible)) item.isVisible = visible
@@ -184,7 +203,8 @@ class BlockListActivity : BaseListActivity(), View.OnFocusChangeListener {
     }
 
     override fun onDestroy() {
+        binding.recyclerView.removeOnScrollListener(mScrollListener)
+        binding.recyclerView.adapter = null
         super.onDestroy()
-        viewModel.uploadStatus.removeOnPropertyChangedCallback(statusObserver)
     }
 }
