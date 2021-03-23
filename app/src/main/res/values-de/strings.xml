@@ -91,5 +91,9 @@
 
     <string name="tile_dark_theme">Dark Theme</string>
 
+    <string name="enable_scope_lsp">Modul einschalten</string>
+
+    <string name="scope_recommended_lsp">Empfohlen</string>
+
     <string name="xposed_description">Force-Dark Blockliste einschalten: die ausgewählten Apps werden nicht in den Force-Dark-Modus gezwungen (experimentell).</string>
 </resources>

@@ -7,12 +7,21 @@
     <dimen name="app_bar_transparent_sibling_elevation">-1dp</dimen>
     <dimen name="list_content_padding">16dp</dimen>
     <dimen name="list_title_vertical_margin">2dp</dimen>
+    <dimen name="list_app_icon_size">36dp</dimen>
+    <dimen name="list_app_icon_margin">16dp</dimen>
+    <dimen name="list_app_margin_horizontal">@dimen/list_app_icon_margin</dimen>
+    <dimen name="list_app_margin_vertical">8dp</dimen>
+    <dimen name="list_manager_app_title_margin_horizontal">52dp</dimen>
     <dimen name="main_content_margin_top">192dp</dimen>
     <dimen name="scroll_card_margin_side">48dp</dimen>
     <dimen name="scroll_card_margin">8dp</dimen>
     <dimen name="scroll_card_overlap">96dp</dimen>
     <dimen name="text_summary_padding_start">24dp</dimen>
     <dimen name="text_summary_padding_end">0dp</dimen>
+
+    <dimen name="dialog_manager_margin_horizontal">46dp</dimen>
+    <dimen name="preference_edx_padding">@dimen/list_app_icon_margin</dimen>
+    <dimen name="preference_lsp_padding">72dp</dimen>
 
     <dimen name="permission_button_size">48dp</dimen>
     <dimen name="permission_title_text_size">18sp</dimen>

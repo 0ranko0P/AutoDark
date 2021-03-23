@@ -140,5 +140,22 @@
 
     <string name="tile_dark_theme">深色主题</string>
 
+    <string name="activation_scope">设置<xliff:g name="inputmethod">%1$s</xliff:g>作用域 <xliff:g name="optional">%2$s</xliff:g></string>
+    <string name="activation_scope_description">打开Xposed 管理器并前往作用域页面, 将下图中选择的应用加入作用域:\n
+    (这样做也会略微节省点电)
+    </string>
+    <string name="activation_optional">(非必须)</string>
+    <string name="activation_required">(必须)</string>
+
+    <string name="enable_scope_edx">对该模块启用作用域</string>
+    <string name="enable_scope_lsp">启用模块</string>
+    <string name="scope_recommended_edx">模块声明此应用在此模块的作用域内</string>
+    <string name="scope_recommended_lsp">推荐的应用</string>
+    <string name="other_app">其他应用</string>
+    <string name="inputmethod">输入法</string>
+
+    <string name="install_time">安装日期: %1$s</string>
+    <string name="update_time">更新日期: %1$s</string>
+
     <string name="xposed_description">激活 SmartDark 黑名单: 您添加到名单里的应用不会被强制SmartDark (试验性功能).</string>
 </resources>

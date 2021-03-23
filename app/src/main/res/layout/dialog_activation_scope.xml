@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="12dp">
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/list_content_padding"
+        android:paddingEnd="@dimen/list_content_padding"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="18sp"
+        tools:text="@string/activation_scope" />
+
+    <TextView
+        android:id="@+id/description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:paddingStart="@dimen/list_content_padding"
+        android:paddingEnd="0dp"
+        android:textColor="?android:textColorSecondary"
+        android:textSize="14sp"
+        tools:text="@string/activation_scope_description" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/material_grey_300"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="12dp"/>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/preview_pager_min_height"
+        android:layout_marginStart="@dimen/dialog_manager_margin_horizontal"
+        android:layout_marginEnd="@dimen/dialog_manager_margin_horizontal"
+        app:cardCornerRadius="4dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginStart="@dimen/dialog_manager_margin_horizontal"
+        android:layout_marginEnd="@dimen/dialog_manager_margin_horizontal"
+        android:text="@android:string/ok" />
+</LinearLayout>

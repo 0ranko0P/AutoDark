@@ -3,10 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:layout_height="74dp">
+    tools:layout_height="60dp">
 
-    <View
-        android:id="@+id/appRootBg"
+    <View android:id="@+id/appRootBg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginStart="4dp"
@@ -17,53 +16,48 @@
         android:background="@drawable/shape_btn_background"
         android:visibility="invisible" />
 
-    <RelativeLayout
-        android:id="@+id/appRoot"
+    <RelativeLayout android:id="@+id/appRoot"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:paddingStart="@dimen/list_app_margin_horizontal"
+        android:paddingTop="@dimen/list_app_margin_vertical"
+        android:paddingEnd="@dimen/list_app_margin_horizontal"
+        android:paddingBottom="@dimen/list_app_margin_vertical">
 
-        <ImageView
-            android:id="@+id/icon"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+        <ImageView android:id="@+id/icon"
+            android:layout_width="@dimen/list_app_icon_size"
+            android:layout_height="@dimen/list_app_icon_size"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
-            android:layout_marginStart="16dp"
             android:contentDescription="@null"
-            tools:src="@drawable/ic_launcher_background" />
+            tools:src="@android:mipmap/sym_def_app_icon" />
 
-        <TextView
-            android:id="@+id/name"
+        <TextView android:id="@+id/name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginStart="@dimen/list_app_icon_margin"
             android:layout_toStartOf="@id/indicator"
             android:layout_toEndOf="@id/icon"
             android:textColor="?attr/colorOnSurface"
             android:textSize="16sp"
             tools:text="System UI" />
 
-        <TextView
-            android:id="@+id/appID"
-            android:layout_width="match_parent"
+        <TextView android:id="@+id/appID"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_below="@id/name"
             android:layout_alignStart="@id/name"
             android:layout_alignEnd="@id/name"
             android:layout_marginTop="2dp"
-            android:layout_marginBottom="16dp"
             android:textSize="14sp"
             tools:text="com.android.systemui" />
 
-        <ImageView
-            android:id="@+id/indicator"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
+        <ImageView android:id="@+id/indicator"
+            android:layout_width="@dimen/list_app_icon_size"
+            android:layout_height="@dimen/list_app_icon_size"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginStart="@dimen/list_app_icon_margin"
             android:src="@drawable/ic_clear_anim" />
     </RelativeLayout>
 </FrameLayout>

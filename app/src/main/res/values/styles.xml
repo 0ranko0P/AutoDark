@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
@@ -47,6 +47,15 @@
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="colorOnBackground">@color/bottom_sheet_background</item>
         <item name="android:navigationBarColor">@color/bottom_sheet_background</item>
+    </style>
+
+    <style name="AppTheme.EdXposedManager">
+        <item name="android:colorEdgeEffect">?attr/colorPrimary</item>
+        <item name="colorPrimary">@color/edXposedAccent</item>
+        <item name="colorAccent">@color/edXposedAccent</item>
+        <item name="colorControlActivated">?attr/colorPrimary</item>
+        <item name="colorSwitchThumbNormal">@color/material_grey_300</item>
+        <item name="android:colorForeground">@color/material_grey_500</item>
     </style>
 
     <style name="Widget.ActionBar" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
@@ -111,6 +120,12 @@
         <item name="android:layout_marginTop">@dimen/picker_button_margin_vertical</item>
         <item name="android:layout_marginEnd">@dimen/picker_button_margin_horizontal</item>
         <item name="android:outlineSpotShadowColor">?android:attr/colorPrimary</item>
+    </style>
+
+    <style name="ManagerAppListTextAppearance" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:textColor">@color/text_color_xposed_list</item>
+        <item name="android:textSize" tools:ignore="SpUsage">12dp</item>
     </style>
 
     <style name="SimpleDialogStyle" parent="Theme.MaterialComponents.DayNight.Dialog.Alert">

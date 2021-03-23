@@ -8,6 +8,7 @@
     <color name="bottom_sheet_background">@color/material_white_1000</color>
     <color name="bottom_sheet_icon_unchecked_color">@color/material_grey_600</color>
     <color name="color_ripple">#516200EE</color>
+    <color name="edXposedAccent">#448aff</color>
 
     <color name="google_grey900">#202124</color>
 
@@ -16,6 +17,7 @@
 
     <color name="text_color_dark">#2d2d2d</color>
     <color name="text_color_light">@color/material_white_1000</color>
+    <color name="text_color_xposed_list">@color/material_grey_700</color>
 
     <!-- Color for material black text @ 60% opacity. -->
     <color name="translucent_black_60_alpha">#99000000</color>

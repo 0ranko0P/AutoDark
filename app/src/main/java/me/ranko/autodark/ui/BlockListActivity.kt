@@ -13,6 +13,7 @@ import androidx.core.view.children
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
 import androidx.databinding.ObservableField
+import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.BaseTransientBottomBar.Duration
@@ -25,6 +26,10 @@ import me.ranko.autodark.ui.MainViewModel.Companion.Summary
 import java.nio.file.Files
 
 class BlockListActivity : BaseListActivity() {
+
+    companion object {
+        private const val TAG_CURRENT_FRAGMENT = "current"
+    }
 
     private lateinit var binding: ActivityBlockListBinding
     private lateinit var viewModel: BlockListViewModel
@@ -88,6 +93,14 @@ class BlockListActivity : BaseListActivity() {
             R.color.material_green_A700,
             R.color.material_blue_A700
         )
+
+        viewModel.dialog.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable, propertyId: Int) {
+                val dialog = (sender as ObservableField<*>).get() ?: return
+                (dialog as DialogFragment).show(supportFragmentManager, TAG_CURRENT_FRAGMENT)
+                viewModel.dialog.set(null)
+            }
+        })
 
         viewModel.attachSearchHelper(this, binding.toolbarEdit)
         viewModel.isSearching.observe(this, { searching ->

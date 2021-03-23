@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:ignore="RtlSymmetry, SpUsage, UseSwitchCompatOrMaterialXml">
+
+    <LinearLayout android:id="@+id/statusBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="6dp"
+        android:orientation="vertical"
+        tools:background="@color/edXposedAccent">
+
+        <TextView android:id="@+id/lock_time"
+            android:layout_width="match_parent"
+            android:layout_height="24dp"
+            android:fontFamily="sans-serif"
+            android:gravity="center_vertical"
+            android:paddingStart="@dimen/list_app_icon_margin"
+            android:textColor="@color/material_white_1000"
+            android:textSize="14dp"
+            tools:text="12:20" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize">
+
+            <ImageView android:id="@+id/navIcon"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:padding="14dp"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:src="@drawable/ic_arrow_back" />
+
+            <TextView android:id="@+id/name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:paddingTop="6dp"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="18dp"
+                app:layout_constraintEnd_toStartOf="@id/menu"
+                app:layout_constraintStart_toEndOf="@id/navIcon"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="@string/app_name" />
+
+            <TextView android:id="@+id/id"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:textSize="14dp"
+                app:layout_constraintBottom_toBottomOf="@id/navIcon"
+                app:layout_constraintEnd_toEndOf="@id/name"
+                app:layout_constraintStart_toStartOf="@id/name"
+                app:layout_constraintTop_toBottomOf="@id/name"
+                tools:text="@string/enable_scope_edx" />
+
+            <ImageView android:id="@+id/menu"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:padding="14dp"
+                app:layout_constraintDimensionRatio="1:1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:src="@drawable/ic_more" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+
+    <LinearLayout android:id="@+id/preferenceContainer"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/edXposedAccent"
+        android:orientation="horizontal"
+        android:paddingEnd="@dimen/list_app_margin_horizontal">
+
+        <TextView android:id="@+id/preferenceTitle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:textColor="@color/material_white_1000"
+            android:textSize="16dp"
+            tools:text="@string/enable_scope_edx" />
+
+        <Switch android:id="@+id/preferenceSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:checked="true"
+            android:clickable="false"
+            android:thumbTint="@color/material_white_1000"
+            android:trackTint="@color/white_88_alpha" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.EdXposedManager"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        tools:listitem="@layout/item_manager_base_list" />
+</LinearLayout>

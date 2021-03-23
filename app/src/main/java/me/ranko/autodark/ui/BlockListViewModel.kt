@@ -16,6 +16,7 @@ import android.view.View
 import android.widget.EditText
 import androidx.annotation.StringRes
 import androidx.databinding.ObservableField
+import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.*
@@ -145,6 +146,9 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
     private var mSearchHelper: SearchHelper? = null
 
+    val dialog = ObservableField<DialogFragment?>()
+    private var edXposedDialogShowed = false
+
     val message =  ObservableField<Summary?>()
 
     private val updateStatusReceiver = object : BroadcastReceiver() {
@@ -175,6 +179,12 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun attachSearchHelper(owner: LifecycleOwner, editText: EditText) {
         mSearchHelper = SearchHelper(owner, editText)
+
+        if (edXposedDialogShowed.not() && ActivationScopeDialog.shouldShowEdXposedDialog(mPackageManager, sp)) {
+            dialog.set(ActivationScopeDialog.newInstance(Files.exists(Constant.BLOCK_LIST_INPUT_METHOD_CONFIG_PATH)))
+        }
+        // only check once
+        edXposedDialogShowed = true
     }
 
     fun refreshList() {
@@ -300,6 +310,10 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         }
         menu.isEnabled = true
         message.set(newSummary(resultMessage))
+        if (menu.isChecked) {
+            delay(600L) // wait for toast
+            dialog.set(ActivationScopeDialog.newInstance(true))
+        }
     }
 
     private fun newSummary(@StringRes message: Int) = Summary(mContext.getString(message))
