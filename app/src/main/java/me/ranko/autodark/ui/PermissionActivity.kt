@@ -14,7 +14,6 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.CircularAnimationUtil
-import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.core.ShizukuApi
 import me.ranko.autodark.core.ShizukuApi.REQUEST_CODE_SHIZUKU_PERMISSION
 import me.ranko.autodark.core.ShizukuStatus
@@ -57,11 +56,11 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
             // replace default transition
             overridePendingTransition(R.anim.do_not_move, R.anim.do_not_move)
         }
-        super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_permission)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+        super.onCreate(savedInstanceState)
 
         initShizukuCard()
         Shizuku.addRequestPermissionResultListener(shizukuListener)
@@ -86,6 +85,8 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
             showRootView()
         }
     }
+
+    override fun getRootView(): View = binding.coordRoot
 
     override fun getListView(): View = binding.content.permissionRoot
 

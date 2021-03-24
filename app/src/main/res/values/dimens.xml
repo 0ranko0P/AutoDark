@@ -4,7 +4,6 @@
     <dimen name="fragment_padding_horizontal">8dp</dimen>
     <dimen name="fragment_padding_vertical">8dp</dimen>
     <dimen name="app_bar_background_height">192dp</dimen>
-    <dimen name="app_bar_transparent_sibling_elevation">-1dp</dimen>
     <dimen name="list_content_padding">16dp</dimen>
     <dimen name="list_title_vertical_margin">2dp</dimen>
     <dimen name="list_app_icon_size">36dp</dimen>

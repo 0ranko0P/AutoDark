@@ -4,7 +4,7 @@
     <color name="primaryVariant">#3700B3</color>
     <color name="secondary">#03DAC6</color>
     <color name="surface">#BDBDBD</color>
-    <color name="appbar_background">#E6FFFFFF</color>
+    <color name="appbar_background">@color/white_88_alpha</color>
     <color name="bottom_sheet_background">@color/material_white_1000</color>
     <color name="bottom_sheet_icon_unchecked_color">@color/material_grey_600</color>
     <color name="color_ripple">#516200EE</color>

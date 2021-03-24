@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <style name="AppTheme.ActionBar">
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+    </style>
+
+    <style name="AppTheme.ActionBar.Preview">
+        <item name="android:statusBarColor">@color/material_black_1000</item>
+        <item name="android:navigationBarColor">@color/material_black_1000</item>
+        <item name="android:colorBackground">@color/material_black_1000</item>
+    </style>
+
     <style name="AppTheme.Transparent.ActionBar">
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar">false</item>
     </style>
 
-    <style name="AppTheme.LightActionBar">
-        <item name="android:windowLightStatusBar">false</item>
+    <style name="AppTheme.Transparent.DarkActionBar">
         <item name="android:windowLightNavigationBar">false</item>
-    </style>
-
-    <style name="AppTheme.LightActionBar.Preview">
-        <item name="android:statusBarColor">@color/material_black_1000</item>
-        <item name="android:colorBackground">@color/material_black_1000</item>
     </style>
 
     <style name="CardStyle" parent="CardBaseStyle">

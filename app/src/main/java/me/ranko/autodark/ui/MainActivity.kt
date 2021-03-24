@@ -33,12 +33,13 @@ class MainActivity : BaseListActivity(), FragmentManager.OnBackStackChangedListe
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.lifecycleOwner = this
         viewModel = ViewModelProvider(this, MainViewModel.Companion.Factory(application))
                 .get(MainViewModel::class.java)
         binding.viewModel = viewModel
+
+        super.onCreate(savedInstanceState)
 
         viewModel.summaryText.addOnPropertyChangedCallback(summaryTextListener)
         viewModel.requirePermission.observe(this, Observer { required ->
@@ -99,6 +100,8 @@ class MainActivity : BaseListActivity(), FragmentManager.OnBackStackChangedListe
             if (clipToPadding) clipToPadding = false
         }
     }
+
+    override fun getRootView(): View = binding.coordinatorRoot
 
     override fun getListView(): View? = null
 

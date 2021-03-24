@@ -53,6 +53,8 @@ class DarkWallpaperPickerActivity : BasePreviewActivity() {
     private var shizukuPermission: PermissionLayout? = null
     private var shizukuProgressBar: ProgressBar? = null
 
+    private var oldStatusBarColor = 0
+
     private var shizukuListener: Shizuku.OnRequestPermissionResultListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -238,10 +240,13 @@ class DarkWallpaperPickerActivity : BasePreviewActivity() {
      * */
     private fun adjustStatusBarColor(restore: Boolean) {
         window.statusBarColor = if (restore) {
-            ViewUtil.getAttrColor(this, android.R.attr.colorBackground)
+            oldStatusBarColor
         } else {
+            oldStatusBarColor = window.statusBarColor
             getColor(R.color.bottom_sheet_background)
         }
+        // adjust navBar too
+        window.navigationBarColor = window.statusBarColor
     }
 
     private fun showManualInstruction() {

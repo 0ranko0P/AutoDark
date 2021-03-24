@@ -18,18 +18,54 @@
         android:id="@+id/coordinatorRoot"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/bottom_sheet_background"
-        android:fitsSystemWindows="true"
         tools:context=".ui.BlockListActivity">
+
+        <LinearLayout android:id="@+id/progressRoot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:orientation="vertical"
+            android:visibility="@{(viewModel.uploadStatus == LoadStatus.START || viewModel.uploadStatus == LoadStatus.FAILED) ? View.VISIBLE : View.INVISIBLE}">
+
+            <ProgressBar
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_gravity="center_horizontal"
+                android:visibility="@{viewModel.uploadStatus == LoadStatus.FAILED ? View.GONE : View.VISIBLE}" />
+
+            <TextView android:id="@+id/progressText"
+                style="@style/CardTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@{viewModel.updateMessage}"
+                android:textAlignment="center" />
+        </LinearLayout>
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefresh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="@{(viewModel.uploadStatus == LoadStatus.START || viewModel.uploadStatus == LoadStatus.FAILED) ? View.INVISIBLE : View.VISIBLE}"
+            tools:visibility="visible">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingTop="?attr/actionBarSize"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_block_list" />
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <com.google.android.material.appbar.AppBarLayout
             android:id="@+id/app_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/appbar_background"
-            android:fitsSystemWindows="true"
             android:transitionName="trans_appbar"
-            app:liftOnScrollTargetViewId="@id/recyclerView">
+            app:liftOnScroll="true">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -52,50 +88,6 @@
                     android:visibility="@{(viewModel.uploadStatus == LoadStatus.START || viewModel.uploadStatus == LoadStatus.FAILED) ? View.INVISIBLE : View.VISIBLE}" />
             </androidx.appcompat.widget.Toolbar>
         </com.google.android.material.appbar.AppBarLayout>
-
-        <LinearLayout
-            android:id="@+id/progressRoot"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="vertical"
-            android:visibility="@{(viewModel.uploadStatus == LoadStatus.START || viewModel.uploadStatus == LoadStatus.FAILED) ? View.VISIBLE : View.INVISIBLE}">
-
-            <ProgressBar
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_gravity="center_horizontal"
-                android:visibility="@{viewModel.uploadStatus == LoadStatus.FAILED ? View.GONE : View.VISIBLE}"/>
-
-            <TextView
-                android:id="@+id/progressText"
-                style="@style/CardTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="@{viewModel.updateMessage}"
-                android:textAlignment="center" />
-        </LinearLayout>
-
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/swipeRefresh"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fitsSystemWindows="true"
-            android:visibility="@{(viewModel.uploadStatus == LoadStatus.START || viewModel.uploadStatus == LoadStatus.FAILED) ? View.INVISIBLE : View.VISIBLE}"
-            tools:visibility="visible">
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recyclerView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:elevation="@dimen/app_bar_transparent_sibling_elevation"
-                android:paddingTop="?attr/actionBarSize"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                tools:listitem="@layout/item_block_list" />
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"

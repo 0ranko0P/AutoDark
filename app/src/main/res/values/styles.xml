@@ -9,27 +9,25 @@
         <item name="windowNoTitle">true</item>
         <item name="android:colorBackground">@color/bottom_sheet_background</item>
         <item name="android:statusBarColor">@color/appbar_background</item>
-        <item name="android:navigationBarColor">?android:colorBackground</item>
+        <item name="android:navigationBarColor">@color/appbar_background</item>
         <item name="materialCircleIconViewStyle">@style/MaterialCircleIconView</item>
     </style>
 
-    <style name="AppTheme.LightActionBar">
+    <style name="AppTheme.ActionBar">
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar">true</item>
     </style>
 
-    <style name="AppTheme.LightActionBar.Preview">
+    <style name="AppTheme.ActionBar.Preview">
         <item name="android:statusBarColor">@color/material_white_1000</item>
+        <item name="android:navigationBarColor">@color/material_white_1000</item>
     </style>
 
     <style name="AppTheme.Transparent">
         <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:navigationBarColor">@color/appbar_background</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowNoTitle">true</item>
-        <item name="android:backgroundDimEnabled">false</item>
-        <item name="android:windowTranslucentStatus">false</item>
-        <item name="actionBarTheme">@style/Widget.ActionBar</item>
     </style>
 
     <style name="AppTheme.Transparent.ActionBar">

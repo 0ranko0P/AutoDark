@@ -1,6 +1,5 @@
 package me.ranko.autodark.ui
 
-import android.os.Build
 import android.os.Bundle
 import android.transition.Fade
 import android.view.Menu
@@ -71,12 +70,12 @@ class BlockListActivity : BaseListActivity() {
             enterTransition = Fade()
         }
 
-        super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this, BlockListViewModel.Companion.Factory(application))
             .get(BlockListViewModel::class.java)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_block_list)
         binding.lifecycleOwner = this
         binding.viewModel = viewModel
+        super.onCreate(savedInstanceState)
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -187,15 +186,13 @@ class BlockListActivity : BaseListActivity() {
 
     override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
         super.onApplyWindowInsets(v, insets)
-        val endOffset = if (isLandScape || Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
-            getListView().paddingTop + statusBarHeight * 2
-        } else {
-            getListView().paddingTop + statusBarHeight
-        }
+        val endOffset = getListView().paddingTop + statusBarHeight
         binding.swipeRefresh.setProgressViewOffset(false, 0, endOffset)
         viewModel.refreshList()
         return WindowInsetsCompat.CONSUMED
     }
+
+    override fun getRootView(): View = binding.coordinatorRoot
 
     override fun getListView(): View = binding.recyclerView
 

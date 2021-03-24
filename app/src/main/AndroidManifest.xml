@@ -67,7 +67,7 @@
         <activity
             android:name=".ui.DarkWallpaperPickerActivity"
             android:resizeableActivity="false"
-            android:theme="@style/AppTheme.LightActionBar.Preview" />
+            android:theme="@style/AppTheme.ActionBar.Preview" />
 
         <activity android:name=".ui.LicenseActivity" />
 
@@ -88,7 +88,7 @@
         <activity
             android:name=".ui.StandalonePreviewActivity"
             android:resizeableActivity="false"
-            android:theme="@style/AppTheme.LightActionBar" />
+            android:theme="@style/AppTheme.ActionBar" />
 
         <service
             android:name=".Services.DarkModeTileService"

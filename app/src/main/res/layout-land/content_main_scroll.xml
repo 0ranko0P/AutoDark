@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginBottom="?attr/actionBarSize"
     android:orientation="vertical"
     app:behavior_overlapTop="@dimen/scroll_card_overlap"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
