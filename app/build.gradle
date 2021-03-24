@@ -4,7 +4,7 @@ apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "31.0.0-rc1"
+    buildToolsVersion "31.0.0-rc2"
 
     defaultConfig {
         applicationId "me.ranko.autodark"
