@@ -11,6 +11,7 @@ import me.ranko.autodark.BuildConfig
 import me.ranko.autodark.Constant
 import me.ranko.autodark.core.LoadStatus
 import me.ranko.autodark.xposed.ATMHooker
+import java.lang.IllegalStateException
 import java.lang.ref.WeakReference
 
 /**
@@ -33,6 +34,10 @@ class BlockListReceiver private constructor(context: Context, private val hooker
          * */
         const val ACTION_UPDATE_PROGRESS = "me.ranko0p.intent.action.UPDATE_PROGRESS"
 
+        private const val ACTION_SWITCH_INPUT_METHOD_HOOK = "me.ranko0p.intent.action.ime.switch"
+
+        const val ACTION_SWITCH_INPUT_METHOD_RESULT = "me.ranko0p.intent.action.ime.result"
+
         private const val EXTRA_KEY_TIME_START = "k_start"
 
         private const val EXTRA_KEY_LIST = "k_list"
@@ -42,10 +47,16 @@ class BlockListReceiver private constructor(context: Context, private val hooker
          * */
         const val EXTRA_KEY_LIST_PROGRESS = "k_result"
 
+        /**
+         * Report ime switch result, the value must be [Boolean]
+         * */
+        const val EXTRA_KEY_SWITCH_RESULT = "k_ime_result"
+
         fun register(context: Context, hooker: ATMHooker) {
             val receiver = BlockListReceiver(context, hooker)
             val filter = IntentFilter(ACTION_UPDATE_LIST)
             filter.addAction(ACTION_ALIVE_ACK)
+            filter.addAction(ACTION_SWITCH_INPUT_METHOD_HOOK)
             filter.addAction(Intent.ACTION_SHUTDOWN)
             context.registerReceiver(receiver, filter, Constant.PERMISSION_SEND_DARK_BROADCAST, null)
         }
@@ -60,6 +71,12 @@ class BlockListReceiver private constructor(context: Context, private val hooker
 
         fun sendIsAliveBroadcast(context: Context) {
             val intent = Intent(ACTION_ALIVE_ACK)
+            intent.setPackage(Constant.ANDROID_PACKAGE)
+            context.sendBroadcast(intent, Constant.PERMISSION_RECEIVE_DARK_BROADCAST)
+        }
+
+        fun requestSwitchIME(context: Context) {
+            val intent = Intent(ACTION_SWITCH_INPUT_METHOD_HOOK)
             intent.setPackage(Constant.ANDROID_PACKAGE)
             context.sendBroadcast(intent, Constant.PERMISSION_RECEIVE_DARK_BROADCAST)
         }
@@ -90,6 +107,8 @@ class BlockListReceiver private constructor(context: Context, private val hooker
 
             ACTION_ALIVE_ACK -> sendAliveBroadcast(context)
 
+            ACTION_SWITCH_INPUT_METHOD_HOOK -> switchIME(context)
+
             Intent.ACTION_SHUTDOWN -> destroy()
         }
     }
@@ -112,6 +131,38 @@ class BlockListReceiver private constructor(context: Context, private val hooker
         val intent = Intent(ACTION_ALIVE)
         intent.addFlags(Intent.FLAG_EXCLUDE_STOPPED_PACKAGES)
         intent.setPackage(BuildConfig.APPLICATION_ID)
+        try {
+            context.sendBroadcast(intent, Constant.PERMISSION_RECEIVE_DARK_BROADCAST)
+        } catch (e: Exception) {
+            XposedBridge.log(e)
+        }
+    }
+
+    private fun switchIME(context: Context) {
+        try {
+            if (InputMethodReceiver.shouldHookIME()) {
+                InputMethodReceiver.INSTANCE!!.destroy()
+                InputMethodReceiver.enableHookIME(false)
+            } else {
+                if (InputMethodReceiver.INSTANCE != null) {
+                    throw IllegalStateException("InputMethodReceiver not destroyed yet")
+                }
+                InputMethodReceiver.register(mContext.get()!!, hooker)
+                InputMethodReceiver.enableHookIME(true)
+            }
+            reportImeResult(context, true)
+        } catch (e: Exception) {
+            XposedBridge.log(e)
+            reportImeResult(context,false)
+        }
+    }
+
+    private fun reportImeResult(context: Context, result: Boolean) {
+        val intent = Intent(ACTION_SWITCH_INPUT_METHOD_RESULT)
+        intent.addFlags(Intent.FLAG_EXCLUDE_STOPPED_PACKAGES)
+        intent.setPackage(BuildConfig.APPLICATION_ID)
+        intent.putExtra(EXTRA_KEY_SWITCH_RESULT, result)
+
         try {
             context.sendBroadcast(intent, Constant.PERMISSION_RECEIVE_DARK_BROADCAST)
         } catch (e: Exception) {

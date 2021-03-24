@@ -8,7 +8,6 @@ import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
-import android.os.SystemClock
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.MenuItem
@@ -25,6 +24,11 @@ import me.ranko.autodark.Constant.BLOCK_LIST_PATH
 import me.ranko.autodark.Constant.PERMISSION_SEND_DARK_BROADCAST
 import me.ranko.autodark.R
 import me.ranko.autodark.Receivers.BlockListReceiver
+import me.ranko.autodark.Receivers.BlockListReceiver.Companion.ACTION_SWITCH_INPUT_METHOD_RESULT
+import me.ranko.autodark.Receivers.BlockListReceiver.Companion.ACTION_UPDATE_PROGRESS
+import me.ranko.autodark.Receivers.BlockListReceiver.Companion.EXTRA_KEY_LIST_PROGRESS
+import me.ranko.autodark.Receivers.BlockListReceiver.Companion.EXTRA_KEY_SWITCH_RESULT
+import me.ranko.autodark.Receivers.InputMethodReceiver
 import me.ranko.autodark.Utils.FileUtil
 import me.ranko.autodark.core.LoadStatus
 import me.ranko.autodark.ui.MainViewModel.Companion.Summary
@@ -132,6 +136,12 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
     val updateMessage =  ObservableField<String>()
 
+    /**
+     * Indicates a refreshing job is running, UI should show a loading progress
+     * and hide all the buttons.
+     *
+     * @see refreshList
+     * */
     private val _isRefreshing = MutableLiveData<Boolean>()
     val isRefreshing: LiveData<Boolean>
         get() = _isRefreshing
@@ -153,21 +163,19 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val updateStatusReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent) {
-            if (intent.action == BlockListReceiver.ACTION_UPDATE_PROGRESS) {
-                val response = intent.getIntExtra(BlockListReceiver.EXTRA_KEY_LIST_PROGRESS, LoadStatus.FAILED)
-                onNewResponse(response)
-            } else {
-                throw RuntimeException("Wtf action: " + intent.action)
+            Timber.i("onReceive: Response is: %s", intent.action)
+            when (intent.action) {
+                ACTION_UPDATE_PROGRESS -> onUpdateListResponse(intent)
+
+                ACTION_SWITCH_INPUT_METHOD_RESULT -> onImeSwitchResponse(intent)
             }
         }
     }
 
     init {
-        mContext.registerReceiver(
-            updateStatusReceiver,
-            IntentFilter(BlockListReceiver.ACTION_UPDATE_PROGRESS),
-            PERMISSION_SEND_DARK_BROADCAST, null
-        )
+        val filter = IntentFilter(ACTION_UPDATE_PROGRESS)
+        filter.addAction(ACTION_SWITCH_INPUT_METHOD_RESULT)
+        mContext.registerReceiver(updateStatusReceiver, filter, PERMISSION_SEND_DARK_BROADCAST, null)
     }
 
     /**
@@ -230,62 +238,62 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
             message.set(newSummary(R.string.app_upload_busy))
             return
         }
-        timer = Instant.now()
 
-        _uploadStatus.value = LoadStatus.START
-        updateMessage.set(mContext.getString(R.string.app_upload_start))
-
-        viewModelScope.launch(Dispatchers.Main) {
-            val succeed = withContext(Dispatchers.IO) {
-                try {
-                    Files.write(BLOCK_LIST_PATH, mBlockSet)
-                    true
-                } catch (e: Exception) {
-                    Timber.w(e, "Failed to write block list")
-                    false
-                }
-            }
-            if (succeed) {
+        startUpload("onRequestUploadList: Upload time out!")
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                Files.write(BLOCK_LIST_PATH, mBlockSet)
                 BlockListReceiver.sendNewList(mContext, ArrayList(mBlockSet))
-                uploadTimeOutWatcher.set(launch {
-                    delay(MAX_UPLOAD_TIME_MILLIS)
-
-                    if (uploadTimeOutWatcher.getAndSet(null) != null) {
-                        // system server no response, wtf happened
-                        Timber.e("onRequestUploadList: Upload time out!")
-                        _uploadStatus.value = LoadStatus.FAILED
-                        updateMessage.set(mContext.getString(R.string.app_upload_fail))
-                    }
-                })
-            } else {
-                _uploadStatus.value = LoadStatus.FAILED
-                updateMessage.set(mContext.getString(R.string.app_upload_fail))
+            } catch (e: Exception) {
+                Timber.w(e, "Failed to write block list")
+                stopUpload(false)
             }
         }
     }
 
-    private fun onNewResponse(@LoadStatus response: Int) {
-        if (response == LoadStatus.START) return
+    private fun onUpdateListResponse(intent: Intent) {
+        when (intent.getIntExtra(EXTRA_KEY_LIST_PROGRESS, LoadStatus.FAILED)) {
+            LoadStatus.SUCCEED -> stopUpload(true, mContext.getString(R.string.app_upload_success))
 
-        // stop watcher now
-        val watcher = uploadTimeOutWatcher.getAndSet(null)
-        if (watcher?.isActive == true) watcher.cancel("Response received: $response")
+            LoadStatus.FAILED -> stopUpload(false)
 
-        val cost = Duration.between(timer, Instant.now()).toMillis()
-        Timber.i("onNewResponse: Response time cost: ${cost}ms")
-        viewModelScope.launch(Dispatchers.Main) {
-            if (cost < 600L) SystemClock.sleep(1000L) // wait longer
-            if (response == LoadStatus.SUCCEED) {
-                _uploadStatus.value = LoadStatus.SUCCEED
-                message.set(newSummary(R.string.app_upload_success))
-            } else {
-                _uploadStatus.value = LoadStatus.FAILED
-                updateMessage.set(mContext.getString(R.string.app_upload_fail))
-            }
+            LoadStatus.START -> {/* no-op */}
         }
     }
 
     fun isUploading(): Boolean = uploadStatus.value == LoadStatus.START
+
+    private fun startUpload(timeOutMessage: String, message: String = mContext.getString(R.string.app_upload_start)) {
+        timer = Instant.now()
+        _uploadStatus.value = LoadStatus.START
+        updateMessage.set(message)
+
+        uploadTimeOutWatcher.set(viewModelScope.launch {
+            delay(MAX_UPLOAD_TIME_MILLIS)
+
+            if (uploadTimeOutWatcher.getAndSet(null) != null) {
+                Timber.e(timeOutMessage)
+                stopUpload(false)
+            }
+        })
+    }
+
+    private fun stopUpload(succeed: Boolean, msg: String = mContext.getString(R.string.app_upload_fail)) {
+        val watcher = uploadTimeOutWatcher.getAndSet(null)
+        if (watcher?.isActive == true) watcher.cancel()
+
+        val cost = Duration.between(timer, Instant.now()).toMillis()
+        viewModelScope.launch(Dispatchers.Main) {
+            if (cost < 600L) delay(1000L) // wait longer
+            if (succeed) {
+                _uploadStatus.value = LoadStatus.SUCCEED
+                message.set(Summary(msg))
+            } else {
+                _uploadStatus.value = LoadStatus.FAILED
+                updateMessage.set(msg)
+            }
+        }
+    }
 
     fun onShowSysAppSelected(selected: Boolean) {
         if (sp.edit().putBoolean(KEY_SHOW_SYSTEM_APP, selected).commit()) {
@@ -296,23 +304,35 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun onHookImeSelected(menu: MenuItem) = viewModelScope.launch(Dispatchers.Main) {
+    fun onHookImeSelected(menu: MenuItem) {
         val imeFlag: Path = Constant.BLOCK_LIST_INPUT_METHOD_CONFIG_PATH
-        if (menu.isChecked.not() == Files.exists(imeFlag)) return@launch
-        menu.isEnabled = false
+        if (menu.isChecked.not() == Files.exists(imeFlag)) return
 
-        val result = withContext(Dispatchers.IO) { FileUtil.saveFlagAsFile(imeFlag, !menu.isChecked) }
-        val resultMessage = if (result) {
-            menu.isChecked = !menu.isChecked
-            R.string.app_hook_ime_restart
-        } else {
-            R.string.app_upload_fail
+        startUpload("onRequestImeSwitch: time out waiting ImeHooker response.")
+        viewModelScope.launch(Dispatchers.IO) {
+            if (FileUtil.saveFlagAsFile(imeFlag, !menu.isChecked)) {
+                BlockListReceiver.requestSwitchIME(mContext)
+                menu.isChecked = !menu.isChecked
+            } else {
+                stopUpload(false)
+            }
         }
-        menu.isEnabled = true
-        message.set(newSummary(resultMessage))
-        if (menu.isChecked) {
-            delay(600L) // wait for toast
-            dialog.set(ActivationScopeDialog.newInstance(true))
+    }
+
+    private fun onImeSwitchResponse(intent: Intent) {
+        if (intent.getBooleanExtra(EXTRA_KEY_SWITCH_RESULT, false)) {
+            val messageStr = mContext.getString(R.string.app_hook_ime_restart, mContext.getString(R.string.inputmethod))
+            stopUpload(true, messageStr)
+
+            if (InputMethodReceiver.shouldHookIME()) {
+                viewModelScope.launch(Dispatchers.Main) {
+                    val cost = Duration.between(timer, Instant.now()).toMillis()
+                    if (cost < 600L) delay(1600L) // wait for toast
+                    dialog.set(ActivationScopeDialog.newInstance(true))
+                }
+            }
+        } else {
+            stopUpload(false)
         }
     }
 

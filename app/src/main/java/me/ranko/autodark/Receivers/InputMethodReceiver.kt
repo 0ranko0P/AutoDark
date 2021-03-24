@@ -5,7 +5,9 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.SystemProperties
 import android.util.Log
+import de.robv.android.xposed.XposedBridge
 import me.ranko.autodark.BuildConfig
 import me.ranko.autodark.Constant
 import me.ranko.autodark.xposed.ATMHooker
@@ -24,11 +26,14 @@ class InputMethodReceiver(context: Context, private val hooker: ATMHooker): Broa
 
         private const val EXTRA_KEY_INPUT_METHOD = "k_ime"
 
+        var INSTANCE: InputMethodReceiver? = null
+
         fun register(context: Context, hooker: ATMHooker) {
             val receiver = InputMethodReceiver(context, hooker)
             val filter = IntentFilter(ACTION_INPUT_METHOD)
             filter.addAction(Intent.ACTION_SHUTDOWN)
             context.registerReceiver(receiver, filter)
+            INSTANCE = receiver
         }
 
         fun sendImeUpdateBroadCast(context: Context, imePkg: String) {
@@ -37,9 +42,21 @@ class InputMethodReceiver(context: Context, private val hooker: ATMHooker): Broa
             intent.setPackage(Constant.ANDROID_PACKAGE)
             context.sendBroadcast(intent, Constant.PERMISSION_RECEIVE_DARK_BROADCAST)
         }
+
+        fun shouldHookIME(): Boolean {
+            return SystemProperties.getBoolean(Constant.SYSTEM_PROP_HOOK_INPUT_METHOD, false)
+        }
+
+        fun enableHookIME(enabled: Boolean) {
+            SystemProperties.set(Constant.SYSTEM_PROP_HOOK_INPUT_METHOD, enabled.toString())
+        }
     }
 
     private val mContext = WeakReference(context)
+
+    init {
+        XposedBridge.log("onInit, IMEHooker online")
+    }
 
     @SuppressLint("LogNotTimber")
     override fun onReceive(context: Context, intent: Intent) {
@@ -54,11 +71,16 @@ class InputMethodReceiver(context: Context, private val hooker: ATMHooker): Broa
             }
 
             Intent.ACTION_SHUTDOWN -> {
-                mContext.get()?.unregisterReceiver(this)
-                mContext.clear()
+                destroy()
             }
 
             else -> Log.e(TAG, "Unknown action")
         }
+    }
+
+    fun destroy() {
+        mContext.get()?.unregisterReceiver(this)
+        mContext.clear()
+        INSTANCE = null
     }
 }

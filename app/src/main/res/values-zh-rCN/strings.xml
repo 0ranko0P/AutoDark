@@ -8,7 +8,7 @@
     <string name="app_do_not_show">不再显示</string>
     <string name="app_exit">退出</string>
     <string name="app_hook_ime">尝试Hook 输入法</string>
-    <string name="app_hook_ime_restart">重启生效</string>
+    <string name="app_hook_ime_restart">重启<xliff:g name="inputmethod">%1$s</xliff:g>生效</string>
     <string name="app_hook_system">显示系统应用</string>
     <string name="app_hook_system_message">系统应用通常支持暗黑模式</string>
     <string name="app_later">稍后提醒我</string>

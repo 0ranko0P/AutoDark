@@ -11,6 +11,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.ranko.autodark.Constant
 import me.ranko.autodark.Receivers.BlockListReceiver
 import me.ranko.autodark.Receivers.InputMethodReceiver
+import me.ranko.autodark.Receivers.InputMethodReceiver.Companion.shouldHookIME
 import java.nio.file.Files
 
 /**
@@ -20,12 +21,6 @@ import java.nio.file.Files
  * */
 @SuppressLint("LogNotTimber")
 class XCore : IXposedHookLoadPackage, IXposedHookZygoteInit {
-
-    companion object {
-        private fun shouldHookIME(): Boolean {
-            return SystemProperties.getBoolean(Constant.SYSTEM_PROP_HOOK_INPUT_METHOD, false)
-        }
-    }
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         if (lpparam.packageName == Constant.ANDROID_PACKAGE) {
