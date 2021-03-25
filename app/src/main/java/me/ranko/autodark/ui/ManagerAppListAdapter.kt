@@ -38,6 +38,8 @@ class ManagerAppListAdapter(context: Context,
         private var DUMMY_ICON: Drawable? = null
         private const val DUMMY_PACKAGE_NAME = "com.other.ignore"
         private const val INPUT_METHOD_PACKAGE_NAME = "com.ranko.inputmethod.latin"
+
+        private val SCOPED_APPS_CHECK_DELAY = 1000L
     }
 
     class DummyApplicationInfo(dummyName: String) : ApplicationInfo() {
@@ -111,7 +113,7 @@ class ManagerAppListAdapter(context: Context,
             // make scoped app noticeable, so user won't add wrong app to scope
             if (isChecked().not()) {
                 GlobalScope.launch(Dispatchers.Main) {
-                    delay(400L + position * 100L)
+                    delay(SCOPED_APPS_CHECK_DELAY + position * 120L)
                     setChecked(true)
                 }
             }
