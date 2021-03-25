@@ -1,5 +1,6 @@
 package me.ranko.autodark.ui
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.app.UiModeManager
 import android.view.LayoutInflater
@@ -219,13 +220,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _requirePermission.value = false
     }
 
-    fun onPermissionResult() {
-        val summary = if (PermissionViewModel.checkSecurePermission(mContext)) {
-            darkSettings.overrideIfNeeded()
-            R.string.permission_granted
+    @SuppressLint("MissingPermission")
+    fun onLocationPermissionResult(granted: Boolean) {
+        if (granted) {
+            onAutoModeClicked()
         } else {
-            R.string.permission_failed
+            _autoMode.value = granted
         }
+        showPermissionSummary(granted)
+    }
+
+    fun onSecurePermissionResult(granted: Boolean) {
+        if (granted) {
+            darkSettings.overrideIfNeeded()
+        }
+        showPermissionSummary(granted)
+    }
+
+    private fun showPermissionSummary(granted: Boolean) {
+        val summary = if (granted) R.string.permission_granted else R.string.permission_failed
         summaryText.set(newSummary(summary))
     }
 

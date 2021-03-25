@@ -219,12 +219,9 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == REQUEST_LOCATION_PERMISSION) {
-            if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                viewModel.summaryText.set(viewModel.newSummary(R.string.permission_failed))
-                autoPreference.isChecked = false
-            } else {
-                onAutoPreferenceClick()
-            }
+            viewModel.onLocationPermissionResult(grantResults[0] == PackageManager.PERMISSION_GRANTED)
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         }
     }
 

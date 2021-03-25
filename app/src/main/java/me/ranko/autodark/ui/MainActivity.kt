@@ -87,7 +87,7 @@ class MainActivity : BaseListActivity(), FragmentManager.OnBackStackChangedListe
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == PermissionActivity.REQUEST_CODE_PERMISSION) {
-            viewModel.onPermissionResult()
+            viewModel.onSecurePermissionResult(PermissionViewModel.checkSecurePermission(this))
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }
