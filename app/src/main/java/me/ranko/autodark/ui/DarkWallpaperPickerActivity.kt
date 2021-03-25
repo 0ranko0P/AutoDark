@@ -208,7 +208,7 @@ class DarkWallpaperPickerActivity : BasePreviewActivity() {
         }
     }
 
-    fun requestPermission(v: View?) {
+    fun requestPermission(@Suppress("UNUSED_PARAMETER")v: View?) {
         if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
             showManualInstruction()
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);

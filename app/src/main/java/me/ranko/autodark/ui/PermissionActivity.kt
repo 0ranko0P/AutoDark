@@ -103,7 +103,7 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
     /**
      * Called on grant with Shizuku button clicked
      * */
-    fun onShizukuClick(v: View?) {
+    fun onShizukuClick(@Suppress("UNUSED_PARAMETER")v: View?) {
         when (ShizukuApi.checkShizuku(this)) {
 
             ShizukuStatus.DEAD -> showShizukuDeadDialog()
