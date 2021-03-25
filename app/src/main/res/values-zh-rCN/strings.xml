@@ -140,7 +140,7 @@
 
     <string name="tile_dark_theme">深色主题</string>
 
-    <string name="activation_scope">设置<xliff:g name="inputmethod">%1$s</xliff:g>作用域 <xliff:g name="optional">%2$s</xliff:g></string>
+    <string name="activation_scope">设置作用域 <xliff:g name="optional">%1$s</xliff:g></string>
     <string name="activation_scope_description">打开Xposed 管理器并前往作用域页面, 将下图中选择的应用加入作用域:\n
     (这样做也会略微节省点电)
     </string>

@@ -70,14 +70,13 @@ class ActivationScopeDialog : BottomSheetDialogFragment() {
         val xposedContainer: ViewGroup = view.findViewById(R.id.container)
         managerView = XposedManagerView(requireActivity(), xposedContainer, hookIme)
 
-        val imeText = if (hookIme) getString(R.string.inputmethod) else ""
         // optional only if ime not hooked and running on EdXposed
         val optionalText = if (hookIme.not() && managerView.type == Manager.EDXposed) {
             getString(R.string.activation_optional)
         } else {
             getString(R.string.activation_required)
         }
-        view.findViewById<TextView>(R.id.title).text = getString(R.string.activation_scope, imeText, optionalText)
+        view.findViewById<TextView>(R.id.title).text = getString(R.string.activation_scope, optionalText)
         view.findViewById<TextView>(R.id.description).setText(R.string.activation_scope_description)
 
         view.findViewById<MaterialButton>(R.id.button).setOnClickListener { v ->

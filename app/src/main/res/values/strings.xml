@@ -145,7 +145,7 @@
 
     <string name="tile_dark_theme">Dark theme</string>
 
-    <string name="activation_scope">Activation <xliff:g name="inputmethod">%1$s</xliff:g> Scope<xliff:g name="optional">%2$s</xliff:g></string>
+    <string name="activation_scope">Activation Scope<xliff:g name="optional">%1$s</xliff:g></string>
     <string name="activation_scope_description">Open Xposed manager app and proceed to the ActivationScope page, then choose applications as following:\n
        (This will also slightly reduce resource consumption)
     </string>
