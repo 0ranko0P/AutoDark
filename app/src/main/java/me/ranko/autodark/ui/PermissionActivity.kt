@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AlertDialog
@@ -12,6 +13,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
+import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.CircularAnimationUtil
 import me.ranko.autodark.core.ShizukuApi
@@ -132,12 +134,23 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
     }
 
     private fun initShizukuCard() {
-        val shizukuInstalled = ShizukuProvider.isShizukuInstalled(this)
-        val viewStub = if (shizukuInstalled) binding.content.stubShizukuFirst else binding.content.stubShizukuLast
-        val view = viewStub.viewStub!!.inflate()
-        if (shizukuInstalled) {
-            val rotate = AnimationUtils.loadAnimation(view.context, R.anim.rotate_infinite)
-            (view as PermissionLayout).titleIcon.startAnimation(rotate)
+        val installed = AutoDarkApplication.isSui || ShizukuProvider.isShizukuInstalled(this)
+        val viewStub = if (installed) binding.content.stubShizukuFirst else binding.content.stubShizukuLast
+        with(viewStub.viewStub!!.inflate() as PermissionLayout) {
+            val title = if (AutoDarkApplication.isSui) {
+                titleIcon.colorName = ShizukuApi.SUI_COLOR
+                (binding.content.getRoot() as ViewGroup).removeView(binding.content.root)
+                R.string.sui_title
+            } else {
+                R.string.shizuku_title
+            }
+            setTitle(title)
+            description = getString(R.string.shizuku_description, getTitle())
+
+            if (installed) {
+                val rotate = AnimationUtils.loadAnimation(context, R.anim.rotate_infinite)
+                titleIcon.startAnimation(rotate)
+            }
         }
     }
 

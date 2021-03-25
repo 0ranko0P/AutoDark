@@ -8,9 +8,12 @@ import android.content.pm.PackageManager;
 import me.ranko.autodark.Services.DarkModeTileService;
 import me.ranko.autodark.core.DebugTree;
 import me.ranko.autodark.core.ReleaseTree;
+import rikka.sui.Sui;
 import timber.log.Timber;
 
 public final class AutoDarkApplication extends Application {
+
+    public static final boolean isSui = Sui.init(BuildConfig.APPLICATION_ID);
 
     @Override
     public void onCreate() {

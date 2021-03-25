@@ -25,15 +25,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant
 import me.ranko.autodark.R
 import me.ranko.autodark.Receivers.BlockListReceiver
 import me.ranko.autodark.core.DARK_JOB_TYPE
-import me.ranko.autodark.core.DarkModeSettings
 import me.ranko.autodark.core.DarkPreferenceSupplier
 import me.ranko.autodark.ui.Preference.DarkDisplayPreference
 import me.ranko.autodark.ui.Preference.DarkSwitchPreference
-import java.util.*
 
 class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
 
@@ -149,7 +148,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
             forceDarkPreference.summary = getString(R.string.pref_force_dark_summary, getString(R.string.pref_force_dark_summary_xposed))
         } else {
             xposedPreference!!.title = getString(R.string.pref_block_title, " (Xposed)")
-            forceDarkPreference.title = getString(R.string.pref_force_dark, " (Root)")
+            forceDarkPreference.title = getString(R.string.pref_force_dark, if (AutoDarkApplication.isSui) " (Sui)" else " (Root)")
             forceDarkPreference.summary = getString(R.string.pref_force_dark_summary, getString(R.string.pref_force_dark_summary_root))
         }
     }
@@ -190,27 +189,13 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
         }
     }
 
-    private fun onForceDarkPreferenceClick() = lifecycleScope.launch {
-        (forceDarkPreference as SwitchPreference).run {
-            isEnabled = false
-            val succeed = DarkModeSettings.setForceDark(isChecked)
-            delay(600L)
-            if (!succeed) {
-                isChecked = !isChecked
-                viewModel.summaryText.set(viewModel.newSummary(R.string.root_check_failed))
-            }
-            isEnabled = true
-        }
-    }
-
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
         when (preference.key) {
             DARK_PREFERENCE_START, DARK_PREFERENCE_END -> return false
 
             DARK_PREFERENCE_WALLPAPER -> startActivity(Intent(requireActivity(), DarkWallpaperPickerActivity::class.java))
 
-            // handle result in observer
-            DARK_PREFERENCE_FORCE_ROOT -> onForceDarkPreferenceClick()
+            DARK_PREFERENCE_FORCE_ROOT -> viewModel.onForceDarkClicked(preference as SwitchPreference, lifecycleScope)
 
             DARK_PREFERENCE_AUTO -> onAutoPreferenceClick()
 

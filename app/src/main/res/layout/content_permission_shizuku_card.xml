@@ -14,11 +14,11 @@
         style="@style/CardStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:description="@string/shizuku_description"
         app:expandDescription="true"
         app:iconColor="indigo"
         app:srcIcon="@drawable/ic_shizuku"
-        app:title="@string/shizuku_title">
+        tools:description="@string/shizuku_description"
+        tools:title="@string/shizuku_title">
 
         <TextView
             android:id="@+id/btnShizuku"

@@ -20,7 +20,7 @@ import me.ranko.autodark.ui.widget.PermissionLayout
 
 /**
  * A BottomSheetDialog asking the user for the Wallpaper's type, either [STATIC_WALLPAPER] or
- * [LIVE_WALLPAPER], And [LIVE_WALLPAPER] only available in Shizuku mode.
+ * [LIVE_WALLPAPER], And [LIVE_WALLPAPER] only available in Shizuku or Sui mode.
  * */
 class WallpaperCategoryDialog : BottomSheetDialogFragment(), View.OnClickListener {
 
@@ -78,8 +78,10 @@ class WallpaperCategoryDialog : BottomSheetDialogFragment(), View.OnClickListene
         val stub = root.findViewById<ViewStub>(R.id.permissionStub)
         shizukuContainer = (stub.inflate() as PermissionLayout).apply {
             // Included layout, do some initialization here
+            val shizukuOrSui = getString(R.string.shizuku_title) + "/" + getString(R.string.sui_title)
             setTitle(R.string.chooser_live_wallpaper_restricted_title)
-            setDescription(R.string.chooser_live_wallpaper_restricted_description)
+            description = getString(R.string.chooser_live_wallpaper_restricted_description, shizukuOrSui)
+
             findViewById<View>(R.id.progressShizuku).visibility = View.GONE
             val btnShizuku = findViewById<TextView>(R.id.btnShizuku)
             btnShizuku.setCompoundDrawables(null, null, null, null)

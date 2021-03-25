@@ -9,25 +9,44 @@ import android.content.pm.IPackageManager
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.BuildConfig
+import me.ranko.autodark.Constant
 import me.ranko.autodark.R
-import rikka.shizuku.Shizuku
-import rikka.shizuku.ShizukuBinderWrapper
-import rikka.shizuku.ShizukuProvider
-import rikka.shizuku.SystemServiceHelper
+import rikka.shizuku.*
 import timber.log.Timber
 
 enum class ShizukuStatus {
-    NOT_INSTALL, DEAD, UNAUTHORIZED,
+    /* Shizuku only */
+    NOT_INSTALL,
+
     /**
-     * Indicates Shizuku is running and authorized
-     * operate on this status only
+     * Shizuku only
+     *
+     * @see ShizukuApi.buildShizukuDeadDialog
+     * */
+    DEAD,
+
+    /**
+     * Running but unauthorized, should send
+     * permission request after this status returned
+     *
+     * @see ShizukuProvider.PERMISSION
+     * @see ShizukuApi.requestPermission
+     * */
+    UNAUTHORIZED,
+
+    /**
+     * Indicates Shizuku or Sui is running and authorized.
+     * Perform operation on this status only
      * */
     AVAILABLE
 }
 
 object ShizukuApi {
     private const val MANAGER_APPLICATION_ID = "moe.shizuku.privileged.api"
+
+    const val SUI_COLOR = "light_green"
 
     const val REQUEST_CODE_SHIZUKU_PERMISSION = 7
 
@@ -40,7 +59,9 @@ object ShizukuApi {
     }
 
     fun checkShizuku(context: Context): ShizukuStatus {
-        if (!ShizukuProvider.isShizukuInstalled(context)) return ShizukuStatus.NOT_INSTALL
+        if (!AutoDarkApplication.isSui && !ShizukuProvider.isShizukuInstalled(context)) {
+            return ShizukuStatus.NOT_INSTALL
+        }
 
         try {
             val permission = if (!Shizuku.isPreV11() && Shizuku.getVersion() >= 11) {
@@ -101,6 +122,17 @@ object ShizukuApi {
     }
 
     fun getIWallpaperManager(): IWallpaperManager = mWallpaperManager
+
+    fun setForceDark(enabled: Boolean): Boolean {
+        try {
+            ShizukuSystemProperties.set(Constant.SYSTEM_PROP_FORCE_DARK, enabled.toString())
+            return true
+        } catch (ignored: SecurityException) {
+        } catch (e: Exception) {
+            Timber.w(e)
+        }
+        return false
+    }
 
     fun grantWithShizuku() {
         mManager.grantRuntimePermission(BuildConfig.APPLICATION_ID, Manifest.permission.WRITE_SECURE_SETTINGS, android.os.Process.ROOT_UID)

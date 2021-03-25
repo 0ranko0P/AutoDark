@@ -85,7 +85,7 @@
 
     <string name="shizuku_connect_failed">Verbindung mit dem Shizuku Core Service nicht möglich, bitte sicherstellen, dass es läuft.</string>
     <string name="shizuku_open_manager">Shizuku öffnen</string>
-    <string name="shizuku_description">Berechtigung mittels Shizuku erteilen.</string>
+    <string name="shizuku_description">Berechtigung mittels <xliff:g name="shizuku_or_sui">%1$s</xliff:g> erteilen.</string>
     <string name="shizuku_not_install">Shizuku ist nicht installiert!</string>
     <string name="shizuku_service_not_running">Shizuku-Service läuft nicht!</string>
 

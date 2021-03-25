@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.IBinder
 import android.util.ArrayMap
+import android.widget.Toast
 import androidx.annotation.VisibleForTesting
 import com.android.wallpaper.model.LiveWallpaperInfo
 import com.android.wallpaper.model.WallpaperInfo
@@ -16,6 +17,7 @@ import com.android.wallpaper.module.WallpaperPersister
 import com.android.wallpaper.module.WallpaperPersister.*
 import com.android.wallpaper.module.WallpaperSetter
 import kotlinx.coroutines.*
+import me.ranko.autodark.R
 import me.ranko.autodark.Services.DarkLiveWallpaperService
 import me.ranko.autodark.core.DarkModeSettings
 import me.ranko.autodark.core.ShizukuApi
@@ -252,6 +254,8 @@ class DarkWallpaperHelper private constructor(context: Context) {
                     startForegroundService(intent)
                 }
             }
+
+            ShizukuStatus.UNAUTHORIZED -> Toast.makeText(mContext!!, R.string.permission_failed, Toast.LENGTH_SHORT).show()
 
             else -> callback.onError(IllegalStateException("Unable connect to Shizuku: $status."))
         }

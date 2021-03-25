@@ -23,8 +23,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.get
 import com.android.wallpaper.picker.BasePreviewActivity
 import com.google.android.material.snackbar.Snackbar
+import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.R
-import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.core.ShizukuApi
 import me.ranko.autodark.core.ShizukuStatus
 import me.ranko.autodark.model.CroppedWallpaperInfo
@@ -57,6 +57,8 @@ class DarkWallpaperPickerActivity : BasePreviewActivity() {
 
     private var shizukuListener: Shizuku.OnRequestPermissionResultListener? = null
 
+    private var migration = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProvider(this, DarkWallpaperPickerViewModel.Companion.Factory(application)).get()
@@ -65,6 +67,9 @@ class DarkWallpaperPickerActivity : BasePreviewActivity() {
 
         if (storageGranted(this)) {
             initPickerFragment()
+            if (viewModel.shouldPrepareMigration()) {
+                prepareMigration()
+            }
         } else {
             initPermissionLayout()
         }
@@ -100,22 +105,19 @@ class DarkWallpaperPickerActivity : BasePreviewActivity() {
      * Included layout, do some initialization work here
      * */
     private fun initShizukuPermissionCard(container: PermissionLayout) {
-        if (ShizukuApi.checkShizuku(this) == ShizukuStatus.AVAILABLE) {
+        if (viewModel.isShizukuGranted()) {
             container.visibility = View.GONE
             return
         } else {
-            shizukuListener = Shizuku.OnRequestPermissionResultListener { _, grantResult ->
-                shizukuProgressBar?.visibility = View.GONE
-                if (grantResult == PERMISSION_GRANTED) {
-                    hidePermissionCard(true)
-                } else {
-                    Snackbar.make(container, R.string.permission_failed, Snackbar.LENGTH_SHORT).show()
-                }
-            }
-            Shizuku.addRequestPermissionResultListener(shizukuListener!!)
+            registerShizukuListener()
         }
+        val shizukuOrSui = getString(R.string.shizuku_title) + "/" + getString(R.string.sui_title)
         container.setTitle(R.string.chooser_live_wallpaper_restricted_title)
-        container.setDescription(R.string.chooser_live_wallpaper_restricted_description)
+        container.description =
+            getString(R.string.chooser_live_wallpaper_restricted_description, shizukuOrSui)
+        if (AutoDarkApplication.isSui) {
+            container.titleIcon.colorName = ShizukuApi.SUI_COLOR
+        }
         val hideButton = TextView(ContextThemeWrapper(this, R.style.CardButton))
         hideButton.setText(R.string.chooser_live_wallpaper_restricted_hide)
         hideButton.setOnClickListener(this::onShizukuClick)
@@ -124,6 +126,33 @@ class DarkWallpaperPickerActivity : BasePreviewActivity() {
         hideButton.setCompoundDrawablesRelativeWithIntrinsicBounds(icon,null,null,null)
         container.addView(hideButton)
         container.findViewById<TextView>(R.id.btnShizuku).setOnClickListener(this::onShizukuClick)
+    }
+
+    private fun registerShizukuListener() {
+        shizukuListener = Shizuku.OnRequestPermissionResultListener { _, grantResult ->
+            shizukuProgressBar?.visibility = View.GONE
+            if (grantResult == PERMISSION_GRANTED) {
+                viewModel.onShizukuGranted()
+                if (migration.not()) hidePermissionCard(true)
+            } else {
+                Snackbar.make(container, R.string.permission_failed, Snackbar.LENGTH_SHORT).show()
+            }
+        }
+        Shizuku.addRequestPermissionResultListener(shizukuListener!!)
+    }
+
+    private fun prepareMigration() {
+        viewModel.pickedDarkWallpapers.observe(this, object : Observer<Any> {
+            override fun onChanged(t: Any?) {
+                viewModel.pickedDarkWallpapers.removeObserver(this)
+
+                if (viewModel.isLiveWallpaperPicked()) {
+                    migration = true
+                    registerShizukuListener()
+                    ShizukuApi.requestPermission(this@DarkWallpaperPickerActivity)
+                }
+            }}
+        )
     }
 
     fun onShizukuClick(v: View) {
@@ -263,6 +292,7 @@ class DarkWallpaperPickerActivity : BasePreviewActivity() {
         super.onDestroy()
         shizukuListener?.let {
             Shizuku.removeRequestPermissionResultListener(it)
+            shizukuListener = null
         }
     }
 }

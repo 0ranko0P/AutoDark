@@ -11,11 +11,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.ObservableField
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
+import androidx.preference.SwitchPreference
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import me.ranko.autodark.AutoDarkApplication.isComponentEnabled
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.R
@@ -228,6 +227,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             R.string.permission_failed
         }
         summaryText.set(newSummary(summary))
+    }
+
+    fun onForceDarkClicked(preference: SwitchPreference, scope: CoroutineScope) = scope.launch(Dispatchers.Main) {
+        val start = System.currentTimeMillis()
+        preference.isEnabled = false
+
+        val succeed = DarkModeSettings.setForceDark(preference.isChecked)
+        // wait switch animation finish
+        if (System.currentTimeMillis() - start < 500L) delay(600L)
+
+        if (!succeed && isActive) {
+            preference.isChecked = preference.isChecked.not()
+            summaryText.set(newSummary(R.string.root_check_failed))
+        }
+        preference.isEnabled = true
     }
 
     fun getDelayedSummary(): Summary? {

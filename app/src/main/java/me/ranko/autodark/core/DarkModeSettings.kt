@@ -21,6 +21,7 @@ import androidx.preference.PreferenceManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.R
 import me.ranko.autodark.Receivers.DarkModeAlarmReceiver
@@ -89,6 +90,10 @@ class DarkModeSettings private constructor(private val context: Context) :
          * @see     COMMAND_SET_FORCE_DARK_ON
          * */
         suspend fun setForceDark(enabled: Boolean): Boolean {
+            if (AutoDarkApplication.isSui) {
+                return ShizukuApi.setForceDark(enabled)
+            }
+
             return try {
                 // Run: set force mode && get force mode
                 val command = if (enabled) COMMAND_SET_FORCE_DARK_ON else COMMAND_SET_FORCE_DARK_OFF

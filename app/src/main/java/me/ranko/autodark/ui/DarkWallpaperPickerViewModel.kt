@@ -1,9 +1,6 @@
 package me.ranko.autodark.ui
 
 import android.app.Application
-import android.content.DialogInterface
-import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.*
@@ -13,6 +10,7 @@ import com.android.wallpaper.model.LiveWallpaperInfo
 import com.android.wallpaper.model.WallpaperInfo
 import com.android.wallpaper.module.WallpaperPersister.*
 import kotlinx.coroutines.*
+import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant
 import me.ranko.autodark.R
 import me.ranko.autodark.core.DarkModeSettings
@@ -80,9 +78,7 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
     val pickedDarkWallpapers: LiveData<Pair<WallpaperInfo, WallpaperInfo>>
         get() = _pickedDarkWallpapers
 
-    private val _shizukuPermissionGranted by lazy(LazyThreadSafetyMode.NONE) {
-        ShizukuApi.checkShizuku(mApp) == ShizukuStatus.AVAILABLE
-    }
+    private var _shizukuPermissionGranted: Boolean = ShizukuApi.checkShizuku(mApp) == ShizukuStatus.AVAILABLE
 
     private var refreshWallpaperJob: Job? = null
 
@@ -359,6 +355,14 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
         val pm = mApp.packageManager
         mHelper.getLiveWallpapers().values.sortedBy { it.wallpaperComponent.loadLabel(pm).toString() }
     }
+
+    fun isShizukuGranted(): Boolean = _shizukuPermissionGranted
+
+    fun onShizukuGranted() {
+        _shizukuPermissionGranted = true
+    }
+
+    fun shouldPrepareMigration(): Boolean = AutoDarkApplication.isSui && _deleteAvailable.value == true && isShizukuGranted().not()
 
     fun getException(): Exception? {
         val e = exception ?: return null

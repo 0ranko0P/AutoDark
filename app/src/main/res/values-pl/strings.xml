@@ -66,7 +66,7 @@
     <string name="root_grant">Przyznaj uprawnienia</string>
     <string name="root_title">Przyznaj uprawnienia używając uprawnień root.</string>
 
-    <string name="shizuku_description">Przyznaj uprawnienia używając Shizuku.</string>
+    <string name="shizuku_description">Przyznaj uprawnienia używając <xliff:g name="shizuku_or_sui">%1$s</xliff:g>.</string>
     <string name="shizuku_not_install">Shizuku nie jest zainstalowane!</string>
     <string name="shizuku_service_not_running">Usługa Shizuku nie działa!</string>
 
