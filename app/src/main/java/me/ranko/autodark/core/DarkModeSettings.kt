@@ -208,13 +208,15 @@ class DarkModeSettings private constructor(private val context: Context) :
         setNextAlarm(time, key)
 
         // Adjust dark mode if needed
-        val adjusted = if (key == DARK_PREFERENCE_START) {
-            adjustModeOnTime(time, getEndTime())
-        } else {
-            adjustModeOnTime(getStartTime(), time)
-        }
+        val startTime = if (key == DARK_PREFERENCE_START) time else getStartTime()
+        val endTime = if (key == DARK_PREFERENCE_START) getEndTime() else time
+        val adjusted = adjustModeOnTime(startTime, endTime)
 
-        if (adjusted) {
+        if (AutoDarkApplication.isOnePlus()) {
+            // ignore current dark mode on onePlus
+            val darkMode = DarkTimeUtil.isInTime(startTime, endTime, LocalTime.now())
+            DarkWallpaperHelper.getInstance(context, null).onAlarm(darkMode)
+        } else if (adjusted) {
             DarkWallpaperHelper.getInstance(context, null).onAlarm(isDarkMode() == true)
         }
         return true
