@@ -11,13 +11,12 @@ import com.android.wallpaper.asset.CurrentWallpaperAssetVN
 import com.android.wallpaper.model.WallpaperInfo
 import kotlinx.coroutines.yield
 import me.ranko.autodark.model.PersistableWallpaper.Companion.getWallpaperFile
-import timber.log.Timber
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.channels.FileChannel
 
 @SuppressLint("MissingPermission")
-class SystemWallpaperInfo(private val which: Int, val id: Int) : WallpaperInfo(), PersistableWallpaper {
+open class SystemWallpaperInfo(protected val which: Int, val id: Int) : WallpaperInfo(), PersistableWallpaper {
 
     companion object CREATOR : Parcelable.Creator<SystemWallpaperInfo> {
         override fun createFromParcel(parcel: Parcel): SystemWallpaperInfo {
@@ -29,7 +28,7 @@ class SystemWallpaperInfo(private val which: Int, val id: Int) : WallpaperInfo()
         }
     }
 
-    private var mAsset: CurrentWallpaperAssetVN? = null
+    protected var mAsset: Asset? = null
 
     constructor(parcel: Parcel) : this(parcel.readInt(), parcel.readInt())
 
@@ -56,7 +55,7 @@ class SystemWallpaperInfo(private val which: Int, val id: Int) : WallpaperInfo()
     @WorkerThread
     @Throws(IOException::class)
     override suspend fun persist(context: Context) {
-        val outFile = getWallpaperFile(context, id.toString())
+        val outFile = getWallpaperFile(context, wallpaperId)
         val asset = getAsset(context) as CurrentWallpaperAssetVN
         yield()
         ParcelFileDescriptor.AutoCloseInputStream(asset.getWallpaperPfd()).use { ins ->
@@ -67,11 +66,11 @@ class SystemWallpaperInfo(private val which: Int, val id: Int) : WallpaperInfo()
         }
     }
 
-    override fun isNew(context: Context): Boolean = getWallpaperFile(context, id.toString()).exists().not()
+    override fun isNew(context: Context): Boolean = getWallpaperFile(context, wallpaperId).exists().not()
 
     override fun getWallpaperId(): String = id.toString()
 
-    override fun delete(context: Context): Boolean =  getWallpaperFile(context, id.toString()).delete()
+    override fun delete(context: Context): Boolean =  getWallpaperFile(context, wallpaperId).delete()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

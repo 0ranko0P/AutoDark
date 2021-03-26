@@ -55,8 +55,8 @@ import timber.log.Timber;
 @SuppressLint({"MissingPermission"})
 public final class WallpaperPersister {
 
-    private static final int DEFAULT_COMPRESS_QUALITY = 90;
-    private static final Bitmap.CompressFormat DEFAULT_COMPRESS_FORMAT = Bitmap.CompressFormat.WEBP;
+    public static final int DEFAULT_COMPRESS_QUALITY = 90;
+    public static final Bitmap.CompressFormat DEFAULT_COMPRESS_FORMAT = Bitmap.CompressFormat.WEBP;
 
     public static final int DEST_HOME_SCREEN = 0;
     public static final int DEST_LOCK_SCREEN = 1;

@@ -11,6 +11,7 @@ import android.os.IBinder
 import android.util.ArrayMap
 import android.widget.Toast
 import androidx.annotation.VisibleForTesting
+import com.android.wallpaper.asset.BuiltInWallpaperAsset
 import com.android.wallpaper.model.LiveWallpaperInfo
 import com.android.wallpaper.model.WallpaperInfo
 import com.android.wallpaper.module.WallpaperPersister
@@ -460,6 +461,12 @@ class DarkWallpaperHelper private constructor(context: Context) {
 
         val homeId = mManager.getWallpaperId(WallpaperManager.FLAG_SYSTEM)
         val lockId = mManager.getWallpaperId(WallpaperManager.FLAG_LOCK)
+
+        if (homeId == BuiltInWallpaperAsset.BUILT_IN_WALLPAPER_ID) {
+            val builtInWallpaper = BuiltInWallpaperInfo()
+            return Pair(builtInWallpaper, builtInWallpaper)
+        }
+
         val homeWallpaper = SystemWallpaperInfo(WallpaperManager.FLAG_SYSTEM, homeId)
         // using same wallpaper
         return if (lockId == -1) {
