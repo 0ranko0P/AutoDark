@@ -20,6 +20,7 @@ import com.bumptech.glide.request.RequestOptions;
 
 import java.io.InputStream;
 
+import me.ranko.autodark.asset.BuiltInWallpaperAssetLoader;
 import me.ranko.autodark.asset.FileAssetLoader;
 
 /**
@@ -52,6 +53,7 @@ public final class WallpaperGlideModule extends AppGlideModule {
     public void registerComponents(@NonNull Context context,@NonNull Glide glide, Registry registry) {
         registry.append(FileAsset.class, Bitmap.class, new FileAssetLoader.FileDescriptorAssetLoaderFactory())
                 .append(LiveWallpaperThumbAsset.class, Drawable.class, new LiveWallpaperThumbAssetLoaderFactory())
-                .append(CurrentWallpaperAssetVN.class, InputStream.class, new CurrentWallpaperAssetVNLoaderFactory());
+                .append(CurrentWallpaperAssetVN.class, InputStream.class, new CurrentWallpaperAssetVNLoaderFactory())
+                .append(BuiltInWallpaperAsset.class, Bitmap.class, new BuiltInWallpaperAssetLoader.BuiltInWallpaperAssetLoaderFactory());
     }
 }

@@ -16,11 +16,14 @@
 package com.android.wallpaper.asset;
 
 import android.graphics.Bitmap;
+import android.graphics.Point;
+import android.graphics.Rect;
 
 /**
  * Collection of static utility methods for decoding and processing Bitmaps.
  */
 public final class BitmapUtils {
+    private static final float DEFAULT_CENTER_ALIGNMENT = 0.5f;
 
     // Suppress default constructor for noninstantiability.
     private BitmapUtils() {
@@ -79,5 +82,39 @@ public final class BitmapUtils {
         }
 
         return result;
+    }
+
+    /**
+     * Calculates horizontal alignment of the rect within the supplied dimensions.
+     *
+     * @return A float value between 0 and 1 specifying horizontal alignment; 0 for left-aligned, 0.5
+     * for horizontal center-aligned, and 1 for right-aligned.
+     */
+    public static float calculateHorizontalAlignment(Point dimensions, Rect rect) {
+        int paddingLeft = rect.left;
+        int paddingRight = dimensions.x - rect.right;
+        int totalHorizontalPadding = paddingLeft + paddingRight;
+        // Zero horizontal padding means that there is no room to crop horizontally so we just fall
+        // back to a default center-alignment value.
+        return (totalHorizontalPadding == 0)
+                ? DEFAULT_CENTER_ALIGNMENT
+                : paddingLeft / ((float) paddingLeft + paddingRight);
+    }
+
+    /**
+     * Calculates vertical alignment of the rect within the supplied dimensions.
+     *
+     * @return A float value between 0 and 1 specifying vertical alignment; 0 for top-aligned, 0.5 for
+     * vertical center-aligned, and 1 for bottom-aligned.
+     */
+    public static float calculateVerticalAlignment(Point dimensions, Rect rect) {
+        int paddingTop = rect.top;
+        int paddingBottom = dimensions.y - rect.bottom;
+        int totalVerticalPadding = paddingTop + paddingBottom;
+        // Zero vertical padding means that there is no room to crop vertically so we just fall back to
+        // a default center-alignment value.
+        return (totalVerticalPadding == 0)
+                ? DEFAULT_CENTER_ALIGNMENT
+                : paddingTop / ((float) paddingTop + paddingBottom);
     }
 }
