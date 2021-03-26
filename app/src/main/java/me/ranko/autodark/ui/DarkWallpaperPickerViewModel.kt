@@ -9,6 +9,7 @@ import com.android.wallpaper.asset.Asset
 import com.android.wallpaper.model.LiveWallpaperInfo
 import com.android.wallpaper.model.WallpaperInfo
 import com.android.wallpaper.module.WallpaperPersister.*
+import com.android.wallpaper.util.TaskRunner
 import kotlinx.coroutines.*
 import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant
@@ -307,6 +308,7 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
         } else {
             mHelper.destroy()
         }
+        TaskRunner.shutdown()
         mApp.cacheDir.listFiles()?.forEach {
             //skip glide live wallpaper cache
             if (it.isFile) it.delete()

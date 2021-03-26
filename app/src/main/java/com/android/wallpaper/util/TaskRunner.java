@@ -52,6 +52,10 @@ public final class TaskRunner {
     }
 
     private <R> void _executeAsync(ExecutorService executor, Callable<R> callable, Callback<R> callback) {
+        if (executor.isShutdown()) {
+            throw new IllegalStateException();
+        }
+
         executor.execute(() -> {
             try {
                 R result = callable.call();
@@ -60,5 +64,13 @@ public final class TaskRunner {
                 handler.post(() -> callback.onError(e));
             }
         });
+    }
+
+    public static void shutdown() {
+        if (INSTANCE != null) {
+            INSTANCE.executor.shutdown();
+            INSTANCE.ioExecutor.shutdown();
+            INSTANCE = null;
+        }
     }
 }
