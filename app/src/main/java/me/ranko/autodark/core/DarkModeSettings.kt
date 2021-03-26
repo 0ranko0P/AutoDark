@@ -1,10 +1,7 @@
 package me.ranko.autodark.core
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.app.UiModeManager
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -53,7 +50,7 @@ annotation class DARK_JOB_TYPE
  *
  * @author  0ranko0P
  * */
-class DarkModeSettings private constructor(private val context: Context) :
+class DarkModeSettings private constructor(private val context: Application) :
     OnPreferenceChangeListener,
     DefaultLifecycleObserver {
 
@@ -73,7 +70,9 @@ class DarkModeSettings private constructor(private val context: Context) :
         fun getInstance(context: Context): DarkModeSettings {
             if (INSTANCE == null) {
                 synchronized(DarkLocationUtil::class.java) {
-                    if (INSTANCE == null) INSTANCE = DarkModeSettings(context)
+                    if (INSTANCE == null) {
+                        INSTANCE = DarkModeSettings(context.applicationContext as Application)
+                    }
                 }
             }
             return INSTANCE!!
