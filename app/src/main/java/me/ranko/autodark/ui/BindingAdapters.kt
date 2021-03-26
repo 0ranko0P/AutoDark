@@ -7,8 +7,8 @@ import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.marcdonald.simplelicensedisplay.SimpleLicenseDisplay
-import me.ranko.autodark.Constant
 import me.ranko.autodark.R
+import me.ranko.autodark.core.LoadStatus
 
 @BindingAdapter("setActiveImg")
 fun setActiveImg(fab: FloatingActionButton, state: DarkSwitch) {
@@ -40,13 +40,13 @@ fun setActiveImg(fab: FloatingActionButton, state: DarkSwitch) {
 }
 
 @BindingAdapter("onButtonJobProgress")
-fun onButtonJobProgress(v: TextView, process: Int) {
-    v.visibility = if (process == Constant.JOB_STATUS_PENDING) View.GONE else View.VISIBLE
+fun onButtonJobProgress(v: TextView, @LoadStatus process: Int) {
+    v.visibility = if (process == LoadStatus.START) View.GONE else View.VISIBLE
 }
 
 @BindingAdapter("onJobProgress")
-fun onJobProgress(v: ProgressBar, process: Int) {
-    v.visibility = if (process == Constant.JOB_STATUS_PENDING) View.VISIBLE else View.GONE
+fun onJobProgress(v: ProgressBar, @LoadStatus process: Int) {
+    v.visibility = if (process == LoadStatus.START) View.VISIBLE else View.GONE
 }
 
 @BindingAdapter("bindLicense")

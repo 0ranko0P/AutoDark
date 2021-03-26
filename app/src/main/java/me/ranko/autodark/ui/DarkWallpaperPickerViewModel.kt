@@ -12,9 +12,9 @@ import com.android.wallpaper.module.WallpaperPersister.*
 import com.android.wallpaper.util.TaskRunner
 import kotlinx.coroutines.*
 import me.ranko.autodark.AutoDarkApplication
-import me.ranko.autodark.Constant
 import me.ranko.autodark.R
 import me.ranko.autodark.core.DarkModeSettings
+import me.ranko.autodark.core.LoadStatus
 import me.ranko.autodark.core.ShizukuApi
 import me.ranko.autodark.core.ShizukuStatus
 import me.ranko.autodark.model.CroppedWallpaperInfo
@@ -117,7 +117,7 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
 
     init {
         if (mHelper.isApplyingLiveWallpaper()) {
-            _loadingStatus.value = Constant.JOB_STATUS_PENDING
+            _loadingStatus.value = LoadStatus.START
             loadingText.set(mApp.getString(R.string.app_loading))
         }
     }
@@ -178,7 +178,7 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
      * @see DarkWallpaperHelper.DefaultWallpaperSetterCallback
      * */
     fun onApplyWallpaperClicked() = viewModelScope.launch(Dispatchers.Main) {
-        _loadingStatus.value = Constant.JOB_STATUS_PENDING
+        _loadingStatus.value = LoadStatus.START
         loadingText.set(mApp.getString(R.string.prepare_wallpaper_progress_message))
 
         val isDarkMode = DarkModeSettings.getInstance(mApp).isDarkMode() == true
@@ -201,13 +201,13 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
                 // receive results through callback
                 mHelper.onAlarm(isDarkMode)
             } else {
-                _loadingStatus.value = Constant.JOB_STATUS_SUCCEED
+                _loadingStatus.value = LoadStatus.SUCCEED
                 message.set(R.string.save_wallpaper_success_message)
             }
         } catch (e: Exception) {
             exception = e
             Timber.w(e)
-            _loadingStatus.value = Constant.JOB_STATUS_FAILED
+            _loadingStatus.value = LoadStatus.FAILED
         }
     }
 
@@ -218,8 +218,8 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
      * @see DarkWallpaperHelper.DefaultWallpaperSetterCallback
      * */
     override fun onSuccess(id: String) {
-        if (_loadingStatus.value != Constant.JOB_STATUS_SUCCEED)
-            _loadingStatus.value = Constant.JOB_STATUS_SUCCEED
+        if (_loadingStatus.value != LoadStatus.SUCCEED)
+            _loadingStatus.value = LoadStatus.SUCCEED
         message.set(R.string.save_wallpaper_success_message)
     }
 
@@ -232,7 +232,7 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
     override fun onError(e: java.lang.Exception?) {
         Timber.w(e, "onApplyWallpaper: failed to apply wallpapers")
         exception = e
-        _loadingStatus.value = Constant.JOB_STATUS_FAILED
+        _loadingStatus.value = LoadStatus.FAILED
     }
 
     fun onWallpaperCorrupted(asset: Asset) {
@@ -267,7 +267,7 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
 
     fun deleteAll() = viewModelScope.launch(Dispatchers.Main) {
         val start = System.currentTimeMillis()
-        _loadingStatus.value = Constant.JOB_STATUS_PENDING
+        _loadingStatus.value = LoadStatus.START
         loadingText.set(mApp.getString(R.string.delete_wallpapers, mApp.getString(R.string.pref_dark_wallpaper_title)))
         val systemWallpaper = mHelper.deleteAll()
         _pickedLightWallpapers.value = systemWallpaper
@@ -277,7 +277,7 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
         if (cost < 1000L) delay(2000L)
 
         updateButtonsState()
-        _loadingStatus.value = Constant.JOB_STATUS_SUCCEED
+        _loadingStatus.value = LoadStatus.SUCCEED
         message.set(R.string.app_success)
     }
 

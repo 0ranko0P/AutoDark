@@ -11,9 +11,11 @@ import androidx.databinding.ObservableInt
 import androidx.lifecycle.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import me.ranko.autodark.Constant.*
+import me.ranko.autodark.Constant.COMMAND_GRANT_ADB
+import me.ranko.autodark.Constant.COMMAND_GRANT_PM
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.ShellJobUtil
+import me.ranko.autodark.core.LoadStatus
 import me.ranko.autodark.core.ShizukuApi
 import timber.log.Timber
 
@@ -22,9 +24,7 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
     /**
      * Progress that indicates grant with root permission job status
      *
-     * @see  JOB_STATUS_SUCCEED
-     * @see  JOB_STATUS_FAILED
-     * @see  JOB_STATUS_PENDING
+     * @see LoadStatus
      * */
     val sudoJobStatus = ObservableInt()
     val adbJobStatus = ObservableInt()
@@ -45,7 +45,7 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
      * */
     private fun grantPermission(jobIndicator: ObservableInt) = viewModelScope.launch {
         try {
-            jobIndicator.set(JOB_STATUS_PENDING)
+            jobIndicator.set(LoadStatus.START)
             when (jobIndicator) {
                 adbJobStatus -> { /* do nothing */ }
 
@@ -61,7 +61,7 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
             // Notify permission result
             _permissionResult.value = checkSecurePermission(getApplication())
             // Notify job completed
-            jobIndicator.set(if (_permissionResult.value!!) JOB_STATUS_SUCCEED else JOB_STATUS_FAILED)
+            jobIndicator.set(if (_permissionResult.value!!) LoadStatus.SUCCEED else LoadStatus.FAILED)
         }
     }
 

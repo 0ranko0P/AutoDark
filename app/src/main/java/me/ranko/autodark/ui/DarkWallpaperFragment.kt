@@ -45,6 +45,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.ranko.autodark.Constant
 import me.ranko.autodark.R
+import me.ranko.autodark.core.LoadStatus
 import me.ranko.autodark.databinding.FragmentDarkWallpaperBinding
 import me.ranko.autodark.model.CroppedWallpaperInfo
 import me.ranko.autodark.ui.DarkWallpaperPickerViewModel.WallpaperRequest
@@ -408,7 +409,7 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
         viewModel.pickedDarkWallpapers.observe(viewLifecycleOwner, mDarkWallpaperObserver)
 
         viewModel.loadStatus.observe(viewLifecycleOwner, Observer { status ->
-            if (status == Constant.JOB_STATUS_FAILED) {
+            if (status == LoadStatus.FAILED) {
                 showSaveWallpaperErrorDialog(viewModel.getException(), DEST_BOTH)
             }
         })
