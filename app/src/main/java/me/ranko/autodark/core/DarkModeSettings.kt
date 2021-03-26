@@ -200,9 +200,6 @@ class DarkModeSettings private constructor(private val context: Context) :
      * */
     override fun onPreferenceChange(preference: Preference, newValue: Any): Boolean {
         val key = preference.key
-        if (key != DARK_PREFERENCE_START && key != DARK_PREFERENCE_END)
-            throw RuntimeException("Wtf are you listening? $key")
-
         val time = newValue as LocalTime
         // Set start alarm at tomorrow
         setNextAlarm(time, key)
