@@ -70,7 +70,7 @@ public abstract class StreamableAsset extends Asset {
             case ExifInterface.ORIENTATION_ROTATE_270:
                 return 270;
             default:
-                Timber.w("Unsupported EXIF orientation %s", exifOrientation);
+                Timber.d("Unsupported EXIF orientation %s", exifOrientation);
                 return 0;
         }
     }
