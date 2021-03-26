@@ -27,6 +27,8 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
+import com.android.wallpaper.util.TaskRunner.Callback;
+
 import java.io.IOException;
 import java.util.Objects;
 
@@ -58,7 +60,7 @@ public class LiveWallpaperThumbAsset extends Asset {
     }
 
     @Override
-    public void decodeBitmapAsync(int targetWidth, int targetHeight, BitmapReceiver receiver) {
+    public void decodeBitmapAsync(int targetWidth, int targetHeight, Callback<Bitmap> receiver) {
         throw new UnsupportedOperationException();
     }
 
@@ -75,7 +77,7 @@ public class LiveWallpaperThumbAsset extends Asset {
 
     @Override
     public void decodeBitmapRegionAsync(Rect rect, int targetWidth, int targetHeight,
-                                   BitmapReceiver receiver) {
+                                        Callback<Bitmap> receiver) {
         receiver.onError(new UnsupportedOperationException());
     }
 

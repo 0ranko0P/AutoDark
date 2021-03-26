@@ -30,6 +30,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
+import com.android.wallpaper.util.TaskRunner.Callback;
+
 import java.io.IOException;
 
 import timber.log.Timber;
@@ -37,7 +39,9 @@ import timber.log.Timber;
 /**
  * Interface representing an image asset.
  *
- * [0ranko0P]: Make all asset receiver callback extends [ErrorReceiver].
+ * [0ranko0P] changes:
+ *     0. Make all asset receiver callback extends [ErrorReceiver].
+ *     1. Replace AsyncTask with Callable.
  */
 public abstract class Asset {
 
@@ -74,7 +78,7 @@ public abstract class Asset {
      * @param receiver     Called with the decoded bitmap or null if there was an error decoding the
      *                     bitmap.
      */
-    public abstract void decodeBitmapAsync(int targetWidth, int targetHeight, BitmapReceiver receiver);
+    public abstract void decodeBitmapAsync(int targetWidth, int targetHeight, Callback<Bitmap> receiver);
 
     @WorkerThread
     public abstract @NonNull Bitmap decodeBitmap(int targetWidth, int targetHeight) throws IOException;
@@ -89,8 +93,7 @@ public abstract class Asset {
      * @param receiver     Called with the decoded bitmap region or null if there was an error
      *                     decoding the bitmap region.
      */
-    public abstract void decodeBitmapRegionAsync(Rect rect, int targetWidth, int targetHeight,
-                                            BitmapReceiver receiver);
+    public abstract void decodeBitmapRegionAsync(Rect rect, int targetWidth, int targetHeight, Callback<Bitmap> receiver);
 
     @WorkerThread
     public @NonNull abstract Bitmap decodeBitmapRegion(Rect rect, int targetWidth, int targetHeight)
@@ -106,17 +109,6 @@ public abstract class Asset {
     public abstract void decodeRawDimensionsAsync(DimensionsReceiver receiver);
 
     public abstract @NonNull Point decodeRawDimensions() throws IOException;
-
-    /**
-     * Interface for receiving decoded Bitmaps.
-     */
-    public interface BitmapReceiver extends ErrorReceiver {
-
-        /**
-         * Called with a decoded Bitmap object or null if there was an error decoding the bitmap.
-         */
-        void onBitmapDecoded(@NonNull Bitmap bitmap);
-    }
 
     /**
      * Interface for receiving raw asset dimensions.

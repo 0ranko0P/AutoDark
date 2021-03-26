@@ -21,7 +21,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.os.AsyncTask;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -32,6 +31,7 @@ import com.android.wallpaper.asset.BitmapUtils;
 import com.android.wallpaper.asset.StreamableAsset;
 import com.android.wallpaper.module.BitmapCropper.Callback;
 import com.android.wallpaper.util.BitmapTransformer;
+import com.android.wallpaper.util.TaskRunner;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -39,7 +39,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
+import java.util.concurrent.Callable;
 
 import timber.log.Timber;
 
@@ -50,6 +50,7 @@ import timber.log.Timber;
  *     0. setIndividualWallpaper to saveCroppedWallpaper.
  *     1. Compress to lossy WEBP by default.
  *     2. Drop WallpaperChangedNotifier
+ *     3. Replace AsyncTask with Callable.
  */
 @SuppressLint({"MissingPermission"})
 public final class WallpaperPersister {
@@ -93,17 +94,18 @@ public final class WallpaperPersister {
         BitmapCropper.cropAndScaleBitmapAsync(asset, wallpaperScale, cropRect, new Callback() {
             @Override
             public void onBitmapCropped(@NonNull Bitmap croppedBitmap) {
-                new PersistWallpaperTask(parent, croppedBitmap, new SetWallpaperCallback() {
+                PersistWallpaperTask task = new PersistWallpaperTask(parent, croppedBitmap);
+                TaskRunner.getINSTANCE().executeIOAsync(task, new TaskRunner.Callback<String>() {
                     @Override
-                    public void onSuccess(String id) {
+                    public void onComplete(String id) {
                         callback.onSuccess(id);
                     }
 
                     @Override
-                    public void onError(@Nullable Exception e) {
+                    public void onError(Exception e) {
                         callback.onError(e);
                     }
-                }).execute();
+                });
             }
 
             @Override
@@ -115,14 +117,18 @@ public final class WallpaperPersister {
 
     public void setIndividualWallpaper(StreamableAsset asset, @Destination final int destination,
                                        @Nullable SetWallpaperCallback callback) {
-        asset.fetchInputStream(inputStream -> {
-            if (inputStream != null) {
+        asset.fetchInputStream(new TaskRunner.Callback<InputStream>() {
+            @Override
+            public void onComplete(InputStream inputStream) {
                 setIndividualWallpaper(inputStream, destination, callback);
-            } else {
+            }
+
+            @Override
+            public void onError(Exception e) {
                 if (callback != null) {
-                    callback.onError(new IOException("Failed to obtain inputStream."));
+                    callback.onError(e);
                 } else {
-                    Timber.e("Failed to obtain inputStream.");
+                    Timber.e(e, "Failed to obtain inputStream.");
                 }
             }
         });
@@ -138,9 +144,28 @@ public final class WallpaperPersister {
     private void setIndividualWallpaper(InputStream inputStream,
                                         @Destination int destination,
                                         @Nullable SetWallpaperCallback callback) {
-        SetWallpaperTask setWallpaperTask = new SetWallpaperTask(inputStream, destination,
-                mWallpaperManager, callback);
-        setWallpaperTask.execute();
+        SetWallpaperTask setWallpaperTask = new SetWallpaperTask(inputStream, destination, mWallpaperManager);
+        TaskRunner.getINSTANCE().executeAsync(setWallpaperTask, new TaskRunner.Callback<Integer>() {
+            @Override
+            public void onComplete(Integer wallpaperId) {
+                if (callback == null) return;
+
+                if (wallpaperId > 0) {
+                    callback.onSuccess(String.valueOf(wallpaperId));
+                } else {
+                    callback.onError(null);
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                if (callback == null) {
+                    Timber.e(e, "Unable to set wallpaper");
+                } else {
+                    callback.onError(e);
+                }
+            }
+        });
     }
 
     /**
@@ -180,37 +205,20 @@ public final class WallpaperPersister {
         }
     }
 
-    /**
-     * Sets a static individual wallpaper to the system via the WallpaperManager.
-     *
-     * @param croppedBitmap Bitmap representing the individual wallpaper image.
-     * @param destination   The destination - where to set the wallpaper to.
-     * @param callback      Called once the wallpaper was set or if an error occurred.
-     */
-    private void setIndividualWallpaper(@NonNull Bitmap croppedBitmap, @Destination int destination,
-                                        SetWallpaperCallback callback) {
-        SetWallpaperTask setWallpaperTask =
-                new SetWallpaperTask(Objects.requireNonNull(croppedBitmap), destination, mWallpaperManager, callback);
-        setWallpaperTask.execute();
-    }
-
-    private static final class PersistWallpaperTask extends AsyncTask<Void, Void, String> {
+    private static final class PersistWallpaperTask implements Callable<String> {
         private final File mParent;
         private Bitmap bitmap;
-        private final SetWallpaperCallback mCallback;
 
-        PersistWallpaperTask(File parent, Bitmap bitmap, SetWallpaperCallback callback) {
+        PersistWallpaperTask(File parent, Bitmap bitmap) {
             this.mParent = parent;
             this.bitmap = bitmap;
-            this.mCallback = callback;
         }
 
         @Override
-        protected String doInBackground(Void... voids) {
+        public String call() throws IOException {
             if (!mParent.exists()) {
                 if (!mParent.mkdirs()) {
-                    mCallback.onError(new IOException("Unable to create " + mParent));
-                    return null;
+                    throw new IOException("Unable to create " + mParent);
                 }
             }
             String id = String.valueOf(BitmapUtils.generateHashCode(bitmap));
@@ -221,32 +229,23 @@ public final class WallpaperPersister {
                 } else {
                     throw new IOException("Failed to compress bitmap, path: " + target);
                 }
-            } catch (Exception e) {
-                mCallback.onError(e);
-                return null;
             } finally {
                 bitmap.recycle();
                 bitmap = null;
             }
         }
-
-        @Override
-        protected void onPostExecute(@Nullable String id) {
-            if (id != null) mCallback.onSuccess(id);
-        }
     }
 
-    public static final class SetWallpaperTask extends AsyncTask<Void, Void, Integer> {
+    public static final class SetWallpaperTask implements Callable<Integer> {
         @Destination
         private final int mDestination;
-
-        @Nullable
-        private final SetWallpaperCallback mCallback;
 
         private Bitmap mBitmap;
         private InputStream mInputStream;
 
         private final WallpaperManager mWallpaperManager;
+
+        private boolean allowBackup;
 
         /**
          * Optional parameters for applying a post-decoding fill or stretch transformation.
@@ -256,26 +255,22 @@ public final class WallpaperPersister {
         @Nullable
         private Point mStretchSize;
 
-        SetWallpaperTask(@NonNull Bitmap bitmap, @Destination int destination,
-                         WallpaperManager wallpaperManager, @Nullable SetWallpaperCallback callback) {
+        SetWallpaperTask(@NonNull Bitmap bitmap, @Destination int destination, WallpaperManager wallpaperManager) {
             super();
             mBitmap = bitmap;
             mDestination = destination;
             mWallpaperManager = wallpaperManager;
-            mCallback = callback;
         }
 
         /**
          * Constructor for SetWallpaperTask which takes an InputStream instead of a bitmap. The task
          * will close the InputStream once it is done with it.
          */
-        public SetWallpaperTask(@NonNull InputStream stream, @Destination int destination,
-                                WallpaperManager wallpaperManager, @Nullable SetWallpaperCallback callback) {
+        public SetWallpaperTask(@NonNull InputStream stream, @Destination int destination, WallpaperManager wallpaperManager) {
             super();
             mInputStream = stream;
             mDestination = destination;
             mWallpaperManager = wallpaperManager;
-            mCallback = callback;
         }
 
         void setFillSize(Point fillSize) {
@@ -297,7 +292,7 @@ public final class WallpaperPersister {
         }
 
         @Override
-        protected Integer doInBackground(Void... unused) {
+        public Integer call() throws IOException {
             int whichWallpaper;
             if (mDestination == DEST_HOME_SCREEN) {
                 whichWallpaper = WallpaperManager.FLAG_SYSTEM;
@@ -307,44 +302,28 @@ public final class WallpaperPersister {
                 whichWallpaper = WallpaperManager.FLAG_SYSTEM | WallpaperManager.FLAG_LOCK;
             }
 
-            boolean allowBackup = false;
-
-            try {
-                final int wallpaperId;
-                if (mBitmap != null) {
-                    // Apply fill or stretch transformations on mBitmap if necessary.
-                    if (mFillSize != null) {
-                        mBitmap = BitmapTransformer.applyFillTransformation(mBitmap, mFillSize);
-                    }
-                    if (mStretchSize != null) {
-                        mBitmap = Bitmap.createScaledBitmap(mBitmap, mStretchSize.x, mStretchSize.y,
-                                true);
-                    }
-
-                    wallpaperId = setBitmapToWallpaperManager(mBitmap, allowBackup, whichWallpaper, mWallpaperManager);
-                } else if (mInputStream != null) {
-                    wallpaperId = mWallpaperManager.setStream(mInputStream, null, allowBackup,
-                            whichWallpaper);
-                } else {
-                    throw new NullPointerException(
-                            "Both the wallpaper bitmap and input stream are null so we're unable to "
-                                    + "set any "
-                                    + "kind of wallpaper here.");
+            final int wallpaperId;
+            if (mBitmap != null) {
+                // Apply fill or stretch transformations on mBitmap if necessary.
+                if (mFillSize != null) {
+                    mBitmap = BitmapTransformer.applyFillTransformation(mBitmap, mFillSize);
+                }
+                if (mStretchSize != null) {
+                    mBitmap = Bitmap.createScaledBitmap(mBitmap, mStretchSize.x, mStretchSize.y,
+                            true);
                 }
 
-                return wallpaperId;
-            } catch (IOException | IllegalArgumentException e) {
-                if (mCallback != null) {
-                    mCallback.onError(e);
-                } else {
-                    Timber.e(e);
-                }
-                return -1;
+                wallpaperId = setBitmapToWallpaperManager(mBitmap, allowBackup, whichWallpaper, mWallpaperManager);
+            } else if (mInputStream != null) {
+                wallpaperId = mWallpaperManager.setStream(mInputStream, null, allowBackup,
+                        whichWallpaper);
+            } else {
+                throw new NullPointerException(
+                        "Both the wallpaper bitmap and input stream are null so we're unable to "
+                                + "set any "
+                                + "kind of wallpaper here.");
             }
-        }
 
-        @Override
-        protected void onPostExecute(Integer wallpaperId) {
             if (mInputStream != null) {
                 try {
                     mInputStream.close();
@@ -352,13 +331,8 @@ public final class WallpaperPersister {
                     Timber.e(e, "Failed to close input stream ");
                 }
             }
-            if (mCallback == null) return;
 
-            if (wallpaperId > 0) {
-                mCallback.onSuccess(String.valueOf(wallpaperId));
-            } else {
-                mCallback.onError(null /* throwable */);
-            }
+            return wallpaperId;
         }
     }
 }

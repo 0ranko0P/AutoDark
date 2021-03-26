@@ -23,15 +23,18 @@ import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.media.ExifInterface;
-import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
+import com.android.wallpaper.util.TaskRunner;
+import com.android.wallpaper.util.TaskRunner.Callback;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 
 import timber.log.Timber;
 
@@ -40,7 +43,7 @@ import timber.log.Timber;
  * decoding.
  *
  * [0ranko0P] changes:
- *     0. Make AsyncTasks static.
+ *     0. Replace AsyncTask with Callable.
  *     1. Use Timber instead of Log.
  *     2. Drop some function.
  *     3. Add recycle function since some asset only decode once.
@@ -74,14 +77,24 @@ public abstract class StreamableAsset extends Asset {
 
     @Override
     public void decodeRawDimensionsAsync(DimensionsReceiver receiver) {
-        DecodeDimensionsAsyncTask task = new DecodeDimensionsAsyncTask(this, receiver);
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        DecodeDimensionsAsyncTask task = new DecodeDimensionsAsyncTask(this);
+        TaskRunner.getINSTANCE().executeIOAsync(task, new Callback<Point>() {
+            @Override
+            public void onComplete(Point dimensions) {
+                receiver.onDimensionsDecoded(dimensions);
+            }
+
+            @Override
+            public void onError(Exception e) {
+                receiver.onError(e);
+            }
+        });
     }
 
     @Override
-    public void decodeBitmapAsync(int targetWidth, int targetHeight, BitmapReceiver receiver) {
-        DecodeBitmapAsyncTask task = new DecodeBitmapAsyncTask(this, targetWidth, targetHeight, receiver);
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    public void decodeBitmapAsync(int targetWidth, int targetHeight, Callback<Bitmap> receiver) {
+        DecodeBitmapAsyncTask task = new DecodeBitmapAsyncTask(this, targetWidth, targetHeight);
+        TaskRunner.getINSTANCE().executeIOAsync(task, receiver);
     }
 
     @NonNull
@@ -92,10 +105,9 @@ public abstract class StreamableAsset extends Asset {
 
     @Override
     public void decodeBitmapRegionAsync(Rect rect, int targetWidth, int targetHeight,
-                                   BitmapReceiver receiver) {
-        DecodeBitmapRegionAsyncTask task =
-                new DecodeBitmapRegionAsyncTask(this, rect, targetWidth, targetHeight, receiver);
-        task.execute();
+                                   Callback<Bitmap> receiver) {
+        DecodeBitmapRegionAsyncTask task = new DecodeBitmapRegionAsyncTask(this, rect, targetWidth, targetHeight);
+        TaskRunner.getINSTANCE().executeIOAsync(task, receiver);
     }
 
     @Override
@@ -107,11 +119,10 @@ public abstract class StreamableAsset extends Asset {
 
     /**
      * Fetches an input stream of bytes for the wallpaper image asset and provides the stream
-     * asynchronously back to a {@link StreamReceiver}.
+     * asynchronously back to a {@link Callback}.
      */
-    public void fetchInputStream(final StreamReceiver streamReceiver) {
-        FetchInputStreamAsyncTask task = new FetchInputStreamAsyncTask(this, streamReceiver);
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+    public void fetchInputStream(final Callback<InputStream> streamReceiver) {
+        TaskRunner.getINSTANCE().executeIOAsync(new FetchInputStreamAsyncTask(this), streamReceiver);
     }
 
     /**
@@ -213,33 +224,16 @@ public abstract class StreamableAsset extends Asset {
     }
 
     /**
-     * Interface for receiving unmodified input streams of the underlying asset without any
-     * downscaling or other decoding options.
-     */
-    public interface StreamReceiver {
-
-        /**
-         * Called with an opened input stream of bytes from the underlying image asset. Clients must
-         * close the input stream after it has been read. Returns null if there was an error opening the
-         * input stream.
-         */
-        void onInputStreamOpened(@Nullable InputStream inputStream);
-    }
-
-    /**
-     * AsyncTask which decodes a Bitmap off the UI thread. Scales the Bitmap for the target width and
+     * CallableTask which decodes a Bitmap off the UI thread. Scales the Bitmap for the target width and
      * height if possible.
      */
-    protected static class DecodeBitmapAsyncTask extends AsyncTask<Void, Void, Bitmap> {
+    protected static class DecodeBitmapAsyncTask implements Callable<Bitmap> {
         protected final StreamableAsset mAsset;
-        protected final BitmapReceiver mReceiver;
         protected final int mTargetWidth;
         protected final int mTargetHeight;
 
-        public DecodeBitmapAsyncTask(StreamableAsset asset, int targetWidth, int targetHeight,
-                                     BitmapReceiver receiver) {
+        public DecodeBitmapAsyncTask(StreamableAsset asset, int targetWidth, int targetHeight) {
             mAsset = asset;
-            mReceiver = receiver;
             mTargetWidth = targetWidth;
             mTargetHeight = targetHeight;
         }
@@ -285,36 +279,23 @@ public abstract class StreamableAsset extends Asset {
         }
 
         @Override
-        protected Bitmap doInBackground(Void... unused) {
-            try {
-                return decode(mAsset, mTargetWidth, mTargetHeight);
-            } catch (Exception e) {
-                mReceiver.onError(e);
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            if (bitmap != null) mReceiver.onBitmapDecoded(bitmap);
+        public Bitmap call() throws Exception {
+            return decode(mAsset, mTargetWidth, mTargetHeight);
         }
     }
 
     /**
-     * AsyncTask subclass which decodes a bitmap region from the asset off the main UI thread.
+     * Callable subclass which decodes a bitmap region from the asset off the main UI thread.
      */
-    protected static final class DecodeBitmapRegionAsyncTask extends AsyncTask<Void, Void, Bitmap> {
+    protected static final class DecodeBitmapRegionAsyncTask implements Callable<Bitmap> {
         private final StreamableAsset mAsset;
         private final Rect mCropRect;
-        private final BitmapReceiver mReceiver;
         private final int mTargetWidth;
         private final int mTargetHeight;
 
-        public DecodeBitmapRegionAsyncTask(StreamableAsset asset, Rect rect, int targetWidth, int targetHeight,
-                                           BitmapReceiver receiver) {
+        public DecodeBitmapRegionAsyncTask(StreamableAsset asset, Rect rect, int targetWidth, int targetHeight) {
             mAsset = asset;
             mCropRect = rect;
-            mReceiver = receiver;
             mTargetWidth = targetWidth;
             mTargetHeight = targetHeight;
         }
@@ -362,69 +343,38 @@ public abstract class StreamableAsset extends Asset {
         }
 
         @Override
-        protected Bitmap doInBackground(Void... voids) {
-            try {
-                return decode(mAsset, mCropRect, mTargetWidth, mTargetHeight);
-            } catch (Exception e) {
-                mReceiver.onError(e);
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            if (bitmap != null) mReceiver.onBitmapDecoded(bitmap);
+        public Bitmap call() throws IOException {
+            return decode(mAsset, mCropRect, mTargetWidth, mTargetHeight);
         }
     }
 
     /**
-     * AsyncTask subclass which decodes the raw dimensions of the asset off the main UI thread. Avoids
+     * Callable subclass which decodes the raw dimensions of the asset off the main UI thread. Avoids
      * allocating memory for the fully decoded image.
      */
-    private static final class DecodeDimensionsAsyncTask extends AsyncTask<Void, Void, Point> {
-        private DimensionsReceiver mReceiver;
-        private StreamableAsset asset;
+    private static final class DecodeDimensionsAsyncTask implements Callable<Point> {
+        private final StreamableAsset asset;
 
-        public DecodeDimensionsAsyncTask(StreamableAsset asset, DimensionsReceiver receiver) {
+        public DecodeDimensionsAsyncTask(StreamableAsset asset) {
             this.asset = asset;
-            this.mReceiver = receiver;
         }
 
         @Override
-        protected Point doInBackground(Void... unused) {
-            try {
-                return asset.decodeRawDimensions();
-            } catch (IOException e) {
-                mReceiver.onError(e);
-                return null;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Point dimensions) {
-            if (dimensions != null) {
-                mReceiver.onDimensionsDecoded(dimensions);
-            }
+        public Point call() throws Exception {
+            return asset.decodeRawDimensions();
         }
     }
 
-    private static final class FetchInputStreamAsyncTask extends AsyncTask<Void, Void, InputStream> {
-        private StreamableAsset mAsset;
-        private StreamReceiver mReceiver;
+    private static final class FetchInputStreamAsyncTask implements Callable<InputStream> {
+        private final StreamableAsset mAsset;
 
-        private FetchInputStreamAsyncTask(StreamableAsset asset, StreamReceiver receiver) {
+        private FetchInputStreamAsyncTask(StreamableAsset asset) {
             mAsset = asset;
-            mReceiver = receiver;
         }
 
         @Override
-        protected InputStream doInBackground(Void... params) {
-            return mAsset.openInputStream();
-        }
-
-        @Override
-        protected void onPostExecute(InputStream inputStream) {
-            mReceiver.onInputStreamOpened(inputStream);
+        public InputStream call() {
+            return Objects.requireNonNull(mAsset.openInputStream());
         }
     }
 }

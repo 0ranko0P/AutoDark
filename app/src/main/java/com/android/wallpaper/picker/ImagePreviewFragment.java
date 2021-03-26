@@ -45,6 +45,7 @@ import com.android.wallpaper.model.WallpaperInfo;
 import com.android.wallpaper.module.WallpaperPersister;
 import com.android.wallpaper.module.WallpaperSetter;
 import com.android.wallpaper.util.ScreenSizeCalculator;
+import com.android.wallpaper.util.TaskRunner;
 import com.android.wallpaper.util.WallpaperCropUtils;
 import com.android.wallpaper.widget.BottomActionBar;
 import com.android.wallpaper.widget.LockScreenPreviewer;
@@ -59,7 +60,6 @@ import java.util.Objects;
 import me.ranko.autodark.R;
 import me.ranko.autodark.Utils.ViewUtil;
 import me.ranko.autodark.model.CroppedWallpaperInfo;
-import timber.log.Timber;
 
 import static com.android.wallpaper.module.WallpaperPersister.DEST_BOTH;
 import static com.android.wallpaper.widget.BottomActionBar.BottomAction.APPLY;
@@ -280,10 +280,9 @@ public final class ImagePreviewFragment extends PreviewFragment
         // Then set a fallback "page bitmap" to cover the whole MosaicView, which is an actual
         // (lower res) version of the image to be displayed.
         Point targetPageBitmapSize = new Point(mRawWallpaperSize);
-        mWallpaper.getAsset(requireContext()).decodeBitmapAsync(targetPageBitmapSize.x, targetPageBitmapSize.y,
-                new Asset.BitmapReceiver() {
+        mWallpaper.getAsset(requireContext()).decodeBitmapAsync(targetPageBitmapSize.x, targetPageBitmapSize.y, new TaskRunner.Callback<Bitmap>() {
             @Override
-            public void onBitmapDecoded(@NonNull Bitmap pageBitmap) {
+            public void onComplete(@NonNull Bitmap pageBitmap) {
                 // Check that the activity is still around since the decoding task started.
                 if (getActivity() == null) return;
 

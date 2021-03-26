@@ -21,8 +21,9 @@ import android.graphics.Point;
 import android.graphics.Rect;
 import android.media.ExifInterface;
 import android.net.Uri;
-import android.os.AsyncTask;
 
+import com.android.wallpaper.util.TaskRunner;
+import com.android.wallpaper.util.TaskRunner.Callback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -30,6 +31,7 @@ import androidx.annotation.WorkerThread;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.Callable;
 
 import timber.log.Timber;
 
@@ -65,7 +67,7 @@ public class ContentUriAsset extends StreamableAsset {
 
     @Override
     public void decodeBitmapRegionAsync(final Rect rect, int targetWidth, int targetHeight,
-                                   final BitmapReceiver receiver) {
+                                   final Callback<Bitmap> receiver) {
         // BitmapRegionDecoder only supports images encoded in either JPEG or PNG, so if the content
         // URI asset is encoded with another format (for example, GIF), then fall back to cropping a
         // bitmap region from the full-sized bitmap.
@@ -78,11 +80,11 @@ public class ContentUriAsset extends StreamableAsset {
             @Override
             public void onDimensionsDecoded(@NonNull Point dimensions) {
 
-                decodeBitmapAsync(dimensions.x, dimensions.y, new BitmapReceiver() {
+                decodeBitmapAsync(dimensions.x, dimensions.y, new Callback<Bitmap>() {
                     @Override
-                    public void onBitmapDecoded(@NonNull Bitmap fullBitmap) {
-                        BitmapCropTask task = new BitmapCropTask(fullBitmap, rect, receiver);
-                        task.execute();
+                    public void onComplete(Bitmap fullBitmap) {
+                        BitmapCropTask task = new BitmapCropTask(fullBitmap, rect);
+                        TaskRunner.getINSTANCE().executeIOAsync(task, receiver);
                     }
 
                     @Override
@@ -186,36 +188,25 @@ public class ContentUriAsset extends StreamableAsset {
     }
 
     /**
-     * Custom AsyncTask which crops a bitmap region from a larger bitmap.
+     * Custom Callable which crops a bitmap region from a larger bitmap.
      */
-    private final static class BitmapCropTask extends AsyncTask<Void, Void, Bitmap> {
+    private final static class BitmapCropTask implements Callable<Bitmap> {
+        private final Bitmap mFromBitmap;
+        private final Rect mCropRect;
 
-        private Bitmap mFromBitmap;
-        private Rect mCropRect;
-        private BitmapReceiver mReceiver;
-
-        public BitmapCropTask(@NonNull Bitmap fromBitmap, Rect cropRect, BitmapReceiver receiver) {
+        public BitmapCropTask(@NonNull Bitmap fromBitmap, Rect cropRect) {
             mFromBitmap = fromBitmap;
             mCropRect = cropRect;
-            mReceiver = receiver;
         }
 
         @Override
-        protected Bitmap doInBackground(Void... unused) {
-            try {
-                return Bitmap.createBitmap(
-                        mFromBitmap, mCropRect.left, mCropRect.top, mCropRect.width(),
-                        mCropRect.height());
-            } catch (IllegalArgumentException e) {
-                mReceiver.onError(e);
-                return null;
-            }
-        }
+        public Bitmap call(){
+            Bitmap bitmap = Bitmap.createBitmap(
+                    mFromBitmap, mCropRect.left, mCropRect.top, mCropRect.width(),
+                    mCropRect.height());
 
-        @Override
-        protected void onPostExecute(Bitmap bitmapRegion) {
             mFromBitmap.recycle();
-            if (bitmapRegion != null){ mReceiver.onBitmapDecoded(bitmapRegion);}
+            return bitmap;
         }
     }
 }

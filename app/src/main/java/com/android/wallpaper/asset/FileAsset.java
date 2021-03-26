@@ -21,6 +21,9 @@ import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
 
+import com.android.wallpaper.util.TaskRunner;
+import com.android.wallpaper.util.TaskRunner.Callback;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -63,9 +66,9 @@ public final class FileAsset extends StreamableAsset {
     }
 
     @Override
-    public void decodeBitmapAsync(int targetWidth, int targetHeight, BitmapReceiver receiver) {
-        DecodeBitmapTask task = new DecodeBitmapTask(this, targetWidth, targetHeight, receiver);
-        task.execute();
+    public void decodeBitmapAsync(int targetWidth, int targetHeight, Callback<Bitmap> receiver) {
+        DecodeBitmapTask task = new DecodeBitmapTask(this, targetWidth, targetHeight);
+        TaskRunner.getINSTANCE().executeIOAsync(task, receiver);
     }
 
     @Override
@@ -95,21 +98,15 @@ public final class FileAsset extends StreamableAsset {
         return "FileAsset{" + "mFile=" + mFile + '}';
     }
 
-    public static final class DecodeBitmapTask extends DecodeBitmapAsyncTask {
+    private static final class DecodeBitmapTask extends DecodeBitmapAsyncTask {
 
-        public DecodeBitmapTask(StreamableAsset asset, int targetWidth, int targetHeight,
-                                BitmapReceiver receiver) {
-            super(asset, targetWidth, targetHeight, receiver);
+        DecodeBitmapTask(StreamableAsset asset, int targetWidth, int targetHeight) {
+            super(asset, targetWidth, targetHeight);
         }
 
         @Override
-        protected Bitmap doInBackground(Void... unused) {
-            try {
-                return mAsset.decodeBitmap(mTargetWidth, mTargetHeight);
-            } catch (IOException e) {
-                mReceiver.onError(e);
-                return null;
-            }
+        public Bitmap call() throws Exception {
+            return mAsset.decodeBitmap(mTargetWidth, mTargetHeight);
         }
     }
 }

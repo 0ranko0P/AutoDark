@@ -30,6 +30,7 @@ import androidx.annotation.Nullable;
 import com.android.wallpaper.asset.Asset;
 import com.android.wallpaper.asset.LiveWallpaperThumbAsset;
 import com.android.wallpaper.util.ScreenSizeCalculator;
+import com.android.wallpaper.util.TaskRunner;
 
 import timber.log.Timber;
 
@@ -65,9 +66,9 @@ public final class WallpaperColorsLoader {
 
         Display display = context.getSystemService(WindowManager.class).getDefaultDisplay();
         Point screen = ScreenSizeCalculator.getInstance().getScreenSize(display);
-        asset.decodeBitmapAsync(screen.y / 2, screen.x / 2, new Asset.BitmapReceiver() {
+        asset.decodeBitmapAsync(screen.y / 2, screen.x / 2, new TaskRunner.Callback<Bitmap>() {
             @Override
-            public void onBitmapDecoded(@NonNull Bitmap bitmap) {
+            public void onComplete(@NonNull Bitmap bitmap) {
                 boolean shouldRecycle = false;
                 if (bitmap.getConfig() == Bitmap.Config.HARDWARE) {
                     bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, false);
