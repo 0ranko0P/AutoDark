@@ -20,18 +20,16 @@
         tools:description="@string/shizuku_description"
         tools:title="@string/shizuku_title">
 
-        <TextView
-            android:id="@+id/btnShizuku"
+        <TextView android:id="@+id/btnShizuku"
             style="@style/CardButton"
             android:drawableStart="@drawable/ic_grant"
             android:onClick="onShizukuClick"
             android:text="@string/root_grant"
-            app:onButtonJobProgress="@{viewModel.shizukuJobStatus}" />
+            app:hideOnLoading="@{viewModel.shizukuJobStatus}" />
 
-        <ProgressBar
-            android:id="@+id/progressShizuku"
+        <ProgressBar android:id="@+id/progressShizuku"
             style="@style/CardProgress"
-            app:onJobProgress="@{viewModel.shizukuJobStatus}"
+            app:showOnLoading="@{viewModel.shizukuJobStatus}"
             tools:visibility="visible" />
     </me.ranko.autodark.ui.widget.PermissionLayout>
 </layout>

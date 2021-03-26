@@ -2,7 +2,6 @@ package me.ranko.autodark.ui
 
 import android.graphics.drawable.Animatable2
 import android.view.View
-import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -39,14 +38,14 @@ fun setActiveImg(fab: FloatingActionButton, state: DarkSwitch) {
     }
 }
 
-@BindingAdapter("onButtonJobProgress")
-fun onButtonJobProgress(v: TextView, @LoadStatus process: Int) {
-    v.visibility = if (process == LoadStatus.START) View.GONE else View.VISIBLE
+@BindingAdapter("hideOnLoading")
+fun hideOnLoading(v: View, @LoadStatus status: Int) {
+    v.visibility = if (status == LoadStatus.START) View.GONE else View.VISIBLE
 }
 
-@BindingAdapter("onJobProgress")
-fun onJobProgress(v: ProgressBar, @LoadStatus process: Int) {
-    v.visibility = if (process == LoadStatus.START) View.VISIBLE else View.GONE
+@BindingAdapter("showOnLoading")
+fun showOnLoading(v: View, @LoadStatus status: Int) {
+    v.visibility = if (status == LoadStatus.START) View.VISIBLE else View.GONE
 }
 
 @BindingAdapter("bindLicense")
