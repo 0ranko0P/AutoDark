@@ -84,7 +84,7 @@ public final class WallpaperColorsLoader {
 
             @Override
             public void onError(@Nullable Exception e) {
-                Timber.e(e, "Can't get wallpaper colors from a null bitmap, uses null color.");
+                Timber.d(e, "Can't get wallpaper colors from a null bitmap, uses null color.");
                 callback.onError(e);
             }});
     }
