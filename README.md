@@ -14,9 +14,10 @@ they already have this function or not compatible with their theme engine.
 
 ## Screenshots
 <p align="middle">
-    <img src="https://raw.githubusercontent.com/0ranko0P/AutoDark/master/fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="256" />
-    <img src="https://raw.githubusercontent.com/0ranko0P/AutoDark/master/fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="256" />
-    <img src="https://raw.githubusercontent.com/0ranko0P/AutoDark/master/fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="256" />
+    <img src="https://raw.githubusercontent.com/0ranko0P/AutoDark/master/fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width="200" />
+    <img src="https://raw.githubusercontent.com/0ranko0P/AutoDark/master/fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="200" />
+    <img src="https://raw.githubusercontent.com/0ranko0P/AutoDark/master/fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width="200" />
+    <img src="https://raw.githubusercontent.com/0ranko0P/AutoDark/master/fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="200" />
 </>
 
 # License
