@@ -269,16 +269,25 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
         val start = System.currentTimeMillis()
         _loadingStatus.value = LoadStatus.START
         loadingText.set(mApp.getString(R.string.delete_wallpapers, mApp.getString(R.string.pref_dark_wallpaper_title)))
-        val systemWallpaper = mHelper.deleteAll()
-        _pickedLightWallpapers.value = systemWallpaper
-        _pickedDarkWallpapers.value = systemWallpaper
-        val cost = System.currentTimeMillis() - start
-        Timber.d("deleteAll time cost: %s.", cost)
-        if (cost < 1000L) delay(2000L)
+        mHelper.deleteAll(object : SetWallpaperCallback {
+            override fun onSuccess(id: String) {
+                onWallpaperDeleted(start, true)
+            }
 
-        updateButtonsState()
+            override fun onError(e: java.lang.Exception?) {
+                onWallpaperDeleted(start, false) // ignore error
+            }
+        })
+    }
+
+    private fun onWallpaperDeleted(start: Long, succeed: Boolean) = viewModelScope.launch(Dispatchers.Main) {
+        val cost = System.currentTimeMillis() - start
+        Timber.i("DeleteAll time cost: %s, succeed: %s", cost, succeed)
+        if (cost < 1000L) delay(2000L)
+        refreshWallpaperPreview()
         _loadingStatus.value = LoadStatus.SUCCEED
         message.set(R.string.app_success)
+        updateButtonsState()
     }
 
     fun refreshWallpaperPreview() {

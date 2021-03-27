@@ -117,19 +117,17 @@ public final class WallpaperSetter {
     /**
      * Sets given wallpapers to the device.
      *
-     * @param context   context.
      * @param home      the actual wallpaper to set.
      * @param lock      optional lockScreen wallpaper.
      * @param callback  optional callback to be notified when the wallpaper is set.
      */
 
-    public void setDarkWallpapers(Context context, DarkWallpaperInfo home,
-                                  @Nullable DarkWallpaperInfo lock,
+    public void setDarkWallpapers(StreamableAsset home, @Nullable StreamableAsset lock,
                                   @NonNull SetWallpaperCallback callback) {
 
         SetWallpaperCallback setHomeCallback = (lock == null) ? callback : id -> {
             try {
-                mWallpaperPersister.setIndividualWallpaper((StreamableAsset) lock.getAsset(context), DEST_LOCK_SCREEN, callback);
+                mWallpaperPersister.setIndividualWallpaper(lock, DEST_LOCK_SCREEN, callback);
             } catch (Exception e) {
                 callback.onError(e);
             }
@@ -138,8 +136,7 @@ public final class WallpaperSetter {
         int destination = lock == null ? DEST_BOTH : DEST_HOME_SCREEN;
 
         try {
-            mWallpaperPersister.setIndividualWallpaper((StreamableAsset) home.getAsset(context),
-                    destination, setHomeCallback);
+            mWallpaperPersister.setIndividualWallpaper(home, destination, setHomeCallback);
         } catch (Exception e) {
             callback.onError(e);
         }

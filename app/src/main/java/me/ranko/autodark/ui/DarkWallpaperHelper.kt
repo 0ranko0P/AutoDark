@@ -12,6 +12,8 @@ import android.util.ArrayMap
 import android.widget.Toast
 import androidx.annotation.VisibleForTesting
 import com.android.wallpaper.asset.BuiltInWallpaperAsset
+import com.android.wallpaper.asset.FileAsset
+import com.android.wallpaper.asset.StreamableAsset
 import com.android.wallpaper.model.LiveWallpaperInfo
 import com.android.wallpaper.model.WallpaperInfo
 import com.android.wallpaper.module.WallpaperPersister
@@ -43,6 +45,11 @@ class DarkWallpaperHelper private constructor(context: Context) {
 
     companion object {
         private const val PREFS_FILE_NAME = "dark_wallpaper"
+
+        private const val DEFAULT_BACKUP_FOLDER = "BackupWallpapers"
+
+        private const val KEY_BACKUP_WALLPAPER_HOME = "bk_HOME"
+        private const val KEY_BACKUP_WALLPAPER_LOCK = "bk_LOCK"
 
         private const val KEY_HIDE_SHIZUKU_WARNING = "hideShizuku"
         private const val KEY_LAST_SETTING_SUCCEED = "NoErr"
@@ -169,17 +176,21 @@ class DarkWallpaperHelper private constructor(context: Context) {
 
         for (type in WallpaperType.values()) {
             yield()
-            val json = mPreference.getString(type.name, null) ?: break
-            val jsonWallpaper = Wallpaper.fromJson(json)
-            val wallpaper: WallpaperInfo = if (jsonWallpaper.liveWallpaper) {
-                createLiveWallpaper(jsonWallpaper) ?: break
-            } else {
-                DarkWallpaperInfo(jsonWallpaper.id)
-            }
+            val wallpaper: WallpaperInfo = readJsonByName(type.name) ?: break
             if (persisted == null) persisted = ArrayList(4)
             persisted.add(wallpaper)
         }
         return persisted
+    }
+
+    private suspend fun readJsonByName(name: String): WallpaperInfo? {
+        val json = mPreference.getString(name, null) ?: return null
+        val jsonWallpaper = Wallpaper.fromJson(json)
+        return if (jsonWallpaper.liveWallpaper) {
+            createLiveWallpaper(jsonWallpaper)
+        } else {
+            DarkWallpaperInfo(jsonWallpaper.id)
+        }
     }
 
     private suspend fun createLiveWallpaper(wallpaper: Wallpaper): LiveWallpaperInfo? {
@@ -232,10 +243,11 @@ class DarkWallpaperHelper private constructor(context: Context) {
         } else {
             val lock = wallpapers[index + 1] as DarkWallpaperInfo
             Timber.d("Applying Wallpaper, homeId: %s, lockId: %s.", home.wallpaperId, lock.wallpaperId)
+            val homeAsset = home.getAsset(mContext!!) as StreamableAsset
             if (home == lock) {
-                mSetter.setDarkWallpapers(mContext, lock, null, callback)
+                mSetter.setDarkWallpapers(homeAsset, null, callback)
             } else {
-                mSetter.setDarkWallpapers(mContext, home as DarkWallpaperInfo, lock, callback)
+                mSetter.setDarkWallpapers(homeAsset, lock.getAsset(mContext!!) as StreamableAsset, callback)
             }
         }
     }
@@ -313,6 +325,7 @@ class DarkWallpaperHelper private constructor(context: Context) {
      * */
     suspend fun persist(): List<WallpaperInfo> = withContext(Dispatchers.IO) {
         val start = System.currentTimeMillis()
+        backupIfNeeded(start)
         val jsonList = ArrayList<Wallpaper>(4)
         // replace mPersisted with new arr once finished
         val newWallpaperArr = ArrayList<WallpaperInfo>(4)
@@ -404,6 +417,93 @@ class DarkWallpaperHelper private constructor(context: Context) {
     }
 
     /**
+     * Backup current [SystemWallpaperInfo] or [LiveWallpaperInfo] to [DEFAULT_BACKUP_FOLDER].
+     * Any exceptions are ignored, since backup procedures aren't that important
+     *
+     * @see KEY_BACKUP_WALLPAPER_HOME
+     * @see KEY_BACKUP_WALLPAPER_LOCK
+     * @see restoreOriginalWallpaper
+     * */
+    private suspend fun backupIfNeeded(start: Long) {
+        if (isDarWallpaperPersisted()) return
+
+        val sysWallpapers = loadWallpaperFromSystem()
+        val home = sysWallpapers.first
+        if (home is LiveWallpaperInfo) {
+            mPreference.edit()
+                    .putString(KEY_BACKUP_WALLPAPER_HOME, Wallpaper.fromLiveWallpaper(home).toJsonString())
+                    .remove(KEY_BACKUP_WALLPAPER_LOCK)
+                    .apply()
+        } else {
+            val backupDir = mContext!!.getFileStreamPath(DEFAULT_BACKUP_FOLDER)
+            if (backupDir.exists().not() && backupDir.mkdir().not()) {
+                Timber.e(IOException("Unable to crate backup dir: $backupDir"))
+                return // ignore it
+            }
+            val lock = sysWallpapers.second as SystemWallpaperInfo
+            var succeed = true
+            try {
+                (home as SystemWallpaperInfo).export(mContext!!, File(backupDir, home.wallpaperId))
+                if (lock != home) {
+                    lock.export(mContext!!, File(backupDir, lock.wallpaperId))
+                }
+            } catch (e: Exception) {
+                succeed = false
+                Timber.e(e, "Unable to backup wallpaper:")
+                return
+            } finally {
+                if (succeed.not()) backupDir.deleteRecursively()
+            }
+
+            val editor = mPreference.edit().putString(KEY_BACKUP_WALLPAPER_HOME, Wallpaper.fromBitmap(home.wallpaperId).toJsonString())
+            if (lock != home) {
+                editor.putString(KEY_BACKUP_WALLPAPER_LOCK, Wallpaper.fromBitmap(lock.wallpaperId).toJsonString())
+            } else {
+                editor.remove(KEY_BACKUP_WALLPAPER_LOCK)
+            }
+            editor.apply()
+            val end = System.currentTimeMillis()
+            Timber.i("Backup completed! time cost: %sms", end - start)
+        }
+    }
+
+    /**
+     * Restore system wallpaper if there is one, any errors are ignored and [DEFAULT_BACKUP_FOLDER]
+     * will be deleted whether successful or not
+     *
+     * @see backupIfNeeded
+     * @see cleanRestoreDir
+     * */
+    private suspend fun restoreOriginalWallpaper(callback: SetWallpaperCallback) {
+        val home: WallpaperInfo? = readJsonByName(KEY_BACKUP_WALLPAPER_HOME)
+        if (home == null) {
+            callback.onError(null)
+            return
+        }
+        val lock: WallpaperInfo? = readJsonByName(KEY_BACKUP_WALLPAPER_LOCK)
+
+        if (home is LiveWallpaperInfo) {
+            val status = ShizukuApi.checkShizuku(mContext!!)
+            if (status == ShizukuStatus.AVAILABLE) {
+                applyLiveWallpaper(home, callback)
+            } else {
+                // skip waiting shizuku online
+                callback.onError(IllegalStateException("Unable connect to Shizuku: $status."))
+            }
+        } else {
+            val backupDir = mContext!!.getFileStreamPath(DEFAULT_BACKUP_FOLDER)
+            val homeAsset = FileAsset(File(backupDir, home.wallpaperId))
+
+            if (lock == null) {
+                mSetter.setDarkWallpapers(homeAsset, null, callback)
+            } else {
+                val lockAsset = FileAsset(File(backupDir, lock.wallpaperId))
+                mSetter.setDarkWallpapers(homeAsset, lockAsset, callback)
+            }
+        }
+    }
+
+    /**
      * Clear all picked wallpapers.
      * */
     fun clearPicked() {
@@ -420,7 +520,7 @@ class DarkWallpaperHelper private constructor(context: Context) {
         }
     }
 
-    suspend fun deleteAll(): Pair<WallpaperInfo, WallpaperInfo> = withContext(Dispatchers.IO) {
+    suspend fun deleteAll(callback: SetWallpaperCallback) = withContext(Dispatchers.IO) {
         val editor = mPreference.edit()
         WallpaperType.values().forEach { type ->
             editor.remove(type.name)
@@ -432,8 +532,26 @@ class DarkWallpaperHelper private constructor(context: Context) {
             Timber.w(e)
         }
         mPersisted = null
+
+        restoreOriginalWallpaper(object : SetWallpaperCallback {
+            override fun onSuccess(id: String) {
+                cleanRestoreDir()
+                callback.onSuccess(id)
+            }
+
+            override fun onError(e: java.lang.Exception?) {
+                cleanRestoreDir()
+                callback.onError(e)
+            }
+        })
+    }
+
+    private fun cleanRestoreDir() {
+        mPreference.edit().remove(KEY_BACKUP_WALLPAPER_HOME).remove(KEY_BACKUP_WALLPAPER_LOCK).apply()
         clearPicked()
-        return@withContext Pair(mPicked[0], mPicked[1])
+        if (mContext!!.getFileStreamPath(DEFAULT_BACKUP_FOLDER).deleteRecursively().not()) {
+            Timber.w("Unable to delete backup folder")
+        }
     }
 
     suspend fun getLiveWallpapers(): ArrayMap<ComponentName, LiveWallpaperInfo> = withContext(Dispatchers.IO) {
