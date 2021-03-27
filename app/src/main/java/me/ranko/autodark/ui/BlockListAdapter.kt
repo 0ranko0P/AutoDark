@@ -33,6 +33,7 @@ class BlockListAdapter(context: Context, private val listener: AppSelectListener
     private var data: List<ApplicationInfo> = emptyList()
 
     private var isSearchMode = false
+    private var isRefreshing = false
 
     private val rippleAnimDuration =
         context.resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
@@ -98,7 +99,13 @@ class BlockListAdapter(context: Context, private val listener: AppSelectListener
         this.isSearchMode = isSearchMode
     }
 
+    fun setRefreshing(isRefreshing: Boolean) {
+        this.isRefreshing = isRefreshing
+    }
+
     override fun onClick(v: View) {
+        if (isRefreshing) return
+
         val holder = v.tag as ViewHolder
         val position = holder.adapterPosition
         val isBlocked = listener.onAppSelected(data[position])

@@ -174,6 +174,7 @@ class BlockListActivity : BaseListActivity() {
                 binding.fab.show()
             }
             binding.swipeRefresh.isRefreshing = isRefreshing
+            mAdapter.setRefreshing(isRefreshing)
             setMenuVisible(isRefreshing.not())
         })
         return true
