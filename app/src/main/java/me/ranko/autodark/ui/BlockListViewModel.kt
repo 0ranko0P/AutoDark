@@ -218,7 +218,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    fun isBlocked(app: String): Boolean = mBlockSet.contains(app)
+    fun isBlocked(app: ApplicationInfo): Boolean = mBlockSet.contains(app.packageName)
 
     fun shouldShowSystemApp(): Boolean = sp.getBoolean(KEY_SHOW_SYSTEM_APP, false)
 

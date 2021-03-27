@@ -1,6 +1,6 @@
 package me.ranko.autodark.ui
 
-import android.app.Application
+import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.graphics.drawable.Animatable2
 import android.os.SystemClock
@@ -18,14 +18,24 @@ import androidx.recyclerview.widget.RecyclerView
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.CircularAnimationUtil
 
-class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView.Adapter<BlockListAdapter.Companion.ViewHolder>(), View.OnClickListener {
+class BlockListAdapter(context: Context, private val listener: AppSelectListener) :
+    RecyclerView.Adapter<BlockListAdapter.Companion.ViewHolder>(), View.OnClickListener {
+
+    interface AppSelectListener {
+        fun onAppSelected(app: ApplicationInfo): Boolean
+
+        fun isAppSelected(app: ApplicationInfo): Boolean
+    }
+
+    private val packageManager = context.packageManager
+    private val mAnimation = AnimationUtils.loadAnimation(context, R.anim.item_shift_vertical)
+
     private var data: List<ApplicationInfo> = emptyList()
 
     private var isSearchMode = false
 
     private val rippleAnimDuration =
-        viewModel.getApplication<Application>().resources.getInteger(android.R.integer.config_shortAnimTime)
-            .toLong()
+        context.resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
 
     companion object {
         class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -54,19 +64,18 @@ class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val app = data[position]
-        applyBlockedMark(viewModel.isBlocked(app.packageName), holder, false)
-        holder.name.text = viewModel.getAppName(app)
+        applyBlockedMark(listener.isAppSelected(app), holder, false)
+        holder.name.text = app.loadLabel(packageManager)
         holder.id.text = app.packageName
         holder.rootView.setOnClickListener(this)
         holder.rootView.tag = holder
 
         if (!isSearchMode) {
-            val mAnimation = AnimationUtils.loadAnimation(viewModel.getApplication(), R.anim.item_shift_vertical)
             holder.rootView.startAnimation(mAnimation)
         }
 
         holder.icon.tag = app.packageName
-        val iconDrawable = viewModel.getAppIcon(app)
+        val iconDrawable = packageManager.getApplicationIcon(app)
         val pkg = holder.id.text.toString()
         if (pkg == app.packageName) {
             holder.icon.setImageDrawable(iconDrawable)
@@ -90,10 +99,9 @@ class BlockListAdapter(private val viewModel: BlockListViewModel) : RecyclerView
     }
 
     override fun onClick(v: View) {
-        if (viewModel.isRefreshing.value == true) return
         val holder = v.tag as ViewHolder
         val position = holder.adapterPosition
-        val isBlocked = viewModel.onAppSelected(data[position])
+        val isBlocked = listener.onAppSelected(data[position])
         applyBlockedMark(isBlocked, holder)
     }
 

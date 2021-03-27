@@ -1,5 +1,6 @@
 package me.ranko.autodark.ui
 
+import android.content.pm.ApplicationInfo
 import android.os.Bundle
 import android.transition.Fade
 import android.view.Menu
@@ -80,7 +81,16 @@ class BlockListActivity : BaseListActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        mAdapter = BlockListAdapter(viewModel)
+        mAdapter = BlockListAdapter(this, object : BlockListAdapter.AppSelectListener {
+            override fun onAppSelected(app: ApplicationInfo): Boolean {
+                return viewModel.onAppSelected(app)
+            }
+
+            override fun isAppSelected(app: ApplicationInfo): Boolean {
+               return viewModel.isBlocked(app)
+            }
+        })
+
         binding.recyclerView.adapter = mAdapter
         binding.recyclerView.addOnScrollListener(mScrollListener)
 
