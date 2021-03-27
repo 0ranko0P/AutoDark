@@ -41,7 +41,7 @@ class DarkLiveWallpaperService : Service() {
 
         private fun getErrorNotification(context: Context, title: String, content: String): Notification {
             val intent = Intent(context, DarkWallpaperPickerActivity::class.java)
-            val pendingIntent = PendingIntent.getActivity(context, -1, intent, -1)
+            val pendingIntent = PendingIntent.getActivity(context, -1, intent, FLAG_ONE_SHOT)
             val builder = Notification.Builder(context, LIVE_WALLPAPER_CHANNEL)
             builder.setSmallIcon(R.drawable.ic_auto_dark)
             builder.setContentTitle(title)
