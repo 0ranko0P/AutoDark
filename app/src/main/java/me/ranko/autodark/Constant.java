@@ -18,7 +18,7 @@ public final class Constant {
 
     public static final Path BLOCK_LIST_PATH = Paths.get(APP_DATA_DIR + File.separator + "block.txt");
 
-    public static final Path BLOCK_LIST_INPUT_METHOD_CONFIG_PATH = Paths.get( APP_DATA_DIR + File.separator + "blockIME");
+    public static final Path BLOCK_LIST_INPUT_METHOD_CONFIG_PATH = Paths.get( APP_DATA_DIR + File.separator + "hookIME");
 
     public static final String PERMISSION_RECEIVE_DARK_BROADCAST = "me.ranko0p.permission.RECEIVE_DARK_BROADCAST";
     public static final String PERMISSION_SEND_DARK_BROADCAST = "me.ranko0p.permission.SEND_DARK_BROADCAST";
