@@ -28,7 +28,6 @@ class BlockListAdapter(context: Context, private val listener: AppSelectListener
     }
 
     private val packageManager = context.packageManager
-    private val mAnimation = AnimationUtils.loadAnimation(context, R.anim.item_shift_vertical)
 
     private var data: List<ApplicationInfo> = emptyList()
 
@@ -72,6 +71,7 @@ class BlockListAdapter(context: Context, private val listener: AppSelectListener
         holder.rootView.tag = holder
 
         if (!isSearchMode) {
+            val mAnimation = AnimationUtils.loadAnimation(holder.rootView.context, R.anim.item_shift_vertical)
             holder.rootView.startAnimation(mAnimation)
         }
 
