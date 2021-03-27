@@ -103,6 +103,19 @@ class BlockListActivity : BaseListActivity() {
             R.color.material_blue_A700
         )
 
+        viewModel.isRefreshing.observe(this, { isRefreshing ->
+            if (isRefreshing) {
+                binding.toolbarEdit.visibility = View.INVISIBLE
+                binding.fab.hide()
+            } else {
+                binding.toolbarEdit.visibility = View.VISIBLE
+                binding.fab.show()
+            }
+            binding.swipeRefresh.isRefreshing = isRefreshing
+            mAdapter.setRefreshing(isRefreshing)
+            setMenuVisible(isRefreshing.not())
+        })
+
         viewModel.dialog.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: Observable, propertyId: Int) {
                 val dialog = (sender as ObservableField<*>).get() ?: return
@@ -164,19 +177,7 @@ class BlockListActivity : BaseListActivity() {
         this.menu = menu
         menu.findItem(R.id.action_hook_sys).isChecked = viewModel.shouldShowSystemApp()
         menu.findItem(R.id.action_hook_ime).isChecked = Files.exists(Constant.BLOCK_LIST_INPUT_METHOD_CONFIG_PATH)
-
-        viewModel.isRefreshing.observe(this, { isRefreshing ->
-            if (isRefreshing) {
-                binding.toolbarEdit.visibility = View.INVISIBLE
-                binding.fab.hide()
-            } else {
-                binding.toolbarEdit.visibility = View.VISIBLE
-                binding.fab.show()
-            }
-            binding.swipeRefresh.isRefreshing = isRefreshing
-            mAdapter.setRefreshing(isRefreshing)
-            setMenuVisible(isRefreshing.not())
-        })
+        setMenuVisible(viewModel.isRefreshing.value != true && viewModel.isUploading().not())
         return true
     }
 
