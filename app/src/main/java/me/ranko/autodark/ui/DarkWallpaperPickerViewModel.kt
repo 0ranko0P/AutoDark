@@ -301,7 +301,11 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
         }
     }
 
-    fun isLiveWallpaperPicked(): Boolean = mHelper.isLiveWallpaperPicked(darkModeSelected)
+    fun isNoDestination(): Boolean = mHelper.isLiveWallpaperPicked(darkModeSelected)
+
+    fun isLiveWallpaperPicked(): Boolean {
+        return mHelper.isLiveWallpaperPicked(true) || mHelper.isLiveWallpaperPicked(false)
+    }
 
     fun onClearWallpaperClicked() {
         mHelper.clearPicked()

@@ -237,7 +237,7 @@ class DarkWallpaperPickerActivity : BasePreviewActivity() {
         when (requestCode) {
             REQUEST_PICK_IMAGE -> {
                 if (resultCode == Activity.RESULT_OK) {
-                    val noDestination = viewModel.isLiveWallpaperPicked()
+                    val noDestination = viewModel.isNoDestination()
                     StandalonePreviewActivity.startActivity(this, data!!.data!!, noDestination)
                 } else {
                     viewModel.onDismissWallpaperPicker()
