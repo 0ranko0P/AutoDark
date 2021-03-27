@@ -79,6 +79,8 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         }
 
         override fun onTextChanged(str: CharSequence, start: Int, before: Int, count: Int) {
+            if (!edit.hasFocus()) return
+
             if (str.isEmpty()) {
                 _mAppList.value = emptyList()
             } else {
