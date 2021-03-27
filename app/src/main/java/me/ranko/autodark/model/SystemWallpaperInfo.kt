@@ -11,6 +11,7 @@ import com.android.wallpaper.asset.CurrentWallpaperAssetVN
 import com.android.wallpaper.model.WallpaperInfo
 import kotlinx.coroutines.yield
 import me.ranko.autodark.model.PersistableWallpaper.Companion.getWallpaperFile
+import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.channels.FileChannel
@@ -55,7 +56,12 @@ open class SystemWallpaperInfo(protected val which: Int, val id: Int) : Wallpape
     @WorkerThread
     @Throws(IOException::class)
     override suspend fun persist(context: Context) {
-        val outFile = getWallpaperFile(context, wallpaperId)
+        export(context, getWallpaperFile(context, wallpaperId))
+    }
+
+    @WorkerThread
+    @Throws(IOException::class)
+    open suspend fun export(context: Context, outFile: File) {
         val asset = getAsset(context) as CurrentWallpaperAssetVN
         yield()
         ParcelFileDescriptor.AutoCloseInputStream(asset.getWallpaperPfd()).use { ins ->
