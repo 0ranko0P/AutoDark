@@ -3,9 +3,12 @@ package me.ranko.autodark.ui
 import android.annotation.SuppressLint
 import android.app.Application
 import android.app.UiModeManager
+import android.content.Context
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.annotation.RequiresPermission
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -13,6 +16,7 @@ import androidx.databinding.ObservableField
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
 import androidx.preference.SwitchPreference
+import com.android.wallpaper.util.ScreenSizeCalculator
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.*
@@ -305,11 +309,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             setContentView(binding.root)
-            // workaround on landscape mode
-            if (ViewUtil.isLandscape(activity)) {
-                val mBehavior = BottomSheetBehavior.from(binding.root.parent as ViewGroup)
-                setOnShowListener { mBehavior.peekHeight = binding.root.height }
+
+            val display = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+                activity.display
+            } else {
+                (activity.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
             }
+            val screenSize = ScreenSizeCalculator.getInstance().getScreenSize(display)
+            val mBehavior = BottomSheetBehavior.from(binding.root.parent as ViewGroup)
+            setOnShowListener { mBehavior.peekHeight = screenSize.y }
         }
     }
 
