@@ -8,9 +8,11 @@
     <string name="app_location_failed">Lokalizacja nie jest dostępna. Proszę skonfigurować ją manualnie.</string>
     <string name="app_location_disabled">Lokalizacja jest wyłączona.</string>
 
-    <string name="app_restricted">Niektórzy producenci (np. OnePlus) ograniczają aplikacjom możliwość działania w tle dla zaoszczędzenia baterii."
+    <string name="app_restricted">Niektórzy producenci (np. OnePlus) ograniczają aplikacjom możliwość działania w tle dla zaoszczędzenia baterii.
         "\nTo powoduje, że AutoDark może nie działać w tle i ustawiać trybu nocnego automatycznie. Dla rozwiązania, proszę przeczytać <a href='https://dontkillmyapp.com/'>dontkillmyapp.com</a>."
-        "\nJeśli używany jest optymalizator/aplikacja oszczędzająca baterię, proszę o dodanie AutoDark do jej białej listy.</string>
+        "\nJeśli używany jest optymalizator/aplikacja oszczędzająca baterię, proszę o dodanie AutoDark do jej białej listy."
+        "\nDon\'t worry about the battery, AutoDark uses alarm to work, see also: developer.android.com/reference/android/app/AlarmManager."
+    </string>
     <string name="app_restricted_title">Problemy na niektórych urządzeniach</string>
     <string name="app_restricted_warning">Wykryto problem</string>
 

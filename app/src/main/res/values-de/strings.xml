@@ -8,9 +8,11 @@
     <string name="app_location_failed">Standort ist nicht verfügbar, bitte Zeit manuell konfigurieren.</string>
     <string name="app_location_disabled">Standort ist ausgeschaltet.</string>
 
-    <string name="app_restricted">Manche Hersteller (wie Oneplus) beschränken App-Hintergrundaktivität um den Akku zu optimieren."
+    <string name="app_restricted">Manche Hersteller (wie Oneplus) beschränken App-Hintergrundaktivität um den Akku zu optimieren.
         "\nAutoDark kann deshalb nicht rechtzeitig aufwachen und den Dark Mode aktivieren. Für eine Lösung bitte <a href='https://dontkillmyapp.com/'>dontkillmyapp.com</a> konsultieren."
-        "\nWenn eine Art optimizer/battery saver app benutzt wird, bitte AutoDark zur white list hinzufügen.</string>
+        "\nWenn eine Art optimizer/battery saver app benutzt wird, bitte AutoDark zur white list hinzufügen."
+        "\nDon\'t worry about the battery, AutoDark uses alarm to work, see also: developer.android.com/reference/android/app/AlarmManager."
+    </string>
     <string name="app_restricted_title">Probleme bei manchen Geräten</string>
     <string name="app_restricted_warning">Probleme erkannt</string>
     <string name="app_save">Speichern</string>
