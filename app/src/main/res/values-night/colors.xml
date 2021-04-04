@@ -4,10 +4,10 @@
     <color name="primaryVariant">#3700B3</color>
     <color name="secondary">#03DAC6</color>
     <color name="surface">#121212</color>
-    <color name="appbar_background">#E62A2A2A</color>
+    <color name="appbar_background">#E0181B20</color>
     <color name="text_color_xposed_list">@color/material_grey_200</color>
-    <color name="card_preview_background">@color/material_grey_900</color>
-    <color name="bottom_sheet_background">@color/material_grey_900</color>
+    <color name="card_preview_background">@color/dark_blue_gray</color>
+    <color name="bottom_sheet_background">@color/dark_blue_gray</color>
     <color name="bottom_sheet_icon_unchecked_color">@color/white_54_alpha</color>
 
     <color name="fullscreen_preview_background">@color/material_black_1000</color>

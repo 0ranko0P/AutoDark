@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="appbar_background">@color/material_grey_900</color>
+    <color name="appbar_background">@color/dark_blue_gray</color>
 </resources>
