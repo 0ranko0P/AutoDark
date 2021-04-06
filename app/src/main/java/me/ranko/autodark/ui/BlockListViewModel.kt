@@ -40,6 +40,7 @@ import java.time.Instant
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
 import java.util.stream.Collectors
+import kotlin.Comparator
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 
@@ -174,6 +175,10 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
+    private val applicationInfoComparator by lazy (LazyThreadSafetyMode.NONE) {
+        Comparator<ApplicationInfo> { o1, o2 -> getAppName(o1).compareTo(getAppName(o2)) }
+    }
+
     init {
         val filter = IntentFilter(ACTION_UPDATE_PROGRESS)
         filter.addAction(ACTION_SWITCH_INPUT_METHOD_RESULT)
@@ -204,11 +209,26 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
                 FileUtil.readList(BLOCK_LIST_PATH)?.let { mBlockSet.addAll(it) }
                 delay(1000L)
                 val hookSysApp = shouldShowSystemApp()
-                return@withContext mPackageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+                val blockList = ArrayList<ApplicationInfo>(mBlockSet.size)
+                val appList = mPackageManager.getInstalledApplications(PackageManager.GET_META_DATA)
                         .stream()
-                        .filter { hookSysApp || ApplicationInfo.FLAG_SYSTEM.and(it.flags) != ApplicationInfo.FLAG_SYSTEM }
-                        .sorted { o1, o2 -> getAppName(o1).compareTo(getAppName(o2)) }
+                        .filter { app ->
+                            if (isBlocked(app)) {
+                                blockList.add(app)
+                                return@filter false
+                            }
+                            hookSysApp || ApplicationInfo.FLAG_SYSTEM.and(app.flags) != ApplicationInfo.FLAG_SYSTEM
+                        }
+                        .sorted(applicationInfoComparator)
                         .collect(Collectors.toList())
+                if (mBlockSet.isEmpty()) {
+                    return@withContext appList
+                } else {
+                    val sortedList = ArrayList<ApplicationInfo>(appList.size + blockList.size)
+                    sortedList.addAll(blockList.sortedWith(applicationInfoComparator))
+                    sortedList.addAll(appList)
+                    return@withContext sortedList
+                }
             }
             _mAppList.value = list
             _isRefreshing.value = false
