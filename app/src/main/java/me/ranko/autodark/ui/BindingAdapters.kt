@@ -2,6 +2,7 @@ package me.ranko.autodark.ui
 
 import android.graphics.drawable.Animatable2
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -46,6 +47,14 @@ fun hideOnLoading(v: View, @LoadStatus status: Int) {
 @BindingAdapter("showOnLoading")
 fun showOnLoading(v: View, @LoadStatus status: Int) {
     v.visibility = if (status == LoadStatus.START) View.VISIBLE else View.GONE
+}
+
+@BindingAdapter("showImageOnError")
+fun showImageOnError(v: ImageView, @LoadStatus status: Int) {
+    v.visibility = if (status == LoadStatus.FAILED) View.VISIBLE else View.GONE
+    if (status == LoadStatus.FAILED) {
+        v.setImageResource(R.drawable.kyaru)
+    }
 }
 
 @BindingAdapter("bindLicense")

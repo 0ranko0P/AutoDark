@@ -33,6 +33,12 @@
                 android:layout_gravity="center_horizontal"
                 android:visibility="@{viewModel.uploadStatus == LoadStatus.FAILED ? View.GONE : View.VISIBLE}" />
 
+            <ImageView android:id="@+id/errorImg"
+                android:layout_gravity="center_horizontal"
+                android:layout_width="240dp"
+                app:showImageOnError="@{viewModel.uploadStatus}"
+                android:layout_height="wrap_content" />
+
             <TextView android:id="@+id/progressText"
                 style="@style/CardTitle"
                 android:layout_width="match_parent"
