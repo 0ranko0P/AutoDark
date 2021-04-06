@@ -178,7 +178,7 @@ class BlockListActivity : BaseListActivity() {
         this.menu = menu
         menu.findItem(R.id.action_hook_sys).isChecked = viewModel.shouldShowSystemApp()
         menu.findItem(R.id.action_hook_ime).isChecked = Files.exists(Constant.BLOCK_LIST_INPUT_METHOD_CONFIG_PATH)
-        setMenuVisible(viewModel.isRefreshing.value != true && viewModel.isUploading().not())
+        setMenuVisible(viewModel.isRefreshAvailable())
         return true
     }
 
