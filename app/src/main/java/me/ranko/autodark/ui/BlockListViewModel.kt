@@ -194,7 +194,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
     @SuppressLint("QueryPermissionsNeeded")
     fun refreshList() {
-        if (_isRefreshing.value == true || isUploading()) return
+        if (_isRefreshing.value == true || isUploading() || _uploadStatus.value == LoadStatus.FAILED) return
 
         _isRefreshing.value = true
         viewModelScope.launch {
