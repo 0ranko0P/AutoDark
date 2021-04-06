@@ -202,12 +202,12 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         if (isRefreshAvailable().not()) return
 
         _isRefreshing.value = true
+        timer = Instant.now()
         viewModelScope.launch {
             if (mBlockSet.isNotEmpty()) mBlockSet.clear()
 
             val list = withContext(Dispatchers.IO) {
                 FileUtil.readList(BLOCK_LIST_PATH)?.let { mBlockSet.addAll(it) }
-                delay(1000L)
                 val hookSysApp = shouldShowSystemApp()
                 val blockList = ArrayList<ApplicationInfo>(mBlockSet.size)
                 val appList = mPackageManager.getInstalledApplications(PackageManager.GET_META_DATA)
@@ -221,6 +221,10 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
                         }
                         .sorted(applicationInfoComparator)
                         .collect(Collectors.toList())
+
+                val cost = Duration.between(timer, Instant.now()).toMillis()
+                if (cost < 1000L) delay(500L) // show progress longer
+
                 if (mBlockSet.isEmpty()) {
                     return@withContext appList
                 } else {
