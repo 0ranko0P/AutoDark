@@ -1,13 +1,14 @@
 package com.android.wallpaper.asset;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 
-import com.android.wallpaper.asset.LiveWallpaperThumbAssetLoader.LiveWallpaperThumbAssetLoaderFactory;
 import com.android.wallpaper.asset.CurrentWallpaperAssetVNLoader.CurrentWallpaperAssetVNLoaderFactory;
+import com.android.wallpaper.asset.LiveWallpaperThumbAssetLoader.LiveWallpaperThumbAssetLoaderFactory;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.GlideBuilder;
 import com.bumptech.glide.Registry;
@@ -22,6 +23,7 @@ import java.io.InputStream;
 
 import me.ranko.autodark.asset.BuiltInWallpaperAssetLoader;
 import me.ranko.autodark.asset.FileAssetLoader;
+import me.ranko.autodark.ui.ApplicationIconLoader;
 
 /**
  * Provides configuration for Glide, such as specifying an internal disk cache size.
@@ -54,6 +56,7 @@ public final class WallpaperGlideModule extends AppGlideModule {
         registry.append(FileAsset.class, Bitmap.class, new FileAssetLoader.FileDescriptorAssetLoaderFactory())
                 .append(LiveWallpaperThumbAsset.class, Drawable.class, new LiveWallpaperThumbAssetLoaderFactory())
                 .append(CurrentWallpaperAssetVN.class, InputStream.class, new CurrentWallpaperAssetVNLoaderFactory())
-                .append(BuiltInWallpaperAsset.class, Bitmap.class, new BuiltInWallpaperAssetLoader.BuiltInWallpaperAssetLoaderFactory());
+                .append(BuiltInWallpaperAsset.class, Bitmap.class, new BuiltInWallpaperAssetLoader.BuiltInWallpaperAssetLoaderFactory())
+                .append(ApplicationInfo.class, Drawable.class, new ApplicationIconLoader.ApplicationIconFactory(context));
     }
 }

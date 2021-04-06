@@ -1,5 +1,6 @@
 package me.ranko.autodark.ui
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -7,7 +8,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.graphics.drawable.Drawable
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.MenuItem
@@ -180,11 +180,6 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         mContext.registerReceiver(updateStatusReceiver, filter, PERMISSION_SEND_DARK_BROADCAST, null)
     }
 
-    /**
-     * drawable cached by system anyway
-     * */
-    fun getAppIcon(app: ApplicationInfo): Drawable = mPackageManager.getApplicationIcon(app)
-
     fun getAppName(app: ApplicationInfo): String = app.loadLabel(mPackageManager).toString()
 
     fun attachSearchHelper(owner: LifecycleOwner, editText: EditText) {
@@ -197,6 +192,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         edXposedDialogShowed = true
     }
 
+    @SuppressLint("QueryPermissionsNeeded")
     fun refreshList() {
         if (_isRefreshing.value == true || isUploading()) return
 
@@ -213,7 +209,6 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
                         .filter { hookSysApp || ApplicationInfo.FLAG_SYSTEM.and(it.flags) != ApplicationInfo.FLAG_SYSTEM }
                         .sorted { o1, o2 -> getAppName(o1).compareTo(getAppName(o2)) }
                         .collect(Collectors.toList())
-                        .onEach { getAppIcon(it) }
             }
             _mAppList.value = list
             _isRefreshing.value = false

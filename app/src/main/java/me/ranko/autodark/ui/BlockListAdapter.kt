@@ -15,10 +15,15 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.RequestManager
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.CircularAnimationUtil
 
-class BlockListAdapter(context: Context, private val listener: AppSelectListener) :
+class BlockListAdapter(context: Context,
+                       requestManager: RequestManager,
+                       private val listener: AppSelectListener) :
     RecyclerView.Adapter<BlockListAdapter.Companion.ViewHolder>(), View.OnClickListener {
 
     interface AppSelectListener {
@@ -36,6 +41,12 @@ class BlockListAdapter(context: Context, private val listener: AppSelectListener
 
     private val rippleAnimDuration =
         context.resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
+
+    private val mRequest = requestManager
+            .asDrawable()
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .error(R.drawable.ic_attention)
 
     companion object {
         class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -57,7 +68,6 @@ class BlockListAdapter(context: Context, private val listener: AppSelectListener
     }
 
     override fun onViewDetachedFromWindow(holder: ViewHolder) {
-        holder.icon.tag = null
         holder.rootView.tag = null
         holder.rootView.setOnClickListener(null)
     }
@@ -65,6 +75,8 @@ class BlockListAdapter(context: Context, private val listener: AppSelectListener
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val app = data[position]
         applyBlockedMark(listener.isAppSelected(app), holder, false)
+        mRequest.load(app).into(holder.icon)
+
         holder.name.text = app.loadLabel(packageManager)
         holder.id.text = app.packageName
         holder.rootView.setOnClickListener(this)
@@ -73,18 +85,6 @@ class BlockListAdapter(context: Context, private val listener: AppSelectListener
         if (!isSearchMode) {
             val mAnimation = AnimationUtils.loadAnimation(holder.rootView.context, R.anim.item_shift_vertical)
             holder.rootView.startAnimation(mAnimation)
-        }
-
-        holder.icon.tag = app.packageName
-        val iconDrawable = packageManager.getApplicationIcon(app)
-        val pkg = holder.id.text.toString()
-        if (pkg == app.packageName) {
-            holder.icon.setImageDrawable(iconDrawable)
-            if (!isSearchMode) {
-                val alpha = AlphaAnimation(0.0f, 1.0f)
-                alpha.duration = 300L
-                holder.icon.startAnimation(alpha)
-            }
         }
     }
 

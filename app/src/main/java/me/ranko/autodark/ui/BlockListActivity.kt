@@ -16,6 +16,7 @@ import androidx.databinding.ObservableField
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.BaseTransientBottomBar.Duration
 import com.google.android.material.snackbar.Snackbar
 import me.ranko.autodark.Constant
@@ -81,13 +82,13 @@ class BlockListActivity : BaseListActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        mAdapter = BlockListAdapter(this, object : BlockListAdapter.AppSelectListener {
+        mAdapter = BlockListAdapter(this, Glide.with(this), object : BlockListAdapter.AppSelectListener {
             override fun onAppSelected(app: ApplicationInfo): Boolean {
                 return viewModel.onAppSelected(app)
             }
 
             override fun isAppSelected(app: ApplicationInfo): Boolean {
-               return viewModel.isBlocked(app)
+                return viewModel.isBlocked(app)
             }
         })
 
