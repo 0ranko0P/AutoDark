@@ -32,8 +32,8 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/material_grey_300"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="12dp"/>
+        android:layout_marginTop="@dimen/dialog_separator_margin_vertical"
+        android:layout_marginBottom="@dimen/dialog_separator_margin_vertical"/>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/container"

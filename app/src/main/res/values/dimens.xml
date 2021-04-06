@@ -18,6 +18,7 @@
     <dimen name="text_summary_padding_start">24dp</dimen>
     <dimen name="text_summary_padding_end">0dp</dimen>
 
+    <dimen name="dialog_separator_margin_vertical">12dp</dimen>
     <dimen name="dialog_manager_margin_horizontal">46dp</dimen>
     <dimen name="preference_edx_padding">@dimen/list_app_icon_margin</dimen>
     <dimen name="preference_lsp_padding">72dp</dimen>
