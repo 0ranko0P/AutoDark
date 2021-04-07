@@ -21,6 +21,7 @@ import com.google.android.material.snackbar.BaseTransientBottomBar.Duration
 import com.google.android.material.snackbar.Snackbar
 import me.ranko.autodark.Constant
 import me.ranko.autodark.R
+import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.core.LoadStatus
 import me.ranko.autodark.databinding.ActivityBlockListBinding
 import me.ranko.autodark.ui.MainViewModel.Companion.Summary
@@ -179,6 +180,10 @@ class BlockListActivity : BaseListActivity() {
         menu.findItem(R.id.action_hook_sys).isChecked = viewModel.shouldShowSystemApp()
         menu.findItem(R.id.action_blocked_first).isChecked = viewModel.isBlockedFirst()
         menu.findItem(R.id.action_hook_ime).isChecked = Files.exists(Constant.BLOCK_LIST_INPUT_METHOD_CONFIG_PATH)
+
+        val groupTitleColor = getColor(R.color.primary)
+        ViewUtil.setMenuItemTitleColor(menu.findItem(R.id.group_list), groupTitleColor)
+        ViewUtil.setMenuItemTitleColor(menu.findItem(R.id.group_xposed), groupTitleColor)
         setMenuVisible(viewModel.isRefreshAvailable())
         return true
     }

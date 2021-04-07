@@ -3,9 +3,13 @@ package me.ranko.autodark.Utils
 import android.content.Context
 import android.content.res.Configuration
 import android.graphics.Paint
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
+import android.view.MenuItem
 import android.view.Window
 import android.view.WindowManager
 import android.widget.TextView
+import androidx.annotation.ColorInt
 
 /**
  * Simple view util
@@ -38,6 +42,12 @@ object ViewUtil {
         } else {
             textView.paintFlags.and(Paint.STRIKE_THRU_TEXT_FLAG.inv())
         }
+    }
+
+    fun setMenuItemTitleColor(item: MenuItem, @ColorInt color: Int, title: CharSequence = item.title) {
+        val spannable = SpannableString(title)
+        spannable.setSpan(ForegroundColorSpan(color), 0, title.length, 0)
+        item.title = spannable
     }
 
     fun getAttrColor(context: Context, attr: Int): Int {

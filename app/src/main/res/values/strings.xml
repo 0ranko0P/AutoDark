@@ -13,9 +13,11 @@
     <string name="app_hook_system">Show System App</string>
     <string name="app_hook_system_message">System apps usually supports dark mode</string>
     <string name="app_later">Remind me later</string>
+    <string name="app_list_option">List options</string>
     <string name="app_loading">Loading...</string>
     <string name="app_location_failed">Location is not available now, please configure the time manually.</string>
     <string name="app_location_disabled">Location is disabled.</string>
+    <string name="app_xposed_option">Xposed Options</string>
 
     <string name="app_restricted">Some vendors (like Oneplus) restrict app background activity to optimize their battery.
         "\nThis makes AutoDark can not wake up in time and switch dark mode for you. Please refer to <a href='https://dontkillmyapp.com/'>dontkillmyapp.com</a> for solution."

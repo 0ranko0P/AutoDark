@@ -13,8 +13,10 @@
     <string name="app_hook_system">显示系统应用</string>
     <string name="app_hook_system_message">系统应用通常支持暗黑模式</string>
     <string name="app_later">稍后提醒我</string>
+    <string name="app_list_option">列表选项</string>
     <string name="app_location_failed">获取当前位置失败, 请手动设置时间.</string>
     <string name="app_location_disabled">定位服务已关闭.</string>
+    <string name="app_xposed_option">Xposed 选项</string>
 
     <string name="app_restricted">一些厂商(比如一加)会为了优化电池而限制应用后台.
         "\n这会让AutoDark 无法在正确的时间醒来并且为您切换夜间模式. 请参考 <a href='https://dontkillmyapp.com/'>dontkillmyapp.com</a>获取解决方案."

@@ -10,18 +10,31 @@
         android:title="@string/app_save"
         app:showAsAction="always" />
 
-    <item
-        android:id="@+id/action_hook_sys"
-        android:checkable="true"
-        android:title="@string/app_hook_system"
-        app:showAsAction="never" />
+    <group android:checkableBehavior="all">
+        <item
+            android:id="@+id/group_list"
+            android:checkable="false"
+            android:enabled="false"
+            android:title="@string/app_list_option" />
+
+        <item
+            android:id="@+id/action_hook_sys"
+            android:checkable="true"
+            android:title="@string/app_hook_system"
+            app:showAsAction="never" />
+
+        <item
+            android:id="@+id/action_blocked_first"
+            android:checkable="true"
+            android:title="@string/app_blocked_first"
+            app:showAsAction="never" />
+    </group>
 
     <item
-        android:id="@+id/action_blocked_first"
-        android:checkable="true"
-        android:title="@string/app_blocked_first"
-        app:showAsAction="never" />
-
+        android:id="@+id/group_xposed"
+        android:checkable="false"
+        android:enabled="false"
+        android:title="@string/app_xposed_option" />
     <item
         android:id="@+id/action_hook_ime"
         android:checkable="true"
