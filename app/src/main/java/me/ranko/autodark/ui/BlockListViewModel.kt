@@ -194,16 +194,18 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     @SuppressLint("QueryPermissionsNeeded")
-    fun refreshList() {
+    fun refreshList(clearCurrent: Boolean = true) {
         if (isRefreshAvailable().not()) return
 
         _isRefreshing.value = true
         timer = Instant.now()
         viewModelScope.launch {
-            if (mBlockSet.isNotEmpty()) mBlockSet.clear()
+            if (clearCurrent && mBlockSet.isNotEmpty()) mBlockSet.clear()
 
             val list = withContext(Dispatchers.IO) {
-                FileUtil.readList(BLOCK_LIST_PATH)?.let { mBlockSet.addAll(it) }
+                if (clearCurrent) {
+                    FileUtil.readList(BLOCK_LIST_PATH)?.let { mBlockSet.addAll(it) }
+                }
                 val hookSysApp = shouldShowSystemApp()
                 val blockFirst = isBlockedFirst()
 
@@ -319,7 +321,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun onShowSysAppSelected(selected: Boolean) {
         if (sp.edit().putBoolean(KEY_SHOW_SYSTEM_APP, selected).commit()) {
-            refreshList()
+            refreshList(false)
         }
         if (selected) {
             message.set(newSummary(R.string.app_hook_system_message))
@@ -328,7 +330,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun onBlockFirstSelected(selected: Boolean) {
         if (sp.edit().putBoolean(KEY_BLOCKED_FIRST, selected).commit()) {
-            refreshList()
+            refreshList(false)
         }
     }
 
