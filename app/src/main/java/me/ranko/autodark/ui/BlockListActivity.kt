@@ -177,6 +177,7 @@ class BlockListActivity : BaseListActivity() {
         super.onPrepareOptionsMenu(menu)
         this.menu = menu
         menu.findItem(R.id.action_hook_sys).isChecked = viewModel.shouldShowSystemApp()
+        menu.findItem(R.id.action_blocked_first).isChecked = viewModel.isBlockedFirst()
         menu.findItem(R.id.action_hook_ime).isChecked = Files.exists(Constant.BLOCK_LIST_INPUT_METHOD_CONFIG_PATH)
         setMenuVisible(viewModel.isRefreshAvailable())
         return true
@@ -187,6 +188,8 @@ class BlockListActivity : BaseListActivity() {
             R.id.action_save -> binding.fab.performClick()
 
             R.id.action_hook_sys -> viewModel.onShowSysAppSelected(item.isChecked.not())
+
+            R.id.action_blocked_first -> viewModel.onBlockFirstSelected(item.isChecked.not())
 
             R.id.action_hook_ime -> viewModel.onHookImeSelected(item)
 

@@ -6,6 +6,7 @@
     <string name="app_confirm">OK</string>
     <string name="app_crop">Crop wallpaper</string>
     <string name="app_do_not_show">Do not show this again</string>
+    <string name="app_blocked_first">Blocked first</string>
     <string name="app_exit">exit</string>
     <string name="app_hook_ime">Try Hook input method</string>
     <string name="app_hook_ime_restart">Restart  <xliff:g name="inputmethod">%1$s</xliff:g> to take effect</string>

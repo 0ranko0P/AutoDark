@@ -40,7 +40,6 @@ import java.time.Instant
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
 import java.util.stream.Collectors
-import kotlin.Comparator
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 
@@ -51,6 +50,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         private const val MAX_UPLOAD_TIME_MILLIS = 5000L
 
         private const val KEY_SHOW_SYSTEM_APP = "show_sys"
+        private const val KEY_BLOCKED_FIRST = "blocked_first"
 
         class Factory(private val application: Application) : ViewModelProvider.Factory {
             override fun <T : ViewModel?> create(modelClass: Class<T>): T {
@@ -175,10 +175,6 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    private val applicationInfoComparator by lazy (LazyThreadSafetyMode.NONE) {
-        Comparator<ApplicationInfo> { o1, o2 -> getAppName(o1).compareTo(getAppName(o2)) }
-    }
-
     init {
         val filter = IntentFilter(ACTION_UPDATE_PROGRESS)
         filter.addAction(ACTION_SWITCH_INPUT_METHOD_RESULT)
@@ -209,29 +205,28 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
             val list = withContext(Dispatchers.IO) {
                 FileUtil.readList(BLOCK_LIST_PATH)?.let { mBlockSet.addAll(it) }
                 val hookSysApp = shouldShowSystemApp()
-                val blockList = ArrayList<ApplicationInfo>(mBlockSet.size)
-                val appList = mPackageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+                val blockFirst = isBlockedFirst()
+
+                val resultMap: Map<Boolean, List<ApplicationInfo>> = mPackageManager
+                        .getInstalledApplications(PackageManager.GET_META_DATA)
                         .stream()
-                        .filter { app ->
-                            if (isBlocked(app)) {
-                                blockList.add(app)
-                                return@filter false
-                            }
-                            hookSysApp || ApplicationInfo.FLAG_SYSTEM.and(app.flags) != ApplicationInfo.FLAG_SYSTEM
-                        }
-                        .sorted(applicationInfoComparator)
-                        .collect(Collectors.toList())
+                        .filter { app -> hookSysApp || ApplicationInfo.FLAG_SYSTEM.and(app.flags) != ApplicationInfo.FLAG_SYSTEM }
+                        .sorted { o1, o2 -> getAppName(o1).compareTo(getAppName(o2)) }
+                        .collect(Collectors.partitioningBy { app -> blockFirst && isBlocked(app) })
+
+                val appList = resultMap[false]!!
 
                 val cost = Duration.between(timer, Instant.now()).toMillis()
                 if (cost < 1000L) delay(500L) // show progress longer
 
-                if (mBlockSet.isEmpty()) {
-                    return@withContext appList
+                if (blockFirst) {
+                    val blockList = resultMap[true]!!
+                    val blockFirstList = ArrayList<ApplicationInfo>(blockList.size + appList.size)
+                    blockFirstList.addAll(blockList)
+                    blockFirstList.addAll(appList)
+                    return@withContext blockFirstList
                 } else {
-                    val sortedList = ArrayList<ApplicationInfo>(appList.size + blockList.size)
-                    sortedList.addAll(blockList.sortedWith(applicationInfoComparator))
-                    sortedList.addAll(appList)
-                    return@withContext sortedList
+                    return@withContext appList
                 }
             }
             _mAppList.value = list
@@ -244,6 +239,8 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun isBlocked(app: ApplicationInfo): Boolean = mBlockSet.contains(app.packageName)
+
+    fun isBlockedFirst(): Boolean = sp.getBoolean(KEY_BLOCKED_FIRST, true)
 
     fun shouldShowSystemApp(): Boolean = sp.getBoolean(KEY_SHOW_SYSTEM_APP, false)
 
@@ -326,6 +323,12 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         }
         if (selected) {
             message.set(newSummary(R.string.app_hook_system_message))
+        }
+    }
+
+    fun onBlockFirstSelected(selected: Boolean) {
+        if (sp.edit().putBoolean(KEY_BLOCKED_FIRST, selected).commit()) {
+            refreshList()
         }
     }
 

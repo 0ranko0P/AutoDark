@@ -17,6 +17,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_blocked_first"
+        android:checkable="true"
+        android:title="@string/app_blocked_first"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_hook_ime"
         android:checkable="true"
         android:title="@string/app_hook_ime"

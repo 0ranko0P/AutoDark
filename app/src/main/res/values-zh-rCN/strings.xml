@@ -6,6 +6,7 @@
     <string name="app_confirm">好的</string>
     <string name="app_crop">裁剪壁纸</string>
     <string name="app_do_not_show">不再显示</string>
+    <string name="app_blocked_first">黑名单优先</string>
     <string name="app_exit">退出</string>
     <string name="app_hook_ime">尝试Hook 输入法</string>
     <string name="app_hook_ime_restart">重启<xliff:g name="inputmethod">%1$s</xliff:g>生效</string>
