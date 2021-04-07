@@ -277,7 +277,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
     private fun onUpdateListResponse(intent: Intent) {
         when (intent.getIntExtra(EXTRA_KEY_LIST_PROGRESS, LoadStatus.FAILED)) {
-            LoadStatus.SUCCEED -> stopUpload(true, mContext.getString(R.string.app_upload_success))
+            LoadStatus.SUCCEED -> stopUpload(true, mContext.getString(R.string.app_upload_success), this::refreshList)
 
             LoadStatus.FAILED -> stopUpload(false)
 
@@ -302,7 +302,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         })
     }
 
-    private fun stopUpload(succeed: Boolean, msg: String = mContext.getString(R.string.app_upload_fail)) {
+    private fun stopUpload(succeed: Boolean, msg: String = mContext.getString(R.string.app_upload_fail), doOnEnd: (() -> Unit)? = null) {
         val watcher = uploadTimeOutWatcher.getAndSet(null)
         if (watcher?.isActive == true) watcher.cancel()
 
@@ -316,6 +316,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
                 _uploadStatus.value = LoadStatus.FAILED
                 updateMessage.set(msg)
             }
+            doOnEnd?.invoke()
         }
     }
 
