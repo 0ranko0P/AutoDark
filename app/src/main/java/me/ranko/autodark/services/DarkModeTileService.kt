@@ -1,4 +1,4 @@
-package me.ranko.autodark.Services
+package me.ranko.autodark.services
 
 import android.content.ComponentName
 import android.content.Context

@@ -49,6 +49,11 @@ public final class ScreenSizeCalculator {
         sInstance = null;
     }
 
+    public Point getScreenSize(Context context) {
+        final WindowManager windowManager = context.getSystemService(WindowManager.class);
+        return getScreenSize(windowManager.getDefaultDisplay());
+    }
+
     /**
      * Calculates the device's screen size, in physical pixels.
      *
@@ -75,8 +80,7 @@ public final class ScreenSizeCalculator {
      * Note: The screen size is getting from {@link #getScreenSize}.
      */
     public float getScreenAspectRatio(Context context) {
-        final WindowManager windowManager = context.getSystemService(WindowManager.class);
-        final Point screenSize = getScreenSize(windowManager.getDefaultDisplay());
+        final Point screenSize = getScreenSize(context);
         return (float) screenSize.y / screenSize.x;
     }
 

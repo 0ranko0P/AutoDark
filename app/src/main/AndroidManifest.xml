@@ -45,7 +45,7 @@
         <meta-data android:name="xposedscope" android:resource="@array/xposed_scope" />
 
         <receiver
-            android:name=".Receivers.DarkModeAlarmReceiver"
+            android:name=".receivers.DarkModeAlarmReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -90,7 +90,7 @@
             android:theme="@style/AppTheme.ActionBar" />
 
         <service
-            android:name=".Services.DarkModeTileService"
+            android:name=".services.DarkModeTileService"
             android:enabled="true"
             android:icon="@drawable/ic_dark_theme"
             android:label="@string/tile_dark_theme"
@@ -101,7 +101,7 @@
         </service>
 
         <service
-            android:name=".Services.DarkLiveWallpaperService"
+            android:name=".services.DarkLiveWallpaperService"
             android:enabled="true"
             android:exported="false"/>
 

@@ -9,9 +9,9 @@ import android.util.Log
 import de.robv.android.xposed.*
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.ranko.autodark.Constant
-import me.ranko.autodark.Receivers.BlockListReceiver
-import me.ranko.autodark.Receivers.InputMethodReceiver
-import me.ranko.autodark.Receivers.InputMethodReceiver.Companion.shouldHookIME
+import me.ranko.autodark.receivers.BlockListReceiver
+import me.ranko.autodark.receivers.InputMethodReceiver
+import me.ranko.autodark.receivers.InputMethodReceiver.Companion.shouldHookIME
 import java.nio.file.Files
 
 /**

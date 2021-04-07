@@ -14,7 +14,6 @@ import android.view.View
 import androidx.databinding.Observable
 import androidx.databinding.ObservableField
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
@@ -28,8 +27,8 @@ import kotlinx.coroutines.launch
 import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant
 import me.ranko.autodark.R
-import me.ranko.autodark.Receivers.BlockListReceiver
-import me.ranko.autodark.core.DARK_JOB_TYPE
+import me.ranko.autodark.receivers.BlockListReceiver
+import me.ranko.autodark.core.DarkPreferenceType
 import me.ranko.autodark.core.DarkPreferenceSupplier
 import me.ranko.autodark.ui.Preference.DarkDisplayPreference
 import me.ranko.autodark.ui.Preference.DarkSwitchPreference
@@ -160,7 +159,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
 
         // observe auto mode job result
         // also init darkTimeCategory there
-        viewModel.autoMode.observe(viewLifecycleOwner, Observer<Boolean> { result ->
+        viewModel.autoMode.observe(viewLifecycleOwner, { result ->
             autoPreference.isChecked = result
             // hide custom time preferences when using auto mode
             startPreference.isVisible = !result
@@ -203,8 +202,8 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
                 val activity = requireActivity() as MainActivity
                 val appBarView = activity.findViewById<View>(R.id.appbar)
                 val fabView = activity.findViewById<View>(R.id.fab)
-                val appBarShared = Pair<View, String>(appBarView, appBarView.transitionName)
-                val fabShared = Pair<View, String>(fabView, fabView.transitionName)
+                val appBarShared = Pair(appBarView, appBarView.transitionName)
+                val fabShared = Pair(fabView, fabView.transitionName)
                 val intent = Intent(activity, BlockListActivity::class.java)
                 val options = ActivityOptions.makeSceneTransitionAnimation(activity, appBarShared, fabShared)
                 activity.startActivity(intent, options.toBundle())
@@ -228,7 +227,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
     /**
      * Set availability to the whole DarkTimeCategory
      *
-     * @see     darkTimeCategory
+     * @see     MainFragment.onCreatePreferences
      * @see     Preference.setEnabled
      * */
     private fun setTimePreferenceEnabled(isEnabled: Boolean) {
@@ -251,7 +250,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
         }
     }
 
-    override fun get(@DARK_JOB_TYPE type: String): DarkDisplayPreference {
+    override fun get(@DarkPreferenceType type: String): DarkDisplayPreference {
         return if (type == DARK_PREFERENCE_START) startPreference else endPreference
     }
 

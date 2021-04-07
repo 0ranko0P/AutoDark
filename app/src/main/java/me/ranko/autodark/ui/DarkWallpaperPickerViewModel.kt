@@ -83,11 +83,11 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
 
     private var refreshWallpaperJob: Job? = null
 
-    private val _applyAvailable = MutableLiveData<Boolean>(false)
+    private val _applyAvailable = MutableLiveData(false)
     val applyButtonAvailable: LiveData<Boolean>
         get() = _applyAvailable
 
-    private val _clearAvailable = MutableLiveData<Boolean>(false)
+    private val _clearAvailable = MutableLiveData(false)
     val clearButtonAvailable: LiveData<Boolean>
         get() = _clearAvailable
 
@@ -111,7 +111,7 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
 
     private val wallpaperText = application.getString(R.string.pick_wallpaper, application.getString(R.string.pick_wallpaper_type_normal))
     private val darkWallpaperText = application.getString(R.string.pick_wallpaper, application.getString(R.string.pick_wallpaper_type_dark))
-    val pickerButtonText = ObservableField<String>(wallpaperText)
+    val pickerButtonText = ObservableField(wallpaperText)
 
     private var exception: Exception? = null
 

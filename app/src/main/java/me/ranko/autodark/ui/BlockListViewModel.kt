@@ -23,12 +23,12 @@ import me.ranko.autodark.Constant
 import me.ranko.autodark.Constant.BLOCK_LIST_PATH
 import me.ranko.autodark.Constant.PERMISSION_SEND_DARK_BROADCAST
 import me.ranko.autodark.R
-import me.ranko.autodark.Receivers.BlockListReceiver
-import me.ranko.autodark.Receivers.BlockListReceiver.Companion.ACTION_SWITCH_INPUT_METHOD_RESULT
-import me.ranko.autodark.Receivers.BlockListReceiver.Companion.ACTION_UPDATE_PROGRESS
-import me.ranko.autodark.Receivers.BlockListReceiver.Companion.EXTRA_KEY_LIST_PROGRESS
-import me.ranko.autodark.Receivers.BlockListReceiver.Companion.EXTRA_KEY_SWITCH_RESULT
-import me.ranko.autodark.Receivers.InputMethodReceiver
+import me.ranko.autodark.receivers.BlockListReceiver
+import me.ranko.autodark.receivers.BlockListReceiver.Companion.ACTION_SWITCH_INPUT_METHOD_RESULT
+import me.ranko.autodark.receivers.BlockListReceiver.Companion.ACTION_UPDATE_PROGRESS
+import me.ranko.autodark.receivers.BlockListReceiver.Companion.EXTRA_KEY_LIST_PROGRESS
+import me.ranko.autodark.receivers.BlockListReceiver.Companion.EXTRA_KEY_SWITCH_RESULT
+import me.ranko.autodark.receivers.InputMethodReceiver
 import me.ranko.autodark.Utils.FileUtil
 import me.ranko.autodark.core.LoadStatus
 import me.ranko.autodark.ui.MainViewModel.Companion.Summary
@@ -43,7 +43,7 @@ import java.util.stream.Collectors
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 
-class BlockListViewModel(application: Application) : AndroidViewModel(application) {
+class BlockListViewModel(application: Application) : AndroidViewModel(application), BlockListAdapter.AppSelectListener {
 
     companion object {
 
@@ -214,7 +214,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
                         .stream()
                         .filter { app -> hookSysApp || ApplicationInfo.FLAG_SYSTEM.and(app.flags) != ApplicationInfo.FLAG_SYSTEM }
                         .sorted { o1, o2 -> getAppName(o1).compareTo(getAppName(o2)) }
-                        .collect(Collectors.partitioningBy { app -> blockFirst && isBlocked(app) })
+                        .collect(Collectors.partitioningBy { app -> blockFirst && isAppBlocked(app) })
 
                 val appList = resultMap[false]!!
 
@@ -240,13 +240,11 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         return _isRefreshing.value != true && isUploading().not() && _uploadStatus.value != LoadStatus.FAILED
     }
 
-    fun isBlocked(app: ApplicationInfo): Boolean = mBlockSet.contains(app.packageName)
-
     fun isBlockedFirst(): Boolean = sp.getBoolean(KEY_BLOCKED_FIRST, true)
 
     fun shouldShowSystemApp(): Boolean = sp.getBoolean(KEY_SHOW_SYSTEM_APP, false)
 
-    fun onAppSelected(app: ApplicationInfo): Boolean {
+    override fun onAppBlockStateChanged(app: ApplicationInfo): Boolean {
         val pkg = app.packageName
         return if (mBlockSet.contains(pkg)) {
             mBlockSet.remove(pkg)
@@ -256,6 +254,8 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
             true
         }
     }
+
+    override fun isAppBlocked(app: ApplicationInfo): Boolean = mBlockSet.contains(app.packageName)
 
     fun requestUploadList() {
         if (isUploading()) {

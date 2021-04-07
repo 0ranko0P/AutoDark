@@ -39,7 +39,7 @@ class ManagerAppListAdapter(context: Context,
         private const val DUMMY_PACKAGE_NAME = "com.other.ignore"
         private const val INPUT_METHOD_PACKAGE_NAME = "com.ranko.inputmethod.latin"
 
-        private val SCOPED_APPS_CHECK_DELAY = 1000L
+        private const val SCOPED_APPS_CHECK_DELAY = 1000L
     }
 
     class DummyApplicationInfo(dummyName: String) : ApplicationInfo() {

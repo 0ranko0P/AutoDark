@@ -21,7 +21,7 @@ import com.android.wallpaper.module.WallpaperPersister.*
 import com.android.wallpaper.module.WallpaperSetter
 import kotlinx.coroutines.*
 import me.ranko.autodark.R
-import me.ranko.autodark.Services.DarkLiveWallpaperService
+import me.ranko.autodark.services.DarkLiveWallpaperService
 import me.ranko.autodark.core.DarkModeSettings
 import me.ranko.autodark.core.ShizukuApi
 import me.ranko.autodark.core.ShizukuStatus

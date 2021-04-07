@@ -1,4 +1,4 @@
-package me.ranko.autodark.Receivers
+package me.ranko.autodark.receivers
 
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver

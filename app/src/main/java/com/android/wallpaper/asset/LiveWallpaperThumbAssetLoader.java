@@ -17,6 +17,8 @@ package com.android.wallpaper.asset;
 
 import android.graphics.drawable.Drawable;
 
+import androidx.annotation.NonNull;
+
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.Options;
@@ -33,13 +35,13 @@ public final class LiveWallpaperThumbAssetLoader implements
         ModelLoader<LiveWallpaperThumbAsset, Drawable> {
 
     @Override
-    public boolean handles(LiveWallpaperThumbAsset liveWallpaperThumbAsset) {
+    public boolean handles(@NonNull LiveWallpaperThumbAsset liveWallpaperThumbAsset) {
         return true;
     }
 
     @Override
-    public LoadData<Drawable> buildLoadData(LiveWallpaperThumbAsset liveWallpaperThumbAsset,
-                                            int unusedWidth, int unusedHeight, Options options) {
+    public LoadData<Drawable> buildLoadData(@NonNull LiveWallpaperThumbAsset liveWallpaperThumbAsset,
+                                            int unusedWidth, int unusedHeight, @NonNull Options options) {
         return new LoadData<>(new ObjectKey(liveWallpaperThumbAsset),
                 new LiveWallpaperThumbFetcher(liveWallpaperThumbAsset));
     }
@@ -53,8 +55,8 @@ public final class LiveWallpaperThumbAssetLoader implements
         }
 
         @Override
-        public ModelLoader<LiveWallpaperThumbAsset, Drawable> build(
-                MultiModelLoaderFactory multiFactory) {
+        public @NonNull ModelLoader<LiveWallpaperThumbAsset, Drawable> build(
+                @NonNull MultiModelLoaderFactory multiFactory) {
             return new LiveWallpaperThumbAssetLoader();
         }
 
@@ -69,19 +71,19 @@ public final class LiveWallpaperThumbAssetLoader implements
      */
     private static final class LiveWallpaperThumbFetcher implements DataFetcher<Drawable> {
 
-        private LiveWallpaperThumbAsset mLiveWallpaperThumbAsset;
+        private final LiveWallpaperThumbAsset mLiveWallpaperThumbAsset;
 
         public LiveWallpaperThumbFetcher(LiveWallpaperThumbAsset liveWallpaperThumbAsset) {
             mLiveWallpaperThumbAsset = liveWallpaperThumbAsset;
         }
 
         @Override
-        public void loadData(Priority priority, DataCallback<? super Drawable> callback) {
+        public void loadData(@NonNull Priority priority, DataCallback<? super Drawable> callback) {
             callback.onDataReady(mLiveWallpaperThumbAsset.getThumbnailDrawable());
         }
 
         @Override
-        public DataSource getDataSource() {
+        public @NonNull DataSource getDataSource() {
             return DataSource.LOCAL;
         }
 
@@ -96,7 +98,7 @@ public final class LiveWallpaperThumbAssetLoader implements
         }
 
         @Override
-        public Class<Drawable> getDataClass() {
+        public @NonNull Class<Drawable> getDataClass() {
             return Drawable.class;
         }
     }

@@ -48,6 +48,7 @@ import timber.log.Timber;
  *     2. Drop some function.
  *     3. Add recycle function since some asset only decode once.
  */
+@SuppressWarnings("Exifinterface")
 public abstract class StreamableAsset extends Asset {
 
     @Nullable

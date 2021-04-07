@@ -432,7 +432,7 @@ public final class ImagePreviewFragment extends PreviewFragment
 
     @Override
     public void onDismissError() {
-        finishActivity(false);
+        finishActivity();
     }
 
     private void setEditingEnabled(boolean enabled) {

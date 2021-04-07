@@ -102,14 +102,10 @@ public abstract class PreviewFragment extends AppbarFragment
     @Override
     public abstract CharSequence getDefaultTitle();
 
-    protected void finishActivity(boolean success) {
+    protected void finishActivity() {
         Activity activity = getActivity();
-        if (activity == null) {
-            return;
-        }
-        if (success) {
-            activity.setResult(Activity.RESULT_OK);
-        }
+        if (activity == null) return;
+
         activity.overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         activity.finish();
     }
@@ -127,7 +123,7 @@ public abstract class PreviewFragment extends AppbarFragment
         // activity is in a state that allows committing fragment transactions.
         BasePreviewActivity activity = (BasePreviewActivity) getActivity();
         if (activity != null && activity.isSafeToCommitFragmentTransaction()) {
-            dialogFragment.show(requireFragmentManager(), TAG_LOAD_WALLPAPER_ERROR_DIALOG_FRAGMENT);
+            dialogFragment.show(getParentFragmentManager(), TAG_LOAD_WALLPAPER_ERROR_DIALOG_FRAGMENT);
         } else {
             mStagedLoadWallpaperErrorDialogFragment = dialogFragment;
         }

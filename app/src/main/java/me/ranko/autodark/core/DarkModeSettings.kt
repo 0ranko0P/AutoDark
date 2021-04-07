@@ -21,7 +21,7 @@ import kotlinx.coroutines.launch
 import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.R
-import me.ranko.autodark.Receivers.DarkModeAlarmReceiver
+import me.ranko.autodark.receivers.DarkModeAlarmReceiver
 import me.ranko.autodark.Utils.DarkLocationUtil
 import me.ranko.autodark.Utils.DarkTimeUtil
 import me.ranko.autodark.Utils.DarkTimeUtil.getPersistFormattedString
@@ -36,12 +36,12 @@ import timber.log.Timber
 import java.time.LocalTime
 
 interface DarkPreferenceSupplier {
-    fun get(@DARK_JOB_TYPE type: String): DarkDisplayPreference
+    fun get(@DarkPreferenceType type: String): DarkDisplayPreference
 }
 
 @StringDef(DARK_PREFERENCE_START, DARK_PREFERENCE_END)
 @kotlin.annotation.Retention(AnnotationRetention.SOURCE)
-annotation class DARK_JOB_TYPE
+annotation class DarkPreferenceType
 
 /**
  *  Dark mode Controller
@@ -98,19 +98,12 @@ class DarkModeSettings private constructor(private val context: Application) :
                 val command = if (enabled) COMMAND_SET_FORCE_DARK_ON else COMMAND_SET_FORCE_DARK_OFF
                 ShellJobUtil.runSudoJob(command)
                 // check return value
-                getForceDark() == enabled
+                SystemProperties.getBoolean(SYSTEM_PROP_FORCE_DARK, false) == enabled
             } catch (e: Exception) {
                 Timber.i("Error: ${e.localizedMessage}")
                 false
             }
         }
-
-        /**
-         * @return  current force-dark mode status
-         *
-         * @see     Constant.SYSTEM_PROP_FORCE_DARK
-         * */
-        fun getForceDark(): Boolean  = SystemProperties.getBoolean(SYSTEM_PROP_FORCE_DARK, false)
     }
 
     private val mManager: UiModeManager by lazy(LazyThreadSafetyMode.NONE) { context.getSystemService(UiModeManager::class.java)!! }
@@ -160,9 +153,9 @@ class DarkModeSettings private constructor(private val context: Application) :
         Timber.d("Current mode: $currentMode change to $newMode")
         try {
             Settings.Secure.putInt(
-                context.contentResolver,
-                SYSTEM_SECURE_PROP_DARK_MODE,
-                newMode
+                    context.contentResolver,
+                    SYSTEM_SECURE_PROP_DARK_MODE,
+                    newMode
             )
 
             // Manually trigger car mode
@@ -229,16 +222,16 @@ class DarkModeSettings private constructor(private val context: Application) :
      *
      * @see     PendingIntent.getBroadcast
      * */
-    private fun pendingDarkAlarm(time: Long, @DARK_JOB_TYPE type: String): PendingIntent {
+    private fun pendingDarkAlarm(time: Long, @DarkPreferenceType type: String): PendingIntent {
         val intent = Intent(context, DarkModeAlarmReceiver::class.java)
         intent.putExtra(PARAM_ALARM_TYPE, type)
         intent.putExtra(PARAM_ALARM_TIME, time)
 
         return PendingIntent.getBroadcast(
-            context,
-            if (type == DARK_PREFERENCE_START) REQUEST_ALARM_START else REQUEST_ALARM_END,
-            intent,
-            PendingIntent.FLAG_CANCEL_CURRENT
+                context,
+                if (type == DARK_PREFERENCE_START) REQUEST_ALARM_START else REQUEST_ALARM_END,
+                intent,
+                PendingIntent.FLAG_CANCEL_CURRENT
         )
     }
 
@@ -253,7 +246,7 @@ class DarkModeSettings private constructor(private val context: Application) :
      * @see     AlarmManager.set
      * @see     DarkModeSettings.onAlarm
      * */
-    private fun setNextAlarm(time: LocalTime, @DARK_JOB_TYPE type: String) {
+    private fun setNextAlarm(time: LocalTime, @DarkPreferenceType type: String) {
         val alarmTime = getTodayOrNextDay(time)
         mAlarmManager.set(AlarmManager.RTC, alarmTime, pendingDarkAlarm(alarmTime, type))
         Timber.v("Set %s alarm: %s : %s", type, getPersistFormattedString(time), alarmTime)
@@ -282,7 +275,7 @@ class DarkModeSettings private constructor(private val context: Application) :
     /**
      * Cancel all the pending alarm
      *
-     * @see     pendingNextAlarm
+     * @see     pendingDarkAlarm
      * */
     fun cancelAllAlarm(startTime: LocalTime, endTime: LocalTime): Boolean {
 
@@ -357,7 +350,7 @@ class DarkModeSettings private constructor(private val context: Application) :
 
             // pending next alarm if no error occurred
             (context.getSystemService(Activity.ALARM_SERVICE) as AlarmManager)
-                .set(AlarmManager.RTC, nextAlarm, pendingIntent)
+                    .set(AlarmManager.RTC, nextAlarm, pendingIntent)
             Timber.v("Dark job $type finished, pending next alarm: $nextAlarm")
             // change wallpaper now
             DarkWallpaperHelper.getInstance(context, null).onAlarm(switch)
@@ -395,9 +388,9 @@ class DarkModeSettings private constructor(private val context: Application) :
 
         // adjust dark mode if need after boot up
         // renew alarm
-        val darkModeChanged= setAllAlarm(
-            DarkTimeUtil.getPersistLocalTime(startTime),
-            DarkTimeUtil.getPersistLocalTime(endTime)
+        val darkModeChanged = setAllAlarm(
+                DarkTimeUtil.getPersistLocalTime(startTime),
+                DarkTimeUtil.getPersistLocalTime(endTime)
         )
 
         if (forceDark) {
@@ -423,15 +416,15 @@ class DarkModeSettings private constructor(private val context: Application) :
      *
      * @see     UiModeManager.getNightMode
      * */
-    fun isDarkMode():Boolean? {
+    fun isDarkMode(): Boolean? {
         val current = mManager.nightMode
-        return if(current == -1) null else current != UiModeManager.MODE_NIGHT_NO
+        return if (current == -1) null else current != UiModeManager.MODE_NIGHT_NO
     }
 
     private fun saveAutoTime(timePair: Pair<String, String>) {
         sp.edit().putString(SP_AUTO_TIME_SUNRISE, timePair.first)
-            .putString(SP_AUTO_TIME_SUNSET, timePair.second)
-            .apply()
+                .putString(SP_AUTO_TIME_SUNSET, timePair.second)
+                .apply()
     }
 
     private fun saveAutoMode(isAutoMode: Boolean) {
@@ -454,14 +447,15 @@ class DarkModeSettings private constructor(private val context: Application) :
 
     private fun getPreferenceTime(type: String): LocalTime {
         requireNotNull(mSupplier) { "Exception call: Preference has been detached." }
-        if (isAutoMode) {
-            val darkStr = if (type == DARK_PREFERENCE_START)
+        return if (isAutoMode) {
+            val darkTimeStr = if (type == DARK_PREFERENCE_START) {
                 sp.getString(SP_AUTO_TIME_SUNSET, "19:20")!!
-            else
+            } else {
                 sp.getString(SP_AUTO_TIME_SUNRISE, "06:15")!!
-            return DarkTimeUtil.getPersistLocalTime(darkStr)
+            }
+            DarkTimeUtil.getPersistLocalTime(darkTimeStr)
         } else {
-            return mSupplier!!.get(type).time
+            mSupplier!!.get(type).time
         }
     }
 }

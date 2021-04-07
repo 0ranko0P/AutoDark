@@ -74,7 +74,7 @@ class DarkWallpaperPickerActivity : BasePreviewActivity() {
             initPermissionLayout()
         }
 
-        viewModel.wallpaperPickRequest.observe(this, Observer<WallpaperRequest> { request ->
+        viewModel.wallpaperPickRequest.observe(this, { request ->
             if (request == WallpaperRequest.STATIC_WALLPAPER) {
                 val intent = Intent(Intent.ACTION_GET_CONTENT)
                 intent.type = "image/*"
@@ -211,9 +211,9 @@ class DarkWallpaperPickerActivity : BasePreviewActivity() {
     fun requestPermission(@Suppress("UNUSED_PARAMETER")v: View?) {
         if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
             showManualInstruction()
-            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
             val uri = Uri.fromParts("package", packageName, null)
-            intent.data = uri;
+            intent.data = uri
             startActivityForResult(intent, REQUEST_PERMISSION_STORAGE)
         } else {
             requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_PERMISSION_STORAGE)

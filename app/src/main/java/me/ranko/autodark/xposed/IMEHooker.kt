@@ -8,7 +8,7 @@ import de.robv.android.xposed.XC_MethodHook
 import de.robv.android.xposed.XposedHelpers
 import de.robv.android.xposed.callbacks.XC_LoadPackage
 import me.ranko.autodark.BuildConfig
-import me.ranko.autodark.Receivers.InputMethodReceiver
+import me.ranko.autodark.receivers.InputMethodReceiver
 import java.lang.reflect.Field
 
 @SuppressLint("LogNotTimber")

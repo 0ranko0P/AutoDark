@@ -10,7 +10,6 @@ import android.view.ViewTreeObserver
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import me.ranko.autodark.AutoDarkApplication
@@ -67,14 +66,13 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
         initShizukuCard()
         Shizuku.addRequestPermissionResultListener(shizukuListener)
 
-        viewModel.permissionResult.observe(this, Observer<Boolean> { result ->
+        viewModel.permissionResult.observe(this, { result ->
             Timber.v("Access ${if (result) "granted" else "denied"}.")
             if (result) {
                 setResult(RESULT_OK)
                 finish()
             } else {
-                Snackbar.make(binding.coordRoot, R.string.permission_failed, Snackbar.LENGTH_SHORT)
-                    .show()
+                Snackbar.make(binding.coordRoot, R.string.permission_failed, Snackbar.LENGTH_SHORT).show()
             }
         })
 

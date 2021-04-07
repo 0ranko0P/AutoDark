@@ -1,4 +1,4 @@
-package me.ranko.autodark.Services
+package me.ranko.autodark.services
 
 import android.app.*
 import android.app.PendingIntent.FLAG_ONE_SHOT

@@ -3,12 +3,9 @@ package me.ranko.autodark.ui
 import android.annotation.SuppressLint
 import android.app.Application
 import android.app.UiModeManager
-import android.content.Context
-import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import androidx.annotation.RequiresPermission
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -23,7 +20,7 @@ import kotlinx.coroutines.*
 import me.ranko.autodark.AutoDarkApplication.isComponentEnabled
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.R
-import me.ranko.autodark.Receivers.DarkModeAlarmReceiver
+import me.ranko.autodark.receivers.DarkModeAlarmReceiver
 import me.ranko.autodark.Utils.DarkLocationUtil
 import me.ranko.autodark.Utils.DarkTimeUtil
 import me.ranko.autodark.Utils.ViewUtil
@@ -52,9 +49,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * @see     triggerMasterSwitch
      * @see     DarkSwitch
      * */
-    val switch = ObservableField<DarkSwitch>(getSwitchInSP())
+    val switch = ObservableField(getSwitchInSP())
 
-    private val _autoMode = MutableLiveData<Boolean>(darkSettings.isAutoMode())
+    private val _autoMode = MutableLiveData(darkSettings.isAutoMode())
     /**
      * Control the auto mode switch
      * */
@@ -162,24 +159,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
      * @see     UiModeManager.getNightMode
      * */
     private fun makeTriggeredSummary(): Summary? {
-        if (switch.get() == DarkSwitch.OFF) {
-            // Show dark mode disabled summary
-            return newSummary(R.string.dark_mode_disabled)
-        } else if (darkSettings.isAutoMode()) {
-            return newSummary(R.string.dark_mode_summary_auto_on)
-        } else {
-            val isDarkMode = darkSettings.isDarkMode() ?: return null
-            val displayTime: String
-            val textRes: Int = if (isDarkMode) {
-                displayTime = DarkTimeUtil.getDisplayFormattedString(darkSettings.getEndTime())
-                R.string.dark_mode_summary_will_off
-            } else {
-                displayTime = DarkTimeUtil.getDisplayFormattedString(darkSettings.getStartTime())
-                R.string.dark_mode_summary_will_on
-            }
+        when {
+            switch.get() == DarkSwitch.OFF -> return newSummary(R.string.dark_mode_disabled)
 
-            val actionStr = mContext.getString(R.string.dark_mode_summary_action)
-            return Summary(mContext.getString(textRes, displayTime), actionStr, summaryAction)
+            darkSettings.isAutoMode() -> return newSummary(R.string.dark_mode_summary_auto_on)
+
+            else -> {
+                val isDarkMode = darkSettings.isDarkMode() ?: return null
+                val displayTime: String
+                val textRes: Int = if (isDarkMode) {
+                    displayTime = DarkTimeUtil.getDisplayFormattedString(darkSettings.getEndTime())
+                    R.string.dark_mode_summary_will_off
+                } else {
+                    displayTime = DarkTimeUtil.getDisplayFormattedString(darkSettings.getStartTime())
+                    R.string.dark_mode_summary_will_on
+                }
+
+                val actionStr = mContext.getString(R.string.dark_mode_summary_action)
+                return Summary(mContext.getString(textRes, displayTime), actionStr, summaryAction)
+            }
         }
     }
 
@@ -206,7 +204,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val result = darkSettings.triggerAutoMode()
             if (result) {
                 // send delay message if dark mode changed
-                if (old.xor(darkSettings.isDarkMode() ?: false)) {
+                if (old.xor(darkSettings.isDarkMode() == true)) {
                     hasDelayedMessage = true
                 } else {
                     summaryText.set(makeTriggeredSummary())
@@ -270,7 +268,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun newSummary(@StringRes message: Int) = Summary(mContext.getString(message))
+    private fun newSummary(@StringRes message: Int) = Summary(mContext.getString(message))
 
     /**
      * Some optimize app or OEM performance boost function can disable boot receiver
@@ -310,12 +308,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
             setContentView(binding.root)
 
-            val display = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-                activity.display
-            } else {
-                (activity.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
-            }
-            val screenSize = ScreenSizeCalculator.getInstance().getScreenSize(display)
+            val screenSize = ScreenSizeCalculator.getInstance().getScreenSize(activity)
             val mBehavior = BottomSheetBehavior.from(binding.root.parent as ViewGroup)
             setOnShowListener { mBehavior.peekHeight = screenSize.y }
         }

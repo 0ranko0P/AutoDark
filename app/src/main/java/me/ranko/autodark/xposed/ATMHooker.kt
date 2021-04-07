@@ -138,7 +138,7 @@ class ATMHooker private constructor(lpparam: XC_LoadPackage.LoadPackageParam) : 
     /**
      * **True** after AutoDark initialized block list
      *
-     * @see me.ranko.autodark.Receivers.DarkModeAlarmReceiver
+     * @see me.ranko.autodark.receivers.DarkModeAlarmReceiver
      * */
     private var ininitalized = false
 

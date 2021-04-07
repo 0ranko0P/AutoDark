@@ -16,7 +16,6 @@ import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
 import me.ranko.autodark.R
-import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.databinding.ActivityMainBinding
 
 class MainActivity : BaseListActivity(), FragmentManager.OnBackStackChangedListener {

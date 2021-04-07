@@ -5,7 +5,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 
-import me.ranko.autodark.Services.DarkModeTileService;
+import me.ranko.autodark.services.DarkModeTileService;
 import me.ranko.autodark.core.DebugTree;
 import me.ranko.autodark.core.ReleaseTree;
 import rikka.sui.Sui;

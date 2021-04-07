@@ -12,7 +12,6 @@ import android.widget.ImageView
 import androidx.annotation.NonNull
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.Toolbar
-import androidx.core.util.Consumer
 import androidx.databinding.Observable
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.*
@@ -43,7 +42,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import me.ranko.autodark.Constant
 import me.ranko.autodark.R
 import me.ranko.autodark.core.LoadStatus
 import me.ranko.autodark.databinding.FragmentDarkWallpaperBinding
@@ -115,7 +113,7 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
         private val originNavBar = requireActivity().window.navigationBarColor
         private val bottomBarNavBar = context.getColor(R.color.bottom_sheet_background)
 
-        private val behavior = BottomSheetBehavior.from(mBinding.bottomActionbar.findViewById<View>(R.id.action_bottom_sheet))
+        private val behavior = BottomSheetBehavior.from(mBinding.bottomActionbar.findViewById(R.id.action_bottom_sheet))
 
         init {
             mRecycler.layoutManager = mLayoutManager
@@ -124,13 +122,11 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
             val requestManager = Glide.with(this@DarkWallpaperFragment)
 
             mAdapter = LiveWallpaperAdapter(context,
-                    Consumer { newWallpaper -> viewModel.onWallpaperPicked(newWallpaper) },
+                    { newWallpaper -> viewModel.onWallpaperPicked(newWallpaper) },
                     requestManager,
                     sizeProvider)
 
-            preloader = RecyclerViewPreloader<LiveWallpaperThumbAsset>(
-                    requestManager, mAdapter, sizeProvider,
-                    BROWSER_DEFAULT_GRID_SPAN_COUNT * 2)
+            preloader = RecyclerViewPreloader(requestManager, mAdapter, sizeProvider, BROWSER_DEFAULT_GRID_SPAN_COUNT * 2)
             mRecycler.addOnScrollListener(preloader)
 
             mRecycler.setRecyclerListener { holder ->
@@ -360,7 +356,7 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            android.R.id.home -> finishActivity(false)
+            android.R.id.home -> finishActivity()
 
             R.id.action_delete -> showDeleteConfirmDialog()
 
@@ -421,7 +417,7 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
             }
         })
 
-        viewModel.wallpaperPickRequest.observe(viewLifecycleOwner, Observer<WallpaperRequest> { request ->
+        viewModel.wallpaperPickRequest.observe(viewLifecycleOwner, Observer { request ->
             when (request) {
                 WallpaperRequest.CATEGORY_CHOOSER -> {
                     WallpaperCategoryDialog.newInstance(true)

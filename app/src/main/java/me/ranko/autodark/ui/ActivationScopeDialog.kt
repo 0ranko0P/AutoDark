@@ -4,11 +4,9 @@ import android.app.Dialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import android.widget.TextView
 import androidx.preference.PreferenceManager
 import com.android.wallpaper.util.ScreenSizeCalculator
@@ -55,12 +53,7 @@ class ActivationScopeDialog : BottomSheetDialogFragment() {
             val root = dialog.findViewById<View>(R.id.title)!!.parent as View
             initView(root)
 
-           val display = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
-               requireActivity().display
-           } else {
-               (requireActivity().getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
-            }
-            val screenSize = ScreenSizeCalculator.getInstance().getScreenSize(display)
+            val screenSize = ScreenSizeCalculator.getInstance().getScreenSize(requireActivity())
             dialog.behavior.peekHeight = screenSize.y
         }
         return dialog

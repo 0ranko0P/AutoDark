@@ -106,7 +106,7 @@ object ShizukuApi {
         }
     }
 
-    fun startManagerActivity(context: Context): Boolean {
+    private fun startManagerActivity(context: Context): Boolean {
         val intent = context.packageManager.getLaunchIntentForPackage(MANAGER_APPLICATION_ID) ?: return false
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
         ContextCompat.startActivity(context, intent, null)
