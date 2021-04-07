@@ -198,8 +198,9 @@ class BlockListActivity : BaseListActivity() {
 
     override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
         super.onApplyWindowInsets(v, insets)
-        val endOffset = getListView().paddingTop + statusBarHeight
-        binding.swipeRefresh.setProgressViewOffset(false, 0, endOffset)
+        val actionBarSize = getListView().paddingTop
+        val endOffset = actionBarSize + statusBarHeight
+        binding.swipeRefresh.setProgressViewOffset(false, actionBarSize, endOffset)
         viewModel.refreshList()
         return WindowInsetsCompat.CONSUMED
     }
