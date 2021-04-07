@@ -333,13 +333,7 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
 
         _deleteAvailable.value = mHelper.isDarWallpaperPersisted()
 
-        _applyAvailable.value = when {
-            hasErrorAsset() -> false
-
-            _deleteAvailable.value!! -> _clearAvailable.value!!
-
-            else -> mHelper.isDarkWallpaperPicked()
-        }
+        _applyAvailable.value = if (hasErrorAsset()) false else _clearAvailable.value!!
     }
 
     private fun hasErrorAsset(): Boolean {
