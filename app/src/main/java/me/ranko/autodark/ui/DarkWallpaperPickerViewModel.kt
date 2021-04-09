@@ -242,7 +242,13 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
         }
 
         for (i in picked.indices) {
-            val pickedAsset = picked[i].getAsset(mApp)
+            val wallpaperInfo = picked[i]
+            val pickedAsset = if (wallpaperInfo is LiveWallpaperInfo) {
+                wallpaperInfo.getThumbAsset(mApp)
+            } else {
+                wallpaperInfo.getAsset(mApp)
+            }
+
             if (pickedAsset == asset) {
                 mErrorAsset!![i] = asset
             }

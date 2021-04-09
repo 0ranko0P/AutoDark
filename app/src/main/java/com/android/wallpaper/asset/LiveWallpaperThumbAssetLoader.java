@@ -79,7 +79,12 @@ public final class LiveWallpaperThumbAssetLoader implements
 
         @Override
         public void loadData(@NonNull Priority priority, DataCallback<? super Drawable> callback) {
-            callback.onDataReady(mLiveWallpaperThumbAsset.getThumbnailDrawable());
+            Drawable drawable = mLiveWallpaperThumbAsset.getThumbnailDrawable();
+            if (drawable != null) {
+                callback.onDataReady(drawable);
+            } else {
+                callback.onLoadFailed(new NullPointerException("Unable to load drawable from live wallpaper: " + mLiveWallpaperThumbAsset));
+            }
         }
 
         @Override

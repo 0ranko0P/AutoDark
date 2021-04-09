@@ -58,9 +58,14 @@ public final class WallpaperColorsLoader {
 
         if (asset instanceof LiveWallpaperThumbAsset) {
             Drawable drawable = ((LiveWallpaperThumbAsset) asset).getThumbnailDrawable();
-            WallpaperColors colors = WallpaperColors.fromDrawable(drawable);
-            sCache.put(asset, colors);
-            callback.onLoaded(colors);
+            if (drawable == null) {
+                Timber.d("Can't get wallpaper colors from null drawable, uses null color.");
+                callback.onLoaded(null);
+            } else {
+                WallpaperColors colors = WallpaperColors.fromDrawable(drawable);
+                sCache.put(asset, colors);
+                callback.onLoaded(colors);
+            }
             return;
         }
 

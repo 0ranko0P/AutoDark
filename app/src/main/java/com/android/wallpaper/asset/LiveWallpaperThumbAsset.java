@@ -26,6 +26,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.android.wallpaper.util.TaskRunner.Callback;
 
@@ -94,7 +95,7 @@ public class LiveWallpaperThumbAsset extends Asset {
      * Returns the thumbnail drawable for the live wallpaper synchronously. Should not be called on
      * the main UI thread.
      */
-    public Drawable getThumbnailDrawable() {
+    public @Nullable Drawable getThumbnailDrawable() {
         if (mUri != null) {
             if (mThumbnailDrawable != null) {
                 return mThumbnailDrawable;
