@@ -77,8 +77,7 @@ public final class SetWallpaperErrorDialogFragment extends DialogFragment {
 
         AlertDialog.Builder builder = LoadWallpaperErrorDialogFragment.buildShareMessageDialog(this, message)
                 .setTitle(R.string.save_wallpaper_error_title)
-                .setMessage(message)
-                .setNegativeButton(android.R.string.cancel, null);
+                .setMessage(message);
         if (!(exception instanceof TimeoutException || exception instanceof CancellationException)) {
             builder.setPositiveButton(R.string.app_try_again, (dialogInterface, i) -> {
                 // The component hosting this DialogFragment could be either a Fragment or an
