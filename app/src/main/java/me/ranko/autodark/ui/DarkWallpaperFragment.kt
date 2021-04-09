@@ -269,7 +269,10 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
     private val mGlideRequestListener by lazy(LazyThreadSafetyMode.NONE) {
         object : RequestListener<Drawable> {
             override fun onLoadFailed(e: GlideException?, model: Any, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
-                viewModel.onWallpaperCorrupted(model as Asset)
+                if (viewModel.isErrorAssetReported(model as Asset).not()) {
+                    viewModel.onWallpaperCorrupted(model)
+                    showLoadWallpaperErrorDialog(e)
+                }
                 return false
             }
 

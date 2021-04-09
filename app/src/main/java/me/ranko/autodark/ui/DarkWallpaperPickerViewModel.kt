@@ -256,6 +256,15 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
         _applyAvailable.value = false
     }
 
+    fun isErrorAssetReported(errorAsset: Asset): Boolean {
+        if (mErrorAsset == null) return false
+        for (i in 0..mErrorAsset!!.size) {
+            if (mErrorAsset!![i] != null && mErrorAsset!![i] == errorAsset) return true
+        }
+
+        return false
+    }
+
     private fun removeErrorAsset(@Destination dest: Int) {
         if (hasErrorAsset().not()) return
 
