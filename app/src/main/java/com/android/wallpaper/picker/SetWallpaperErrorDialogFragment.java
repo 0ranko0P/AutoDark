@@ -75,7 +75,7 @@ public final class SetWallpaperErrorDialogFragment extends DialogFragment {
         }
         @Destination final int wallpaperDestination = requireArguments().getInt(ARG_WALLPAPER_DESTINATION);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity())
+        AlertDialog.Builder builder = LoadWallpaperErrorDialogFragment.buildShareMessageDialog(this, message)
                 .setTitle(R.string.save_wallpaper_error_title)
                 .setMessage(message)
                 .setNegativeButton(android.R.string.cancel, null);

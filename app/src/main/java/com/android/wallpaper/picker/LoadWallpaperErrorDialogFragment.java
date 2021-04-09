@@ -19,11 +19,13 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -69,20 +71,15 @@ public final class LoadWallpaperErrorDialogFragment extends DialogFragment {
     @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         super.onCreateDialog(savedInstanceState);
-
-        return new AlertDialog.Builder(getActivity())
+        String message = getExceptionString(e);
+        return buildShareMessageDialog(this, message)
                 .setTitle(R.string.load_wallpaper_error_message)
-                .setMessage(getExceptionString(e))
-                .setPositiveButton(android.R.string.ok,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                Listener callback = (Listener) getTargetFragment();
-                                callback.onDismissError();
-                                dismiss();
-                            }
-                        }
-                )
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, (dialogInterface, i) -> {
+                    Listener callback = (Listener) getTargetFragment();
+                    callback.onDismissError();
+                    dismiss();
+                })
                 .create();
     }
 
@@ -97,6 +94,18 @@ public final class LoadWallpaperErrorDialogFragment extends DialogFragment {
             e.printStackTrace();
             return "";
         }
+    }
+
+    public static AlertDialog.Builder buildShareMessageDialog(DialogFragment owner, String message) {
+        return new AlertDialog.Builder(owner.getActivity())
+                .setNegativeButton(R.string.adb_share_text, (dialog, which) -> {
+                    Intent intent = new Intent(Intent.ACTION_SEND);
+                    intent.setType("text/plain");
+                    intent.putExtra(Intent.EXTRA_SUBJECT, "Null");
+                    intent.putExtra(Intent.EXTRA_TEXT, message);
+                    dialog.dismiss();
+                    owner.startActivity(Intent.createChooser(intent, owner.getString(R.string.adb_share_text)));
+                });
     }
 
     @Override
