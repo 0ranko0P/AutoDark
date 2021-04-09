@@ -24,6 +24,7 @@ import android.view.ViewGroup;
 import androidx.annotation.CallSuper;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 
 import com.android.wallpaper.module.WallpaperPersister.Destination;
 
@@ -45,11 +46,10 @@ public abstract class PreviewFragment extends AppbarFragment
     protected static final int UNUSED_REQUEST_CODE = 1;
 
     /**
-     * Staged error dialog fragments that were unable to be shown when the hosting activity didn't
+     * Staged dialog fragments that were unable to be shown when the hosting activity didn't
      * allow committing fragment transactions.
      */
-    private SetWallpaperErrorDialogFragment mStagedSetWallpaperErrorDialogFragment;
-    private LoadWallpaperErrorDialogFragment mStagedLoadWallpaperErrorDialogFragment;
+    private DialogFragment mStagedDialogFragment;
 
 
     @Override
@@ -81,16 +81,11 @@ public abstract class PreviewFragment extends AppbarFragment
         // Show the staged 'load wallpaper' or 'set wallpaper' error dialog fragments if there is
         // one that was unable to be shown earlier when this fragment's hosting activity didn't
         // allow committing fragment transactions.
-        if (mStagedLoadWallpaperErrorDialogFragment != null) {
-            mStagedLoadWallpaperErrorDialogFragment.show(
-                    getParentFragmentManager(), TAG_LOAD_WALLPAPER_ERROR_DIALOG_FRAGMENT);
-            mStagedLoadWallpaperErrorDialogFragment = null;
-        }
-
-        if (mStagedSetWallpaperErrorDialogFragment != null) {
-            mStagedSetWallpaperErrorDialogFragment.show(
-                    getParentFragmentManager(), TAG_SET_WALLPAPER_ERROR_DIALOG_FRAGMENT);
-            mStagedSetWallpaperErrorDialogFragment = null;
+        if (mStagedDialogFragment != null) {
+            String tag = mStagedDialogFragment instanceof LoadWallpaperErrorDialogFragment ?
+                    TAG_LOAD_WALLPAPER_ERROR_DIALOG_FRAGMENT : TAG_SET_WALLPAPER_ERROR_DIALOG_FRAGMENT;
+            mStagedDialogFragment.show(getParentFragmentManager(), tag);
+            mStagedDialogFragment = null;
         }
     }
 
@@ -121,12 +116,7 @@ public abstract class PreviewFragment extends AppbarFragment
 
         // Show 'load wallpaper' error dialog now or stage it to be shown when the hosting
         // activity is in a state that allows committing fragment transactions.
-        BasePreviewActivity activity = (BasePreviewActivity) getActivity();
-        if (activity != null && activity.isSafeToCommitFragmentTransaction()) {
-            dialogFragment.show(getParentFragmentManager(), TAG_LOAD_WALLPAPER_ERROR_DIALOG_FRAGMENT);
-        } else {
-            mStagedLoadWallpaperErrorDialogFragment = dialogFragment;
-        }
+        showFragment(dialogFragment, TAG_LOAD_WALLPAPER_ERROR_DIALOG_FRAGMENT);
     }
 
     protected void showSaveWallpaperErrorDialog(@Nullable Exception e, @Destination int destination) {
@@ -136,11 +126,15 @@ public abstract class PreviewFragment extends AppbarFragment
         // Show 'set wallpaper' error dialog now if it's safe to commit fragment transactions,
         // otherwise stage it for later when the hosting activity is in a state to commit fragment
         // transactions.
+        showFragment(newFragment, TAG_SET_WALLPAPER_ERROR_DIALOG_FRAGMENT);
+    }
+
+    private void showFragment(DialogFragment newFrag, String tag) {
         BasePreviewActivity activity = (BasePreviewActivity) requireActivity();
         if (activity.isSafeToCommitFragmentTransaction()) {
-            newFragment.show(getParentFragmentManager(), TAG_SET_WALLPAPER_ERROR_DIALOG_FRAGMENT);
+            newFrag.show(getParentFragmentManager(), tag);
         } else {
-            mStagedSetWallpaperErrorDialogFragment = newFragment;
+            mStagedDialogFragment = newFrag;
         }
     }
 }
