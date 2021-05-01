@@ -3,11 +3,14 @@ package me.ranko.autodark.xposed
 import android.annotation.SuppressLint
 import android.app.AndroidAppHelper
 import android.content.Context
+import android.content.pm.IPackageManager
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.SystemProperties
 import android.util.Log
 import de.robv.android.xposed.*
 import de.robv.android.xposed.callbacks.XC_LoadPackage
+import me.ranko.autodark.BuildConfig
 import me.ranko.autodark.Constant
 import me.ranko.autodark.receivers.BlockListReceiver
 import me.ranko.autodark.receivers.InputMethodReceiver
@@ -54,6 +57,7 @@ class XCore : IXposedHookLoadPackage, IXposedHookZygoteInit {
                         if (shouldHookIME()) {
                             InputMethodReceiver.register(context, hooker)
                         }
+                        grantPermission(sysClass, param.thisObject)
                     }
                 }
             })
@@ -69,6 +73,31 @@ class XCore : IXposedHookLoadPackage, IXposedHookZygoteInit {
                 SystemProperties.set(Constant.SYSTEM_PROP_HOOK_INPUT_METHOD, true.toString())
             }
             XposedBridge.log("initZygote: Hook IME: ${shouldHookIME()}")
+        }
+    }
+
+    companion object {
+        private const val PERMISSION_INTERACT_ACROSS_USERS = "android.permission.INTERACT_ACROSS_USERS"
+
+        private fun grantPermission(sysClass: Class<*>, sysServer: Any) {
+            try {
+                val pkgField = XposedHelpers.findField(sysClass, "mPackageManagerService")
+                val iPkgManager = pkgField.get(sysServer) as IPackageManager
+                val usersPermission = iPkgManager.checkPermission(
+                    PERMISSION_INTERACT_ACROSS_USERS,
+                    BuildConfig.APPLICATION_ID,
+                    android.os.Process.ROOT_UID
+                )
+                if (usersPermission != PackageManager.PERMISSION_GRANTED) {
+                    iPkgManager.grantRuntimePermission(
+                        BuildConfig.APPLICATION_ID,
+                        PERMISSION_INTERACT_ACROSS_USERS,
+                        android.os.Process.ROOT_UID
+                    )
+                }
+            } catch (e: Exception) {
+                XposedBridge.log(e)
+            }
         }
     }
 }
