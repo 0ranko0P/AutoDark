@@ -8,8 +8,10 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.os.UserManager
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.ArrayMap
 import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
@@ -19,6 +21,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.*
+import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant
 import me.ranko.autodark.Constant.BLOCK_LIST_PATH
 import me.ranko.autodark.Constant.PERMISSION_SEND_DARK_BROADCAST
@@ -193,6 +196,40 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         edXposedDialogShowed = true
     }
 
+    @Suppress("UNCHECKED_CAST", "QueryPermissionsNeeded")
+    suspend fun getInstalledApps(): Collection<ApplicationInfo> = withContext(Dispatchers.IO) {
+        val myApps = mPackageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+        if (!UserManager.supportsMultipleUsers()) {
+            Timber.i("No multi-user support")
+            return@withContext myApps
+        }
+
+        val appMap = ArrayMap<String, ApplicationInfo>()
+        myApps.forEach { app -> appMap[app.packageName] = app }
+
+        try {
+            val pkgMethod = mPackageManager::class.java.getMethod(
+                "getInstalledApplicationsAsUser",
+                Int::class.javaPrimitiveType, // flags
+                Int::class.javaPrimitiveType // userId
+            )
+
+            for (user in AutoDarkApplication.listAllUserId(mContext)) {
+                if (user <= android.os.Process.ROOT_UID) continue
+
+                for (app in pkgMethod.invoke(mPackageManager, PackageManager.GET_META_DATA, user) as List<ApplicationInfo>) {
+                    ensureActive()
+                    if (!appMap.contains(app.packageName)) {
+                        appMap[app.packageName] = app
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Timber.e(e)
+        }
+        return@withContext appMap.values
+    }
+
     @SuppressLint("QueryPermissionsNeeded")
     fun refreshList(clearCurrent: Boolean = true) {
         if (isRefreshAvailable().not()) return
@@ -209,17 +246,16 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
                 val hookSysApp = shouldShowSystemApp()
                 val blockFirst = isBlockedFirst()
 
-                val resultMap: Map<Boolean, List<ApplicationInfo>> = mPackageManager
-                        .getInstalledApplications(PackageManager.GET_META_DATA)
+                val resultMap: Map<Boolean, List<ApplicationInfo>> = getInstalledApps()
                         .stream()
                         .filter { app -> hookSysApp || ApplicationInfo.FLAG_SYSTEM.and(app.flags) != ApplicationInfo.FLAG_SYSTEM }
                         .sorted { o1, o2 -> getAppName(o1).compareTo(getAppName(o2)) }
                         .collect(Collectors.partitioningBy { app -> blockFirst && isAppBlocked(app) })
 
                 val appList = resultMap[false]!!
-
+                // show progress longer
                 val cost = Duration.between(timer, Instant.now()).toMillis()
-                if (cost < 1000L) delay(500L) // show progress longer
+                if (cost < 1000L) delay(500L)
 
                 if (blockFirst) {
                     val blockList = resultMap[true]!!

@@ -96,4 +96,6 @@ dependencies {
     // Xposed Framework API dependencies
     compileOnly "de.robv.android.xposed:api:$ver_xposed"
     compileOnly "de.robv.android.xposed:api:$ver_xposed:sources"
+
+    implementation 'me.weishu:free_reflection:3.0.1'
 }
