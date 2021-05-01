@@ -15,18 +15,18 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.preference.Preference
 import androidx.preference.Preference.OnPreferenceChangeListener
 import androidx.preference.PreferenceManager
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.R
-import me.ranko.autodark.receivers.DarkModeAlarmReceiver
 import me.ranko.autodark.Utils.DarkLocationUtil
 import me.ranko.autodark.Utils.DarkTimeUtil
 import me.ranko.autodark.Utils.DarkTimeUtil.getPersistFormattedString
 import me.ranko.autodark.Utils.DarkTimeUtil.getTodayOrNextDay
 import me.ranko.autodark.Utils.ShellJobUtil
+import me.ranko.autodark.receivers.DarkModeAlarmReceiver
 import me.ranko.autodark.ui.DarkWallpaperHelper
 import me.ranko.autodark.ui.MainFragment.Companion.DARK_PREFERENCE_END
 import me.ranko.autodark.ui.MainFragment.Companion.DARK_PREFERENCE_FORCE_ROOT
@@ -368,16 +368,22 @@ class DarkModeSettings private constructor(private val context: Application) :
      * @see     DARK_PREFERENCE_FORCE_ROOT
      * */
     fun onBoot() {
-        val masterSwitch = sp.getBoolean(SP_KEY_MASTER_SWITCH, false)
-        if (!masterSwitch) return
+        if (sp.getBoolean(DARK_PREFERENCE_FORCE_ROOT, false)) {
+            GlobalScope.launch (Dispatchers.Main) {
+                // Check set job result
+                val result = setForceDark(true)
+                Timber.v("Force-dark job %s.", if (result) "Succeed" else "Failed")
+            }
+        }
 
         val autoMode = sp.getBoolean(SP_AUTO_mode, false)
-        val forceDark = sp.getBoolean(DARK_PREFERENCE_FORCE_ROOT, false)
+        val masterSwitch = sp.getBoolean(SP_KEY_MASTER_SWITCH, false)
+        if (!masterSwitch) return
 
         val startTime = sp.getString(if (autoMode) SP_AUTO_TIME_SUNSET else DARK_PREFERENCE_START, null)
         val endTime = sp.getString(if (autoMode) SP_AUTO_TIME_SUNRISE else DARK_PREFERENCE_END, null)
 
-        Timber.i("onBootBroadcast: Switch $masterSwitch, AutoMode: $autoMode, ForceDark: $forceDark")
+        Timber.i("onBootBroadcast: Switch $masterSwitch, AutoMode: $autoMode")
 
         if (startTime == null || endTime == null) {
             Timber.v("No job to do.")
@@ -392,14 +398,6 @@ class DarkModeSettings private constructor(private val context: Application) :
                 DarkTimeUtil.getPersistLocalTime(startTime),
                 DarkTimeUtil.getPersistLocalTime(endTime)
         )
-
-        if (forceDark) {
-            CoroutineScope(Dispatchers.Default).launch {
-                // Check set job result
-                val result = setForceDark(true)
-                Timber.v("Force-dark job %s.", if (result) "Succeed" else "Failed")
-            }
-        }
 
         if (darkModeChanged) { // Change wallpaper now
             DarkWallpaperHelper.getInstance(context, null).onBoot(isDarkMode() == true)
