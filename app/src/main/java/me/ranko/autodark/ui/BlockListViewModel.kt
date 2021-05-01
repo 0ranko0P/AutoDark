@@ -21,19 +21,19 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.*
 import androidx.preference.PreferenceManager
 import kotlinx.coroutines.*
-import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant
 import me.ranko.autodark.Constant.BLOCK_LIST_PATH
 import me.ranko.autodark.Constant.PERMISSION_SEND_DARK_BROADCAST
 import me.ranko.autodark.R
+import me.ranko.autodark.Utils.FileUtil
+import me.ranko.autodark.core.LoadStatus
+import me.ranko.autodark.model.UserApplicationInfo
 import me.ranko.autodark.receivers.BlockListReceiver
 import me.ranko.autodark.receivers.BlockListReceiver.Companion.ACTION_SWITCH_INPUT_METHOD_RESULT
 import me.ranko.autodark.receivers.BlockListReceiver.Companion.ACTION_UPDATE_PROGRESS
 import me.ranko.autodark.receivers.BlockListReceiver.Companion.EXTRA_KEY_LIST_PROGRESS
 import me.ranko.autodark.receivers.BlockListReceiver.Companion.EXTRA_KEY_SWITCH_RESULT
 import me.ranko.autodark.receivers.InputMethodReceiver
-import me.ranko.autodark.Utils.FileUtil
-import me.ranko.autodark.core.LoadStatus
 import me.ranko.autodark.ui.MainViewModel.Companion.Summary
 import timber.log.Timber
 import java.nio.file.Files
@@ -42,6 +42,7 @@ import java.time.Duration
 import java.time.Instant
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
+import java.util.regex.Pattern
 import java.util.stream.Collectors
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
@@ -207,20 +208,25 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         val appMap = ArrayMap<String, ApplicationInfo>()
         myApps.forEach { app -> appMap[app.packageName] = app }
 
+        // avoid request Manifest.permission.MANAGE_USERS permission
+        // use pattern to get user id
+        val findInt = Pattern.compile("\\D+")
         try {
+            val userManager = mContext.getSystemService(Context.USER_SERVICE) as UserManager
             val pkgMethod = mPackageManager::class.java.getMethod(
                 "getInstalledApplicationsAsUser",
                 Int::class.javaPrimitiveType, // flags
                 Int::class.javaPrimitiveType // userId
             )
 
-            for (user in AutoDarkApplication.listAllUserId(mContext)) {
-                if (user <= android.os.Process.ROOT_UID) continue
+            for (user in userManager.userProfiles) {
+                val uid = findInt.matcher(user.toString()).replaceAll("").toInt()
+                if (uid <= android.os.Process.ROOT_UID) continue
 
-                for (app in pkgMethod.invoke(mPackageManager, PackageManager.GET_META_DATA, user) as List<ApplicationInfo>) {
+                for (app in pkgMethod.invoke(mPackageManager, PackageManager.GET_META_DATA, uid) as List<ApplicationInfo>) {
                     ensureActive()
                     if (!appMap.contains(app.packageName)) {
-                        appMap[app.packageName] = app
+                        appMap[app.packageName] = UserApplicationInfo(app, user, uid)
                     }
                 }
             }

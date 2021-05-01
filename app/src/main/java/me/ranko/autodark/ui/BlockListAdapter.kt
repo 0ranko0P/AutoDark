@@ -20,6 +20,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.CircularAnimationUtil
+import me.ranko.autodark.model.UserApplicationInfo
 
 class BlockListAdapter(context: Context,
                        requestManager: RequestManager,
@@ -77,7 +78,11 @@ class BlockListAdapter(context: Context,
         applyBlockedMark(listener.isAppBlocked(app), holder, false)
         mRequest.load(app).into(holder.icon)
 
-        holder.name.text = app.loadLabel(packageManager)
+        holder.name.text = if (app !is UserApplicationInfo) {
+            app.loadLabel(packageManager)
+        } else {
+            holder.id.context.getString(R.string.app_badged_label, app.loadLabel(packageManager), app.userId)
+        }
         holder.id.text = app.packageName
         holder.rootView.setOnClickListener(this)
         holder.rootView.tag = holder

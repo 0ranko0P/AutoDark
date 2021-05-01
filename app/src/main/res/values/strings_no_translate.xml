@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_badged_label" translatable="false"><xliff:g name="name">%1$s</xliff:g> (<xliff:g name="uid">%2$d</xliff:g>)</string>
     <string name="app_name" translatable="false">AutoDark</string>
     <string name="app_github_page" translatable="false">https://github.com/0ranko0P/AutoDark</string>
     <string name="app_github_issue_page" translatable="false">https://github.com/0ranko0P/AutoDark/issues</string>

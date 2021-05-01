@@ -12,6 +12,7 @@ import com.bumptech.glide.load.model.ModelLoader
 import com.bumptech.glide.load.model.ModelLoaderFactory
 import com.bumptech.glide.load.model.MultiModelLoaderFactory
 import com.bumptech.glide.signature.ObjectKey
+import me.ranko.autodark.model.UserApplicationInfo
 
 class ApplicationIconLoader(val packageManager: PackageManager) : ModelLoader<ApplicationInfo, Drawable> {
 
@@ -24,7 +25,12 @@ class ApplicationIconLoader(val packageManager: PackageManager) : ModelLoader<Ap
     class ApplicationIconDataFetcher(private val packageManager: PackageManager,
                                      private val app: ApplicationInfo): DataFetcher<Drawable> {
         override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in Drawable>) {
-            callback.onDataReady(packageManager.getApplicationIcon(app))
+            val icon = packageManager.getApplicationIcon(app)
+            if (app !is UserApplicationInfo) {
+                callback.onDataReady(icon)
+            } else {
+                callback.onDataReady(packageManager.getUserBadgedIcon(icon, app.user))
+            }
         }
 
         override fun cleanup() {
