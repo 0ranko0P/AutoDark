@@ -48,7 +48,6 @@
             android:layout_below="@id/name"
             android:layout_alignStart="@id/name"
             android:layout_alignEnd="@id/name"
-            android:layout_marginTop="2dp"
             android:textSize="14sp"
             tools:text="com.android.systemui" />
 
