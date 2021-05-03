@@ -28,9 +28,9 @@ class BlockListAdapter(context: Context,
     RecyclerView.Adapter<BlockListAdapter.Companion.ViewHolder>(), View.OnClickListener {
 
     interface AppSelectListener {
-        fun onAppBlockStateChanged(app: ApplicationInfo): Boolean
+        fun onAppBlockStateChanged(packageName: String): Boolean
 
-        fun isAppBlocked(app: ApplicationInfo): Boolean
+        fun isAppBlocked(packageName: String): Boolean
     }
 
     private val packageManager = context.packageManager
@@ -75,7 +75,7 @@ class BlockListAdapter(context: Context,
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val app = data[position]
-        applyBlockedMark(listener.isAppBlocked(app), holder, false)
+        applyBlockedMark(listener.isAppBlocked(app.packageName), holder, false)
         mRequest.load(app).into(holder.icon)
 
         holder.name.text = if (app !is UserApplicationInfo) {
@@ -113,7 +113,7 @@ class BlockListAdapter(context: Context,
 
         val holder = v.tag as ViewHolder
         val position = holder.adapterPosition
-        val isBlocked = listener.onAppBlockStateChanged(data[position])
+        val isBlocked = listener.onAppBlockStateChanged(data[position].packageName)
         applyBlockedMark(isBlocked, holder)
     }
 

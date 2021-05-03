@@ -256,7 +256,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
                         .stream()
                         .filter { app -> hookSysApp || ApplicationInfo.FLAG_SYSTEM.and(app.flags) != ApplicationInfo.FLAG_SYSTEM }
                         .sorted { o1, o2 -> getAppName(o1).compareTo(getAppName(o2)) }
-                        .collect(Collectors.partitioningBy { app -> blockFirst && isAppBlocked(app) })
+                        .collect(Collectors.partitioningBy { app -> blockFirst && isAppBlocked(app.packageName) })
 
                 val appList = resultMap[false]!!
                 // show progress longer
@@ -286,18 +286,17 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun shouldShowSystemApp(): Boolean = sp.getBoolean(KEY_SHOW_SYSTEM_APP, false)
 
-    override fun onAppBlockStateChanged(app: ApplicationInfo): Boolean {
-        val pkg = app.packageName
-        return if (mBlockSet.contains(pkg)) {
-            mBlockSet.remove(pkg)
+    override fun onAppBlockStateChanged(packageName: String): Boolean {
+        return if (mBlockSet.contains(packageName)) {
+            mBlockSet.remove(packageName)
             false
         } else {
-            mBlockSet.add(pkg)
+            mBlockSet.add(packageName)
             true
         }
     }
 
-    override fun isAppBlocked(app: ApplicationInfo): Boolean = mBlockSet.contains(app.packageName)
+    override fun isAppBlocked(packageName: String): Boolean = mBlockSet.contains(packageName)
 
     fun requestUploadList() {
         if (isUploading()) {
