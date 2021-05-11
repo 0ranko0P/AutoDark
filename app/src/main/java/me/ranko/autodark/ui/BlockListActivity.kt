@@ -66,6 +66,16 @@ class BlockListActivity : BaseListActivity() {
         }
     }
 
+    private val mDialogObserver by lazy(LazyThreadSafetyMode.NONE) {
+        object : Observable.OnPropertyChangedCallback() {
+            override fun onPropertyChanged(sender: Observable, propertyId: Int) {
+                val dialog = (sender as ObservableField<*>).get() ?: return
+                (dialog as DialogFragment).show(supportFragmentManager, TAG_CURRENT_FRAGMENT)
+                viewModel.dialog.set(null)
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         with(window) {
             requestFeature(Window.FEATURE_CONTENT_TRANSITIONS)
@@ -109,13 +119,7 @@ class BlockListActivity : BaseListActivity() {
             setMenuVisible(isRefreshing.not())
         })
 
-        viewModel.dialog.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
-            override fun onPropertyChanged(sender: Observable, propertyId: Int) {
-                val dialog = (sender as ObservableField<*>).get() ?: return
-                (dialog as DialogFragment).show(supportFragmentManager, TAG_CURRENT_FRAGMENT)
-                viewModel.dialog.set(null)
-            }
-        })
+        viewModel.dialog.addOnPropertyChangedCallback(mDialogObserver)
 
         viewModel.attachSearchHelper(this, binding.toolbarEdit)
         viewModel.isSearching.observe(this, { searching ->
@@ -228,6 +232,8 @@ class BlockListActivity : BaseListActivity() {
     override fun onDestroy() {
         binding.recyclerView.removeOnScrollListener(mScrollListener)
         binding.recyclerView.adapter = null
+        viewModel.dialog.removeOnPropertyChangedCallback(mDialogObserver)
+        viewModel.message.removeOnPropertyChangedCallback(mMessageObserver)
         super.onDestroy()
     }
 }
