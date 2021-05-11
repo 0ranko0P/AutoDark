@@ -5,8 +5,10 @@
     <string name="app_clear">Clear</string>
     <string name="app_confirm">OK</string>
     <string name="app_crop">Crop wallpaper</string>
+    <string name="app_delete">Delete</string>
     <string name="app_do_not_show">Do not show this again</string>
     <string name="app_blocked_first">Blocked first</string>
+    <string name="app_edit">Edit</string>
     <string name="app_exit">exit</string>
     <string name="app_hook_ime">Try Hook input method</string>
     <string name="app_hook_ime_restart">Restart  <xliff:g name="inputmethod">%1$s</xliff:g> to take effect</string>
@@ -91,6 +93,10 @@
     <string name="adb_send">Send Command</string>
     <string name="adb_share_text">Share with</string>
     <string name="adb_title">Grant permission with ADB</string>
+
+    <string name="block_edit_title">Edit block list</string>
+    <string name="block_edit_package_hint">Package Name</string>
+    <string name="block_edit_package_error">Invalid package name</string>
 
     <string name="chooser_category_wallpaper">Wallpapers</string>
     <string name="chooser_category_live_wallpaper">Live wallpapers</string>

@@ -4,6 +4,13 @@
     tools:context="me.ranko.autodark.ui.BlockListActivity">
 
     <item
+        android:id="@+id/action_edit"
+        android:icon="@drawable/ic_code"
+        android:orderInCategory="100"
+        android:title="@string/app_edit"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/action_save"
         android:icon="@drawable/ic_save"
         android:orderInCategory="100"

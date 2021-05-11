@@ -7,6 +7,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.Window
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
 import androidx.databinding.DataBindingUtil
@@ -97,7 +98,8 @@ class BlockListActivity : BaseListActivity() {
         binding.recyclerView.adapter = mAdapter
         binding.recyclerView.addOnScrollListener(mScrollListener)
 
-        viewModel.mAppList.observe(this, { list -> mAdapter.setData(list) })
+        viewModel.mAppList.observe(this, { list -> if (!viewModel.isEditing()) mAdapter.setData(list) })
+        viewModel.mEditList.observe(this, { list -> if (viewModel.isEditing()) mAdapter.setData(list) })
 
         binding.swipeRefresh.setOnRefreshListener { viewModel.refreshList() }
         binding.swipeRefresh.setColorSchemeResources( // add RGB power
@@ -107,16 +109,16 @@ class BlockListActivity : BaseListActivity() {
         )
 
         viewModel.isRefreshing.observe(this, { isRefreshing ->
+            binding.toolbarEdit.visibility = if (isRefreshing || viewModel.isEditing()) View.INVISIBLE else View.VISIBLE
+
             if (isRefreshing) {
-                binding.toolbarEdit.visibility = View.INVISIBLE
                 binding.fab.hide()
             } else {
-                binding.toolbarEdit.visibility = View.VISIBLE
                 binding.fab.show()
             }
             binding.swipeRefresh.isRefreshing = isRefreshing
             mAdapter.setRefreshing(isRefreshing)
-            setMenuVisible(isRefreshing.not())
+            setMenuVisible(isRefreshing.not() && viewModel.isEditing().not())
         })
 
         viewModel.dialog.addOnPropertyChangedCallback(mDialogObserver)
@@ -126,6 +128,18 @@ class BlockListActivity : BaseListActivity() {
             mAdapter.setSearchMode(searching)
             // hide menu icon while searching
             setMenuVisible(searching.not())
+        })
+
+        viewModel.isEditing.observe(this, { editing ->
+            val iconColor = if (editing) {
+                binding.fab.setImageDrawable(ContextCompat.getDrawable(this, android.R.drawable.ic_input_add))
+                getColor(R.color.primary)
+            } else {
+                binding.fab.setImageResource(R.drawable.ic_save)
+                ViewUtil.getAttrColor(this, android.R.attr.colorControlNormal)
+            }
+            // use primary icon color when editing
+            menu?.findItem(R.id.action_edit)?.icon?.mutate()?.setTint(iconColor)
         })
 
         // hide all the stuff when update failed
@@ -151,17 +165,15 @@ class BlockListActivity : BaseListActivity() {
         viewModel.message.set(null)
     }
 
-    override fun onBackPressed() {
-        if (viewModel.isUploading()) {
-            // prevent exit while uploading
-            showMessage(getString(R.string.app_upload_busy))
-        } else {
-            if (binding.toolbarEdit.hasFocus()) {
-                binding.toolbar.clearFocus()
-            } else {
-                super.onBackPressed()
-            }
-        }
+    override fun onBackPressed() = when {
+        // prevent exit while uploading
+        viewModel.isUploading() -> showMessage(getString(R.string.app_upload_busy))
+
+        viewModel.isEditing() -> viewModel.onEditMode()
+
+        binding.toolbarEdit.hasFocus() -> binding.toolbar.clearFocus()
+
+        else -> super.onBackPressed()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -179,12 +191,14 @@ class BlockListActivity : BaseListActivity() {
         val groupTitleColor = getColor(R.color.primary)
         ViewUtil.setMenuItemTitleColor(menu.findItem(R.id.group_list), groupTitleColor)
         ViewUtil.setMenuItemTitleColor(menu.findItem(R.id.group_xposed), groupTitleColor)
-        setMenuVisible(viewModel.isRefreshAvailable())
+        setMenuVisible(viewModel.isRefreshAvailable() && viewModel.isEditing().not())
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.action_edit -> viewModel.onEditMode()
+
             R.id.action_save -> binding.fab.performClick()
 
             R.id.action_hook_sys -> viewModel.onShowSysAppSelected(item.isChecked.not())
@@ -195,7 +209,7 @@ class BlockListActivity : BaseListActivity() {
 
             android.R.id.home -> onBackPressed()
 
-            else -> super.onOptionsItemSelected(item)
+            else -> return super.onOptionsItemSelected(item)
         }
         return true
     }
@@ -205,7 +219,11 @@ class BlockListActivity : BaseListActivity() {
         val actionBarSize = getListView().paddingTop
         val endOffset = actionBarSize + statusBarHeight
         binding.swipeRefresh.setProgressViewOffset(false, actionBarSize, endOffset)
-        viewModel.refreshList()
+
+        // avoid refresh on editing or searching
+        if (viewModel.isEditing().not() && binding.toolbarEdit.hasFocus()) {
+            viewModel.refreshList()
+        }
         return WindowInsetsCompat.CONSUMED
     }
 
@@ -223,9 +241,11 @@ class BlockListActivity : BaseListActivity() {
         binding.fab.layoutParams = fabParams
     }
 
-    private fun setMenuVisible(visible: Boolean) {
-        menu?.children?.forEach { item ->
-            if (item.isVisible.xor(visible)) item.isVisible = visible
+    private fun setMenuVisible(visible: Boolean) = menu?.children?.forEach { item ->
+        if (item.itemId == R.id.action_edit) {
+            item.isVisible = viewModel.isRefreshAvailable() && binding.toolbarEdit.hasFocus().not()
+        } else if (item.isVisible.xor(visible)) {
+            item.isVisible = visible
         }
     }
 

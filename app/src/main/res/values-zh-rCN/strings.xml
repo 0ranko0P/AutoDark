@@ -5,8 +5,10 @@
     <string name="app_clear">清除</string>
     <string name="app_confirm">好的</string>
     <string name="app_crop">裁剪壁纸</string>
+    <string name="app_delete">删除</string>
     <string name="app_do_not_show">不再显示</string>
     <string name="app_blocked_first">黑名单优先</string>
+    <string name="app_edit">编辑</string>
     <string name="app_exit">退出</string>
     <string name="app_hook_ime">尝试Hook 输入法</string>
     <string name="app_hook_ime_restart">重启<xliff:g name="inputmethod">%1$s</xliff:g>生效</string>
@@ -88,6 +90,10 @@
     <string name="adb_send">发送指令</string>
     <string name="adb_share_text">分享给</string>
     <string name="adb_title">使用 ADB 授权</string>
+
+    <string name="block_edit_title">编辑黑名单</string>
+    <string name="block_edit_package_hint">包名</string>
+    <string name="block_edit_package_error">非法的包名</string>
 
     <string name="chooser_category_wallpaper">壁纸</string>
     <string name="chooser_category_live_wallpaper">动态壁纸</string>

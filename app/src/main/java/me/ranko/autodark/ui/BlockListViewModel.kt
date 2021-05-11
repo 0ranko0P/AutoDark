@@ -161,6 +161,14 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
     val mAppList: LiveData<List<ApplicationInfo>>
         get() = _mAppList
 
+    private var _isEditing = MutableLiveData(false)
+    val isEditing: LiveData<Boolean>
+        get() = _isEditing
+
+    private val _mEditList = MutableLiveData<List<String>>()
+    val mEditList: LiveData<List<String>>
+        get() = _mEditList
+
     private var mSearchHelper: SearchHelper? = null
 
     val dialog = ObservableField<DialogFragment?>()
@@ -242,41 +250,53 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
         _isRefreshing.value = true
         timer = Instant.now()
-        viewModelScope.launch {
-            if (clearCurrent && mBlockSet.isNotEmpty()) mBlockSet.clear()
-
-            val list = withContext(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.Main) {
+            withContext(Dispatchers.IO) {
                 if (clearCurrent) {
+                    if (mBlockSet.isNotEmpty()) mBlockSet.clear()
                     FileUtil.readList(BLOCK_LIST_PATH)?.let { mBlockSet.addAll(it) }
                 }
-                val hookSysApp = shouldShowSystemApp()
-                val blockFirst = isBlockedFirst()
-
-                val resultMap: Map<Boolean, List<ApplicationInfo>> = getInstalledApps()
-                        .stream()
-                        .filter { app -> hookSysApp || ApplicationInfo.FLAG_SYSTEM.and(app.flags) != ApplicationInfo.FLAG_SYSTEM }
-                        .sorted { o1, o2 -> getAppName(o1).compareTo(getAppName(o2)) }
-                        .collect(Collectors.partitioningBy { app -> blockFirst && isAppBlocked(app.packageName) })
-
-                val appList = resultMap[false]!!
-                // show progress longer
-                val cost = Duration.between(timer, Instant.now()).toMillis()
-                if (cost < 1000L) delay(500L)
-
-                if (blockFirst) {
-                    val blockList = resultMap[true]!!
-                    val blockFirstList = ArrayList<ApplicationInfo>(blockList.size + appList.size)
-                    blockFirstList.addAll(blockList)
-                    blockFirstList.addAll(appList)
-                    return@withContext blockFirstList
+                if (_isEditing.value == true) {
+                    _mEditList.postValue(loadEditAppList())
                 } else {
-                    return@withContext appList
+                    _mAppList.postValue(loadAppList())
                 }
             }
-            _mAppList.value = list
             _isRefreshing.value = false
         }
     }
+
+    private suspend fun loadAppList(): List<ApplicationInfo> {
+        val hookSysApp = shouldShowSystemApp()
+        val blockFirst = isBlockedFirst()
+
+        val resultMap: Map<Boolean, List<ApplicationInfo>> = getInstalledApps()
+                .stream()
+                .filter { app -> hookSysApp || ApplicationInfo.FLAG_SYSTEM.and(app.flags) != ApplicationInfo.FLAG_SYSTEM }
+                .sorted { o1, o2 -> getAppName(o1).compareTo(getAppName(o2)) }
+                .collect(Collectors.partitioningBy { app -> blockFirst && isAppBlocked(app.packageName) })
+
+        val appList = resultMap[false]!!
+
+        return if (blockFirst) {
+            val blockList = resultMap[true]!!
+            val blockFirstList = ArrayList<ApplicationInfo>(blockList.size + appList.size)
+            blockFirstList.addAll(blockList)
+            blockFirstList.addAll(appList)
+            blockFirstList
+        } else {
+            appList
+        }
+    }
+
+    private fun loadEditAppList(): List<String> = mBlockSet.sorted().toMutableList()
+
+    fun onEditMode() {
+        _isEditing.value = _isEditing.value != true
+        refreshList(false)
+    }
+
+    fun isEditing(): Boolean = _isEditing.value == true
 
     fun isRefreshAvailable(): Boolean {
         return _isRefreshing.value != true && isUploading().not() && _uploadStatus.value != LoadStatus.FAILED
@@ -289,16 +309,32 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
     override fun onAppBlockStateChanged(packageName: String): Boolean {
         return if (mBlockSet.contains(packageName)) {
             mBlockSet.remove(packageName)
+            if (isEditing()) {
+                _mEditList.value = (_mEditList.value as ArrayList).apply { remove(packageName) }
+            }
             false
         } else {
             mBlockSet.add(packageName)
+            if (isEditing()) _mEditList.value = loadEditAppList()
             true
         }
     }
 
     override fun isAppBlocked(packageName: String): Boolean = mBlockSet.contains(packageName)
 
-    fun requestUploadList() {
+    override fun onEditItemClicked(packageName: String) {
+        dialog.set(BlockListEditDialog.newInstance(packageName))
+    }
+
+    fun onFabClicked(@Suppress("UNUSED_PARAMETER")v: View) {
+        if (_isEditing.value == true) {
+            dialog.set(BlockListEditDialog.newInstance(null))
+        } else {
+            requestUploadList()
+        }
+    }
+
+    private fun requestUploadList() {
         if (isUploading()) {
             message.set(newSummary(R.string.app_upload_busy))
             return
