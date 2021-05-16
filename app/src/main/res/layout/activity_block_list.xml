@@ -103,8 +103,7 @@
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
             android:onClick="@{viewModel::onFabClicked}"
-            android:transitionName="trans_fab"
-            app:srcCompat="@drawable/ic_save" />
+            android:transitionName="trans_fab" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
