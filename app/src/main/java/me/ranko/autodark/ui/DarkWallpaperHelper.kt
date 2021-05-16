@@ -284,16 +284,11 @@ class DarkWallpaperHelper private constructor(context: Context) {
     fun pickCroppedWallpaper(wallpaper: CroppedWallpaperInfo, dark: Boolean): Pair<WallpaperInfo, WallpaperInfo> {
         val index = if (dark) DARK_HOME.ordinal else HOME.ordinal
         val destination = wallpaper.destination
-        val oldHome = mPicked[index]
 
         if (destination == DEST_HOME_SCREEN || destination == DEST_BOTH) {
             mPicked[index] = wallpaper
         }
-
         if (destination == DEST_LOCK_SCREEN || destination == DEST_BOTH) {
-            if (oldHome is LiveWallpaperInfo && destination != DEST_BOTH) { //double check
-                throw IllegalStateException("Old wallpaper is a LiveWallpaper! dest: $destination")
-            }
             mPicked[index + DEST_LOCK_SCREEN] = wallpaper
         }
         return Pair(mPicked[index], mPicked[index + DEST_LOCK_SCREEN])
