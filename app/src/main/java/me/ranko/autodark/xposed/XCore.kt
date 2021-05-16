@@ -1,5 +1,6 @@
 package me.ranko.autodark.xposed
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AndroidAppHelper
 import android.content.Context
@@ -83,20 +84,17 @@ class XCore : IXposedHookLoadPackage, IXposedHookZygoteInit {
             try {
                 val pkgField = XposedHelpers.findField(sysClass, "mPackageManagerService")
                 val iPkgManager = pkgField.get(sysServer) as IPackageManager
-                val usersPermission = iPkgManager.checkPermission(
-                    PERMISSION_INTERACT_ACROSS_USERS,
-                    BuildConfig.APPLICATION_ID,
-                    android.os.Process.ROOT_UID
-                )
-                if (usersPermission != PackageManager.PERMISSION_GRANTED) {
-                    iPkgManager.grantRuntimePermission(
-                        BuildConfig.APPLICATION_ID,
-                        PERMISSION_INTERACT_ACROSS_USERS,
-                        android.os.Process.ROOT_UID
-                    )
-                }
+                grantSelfPermission(iPkgManager, PERMISSION_INTERACT_ACROSS_USERS)
+                grantSelfPermission(iPkgManager, Manifest.permission.WRITE_SECURE_SETTINGS)
             } catch (e: Exception) {
                 XposedBridge.log(e)
+            }
+        }
+
+        private fun grantSelfPermission(iPkgManager: IPackageManager, permission: String) {
+            val result = iPkgManager.checkPermission(permission, BuildConfig.APPLICATION_ID, android.os.Process.ROOT_UID)
+            if (result != PackageManager.PERMISSION_GRANTED) {
+                iPkgManager.grantRuntimePermission(BuildConfig.APPLICATION_ID, permission, android.os.Process.ROOT_UID)
             }
         }
     }
