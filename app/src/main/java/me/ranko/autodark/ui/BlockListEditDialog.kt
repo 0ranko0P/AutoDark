@@ -19,6 +19,7 @@ class BlockListEditDialog : DialogFragment(), TextWatcher {
 
     companion object {
         private const val ARG_CURRENT_PACKAGE = "arg_c"
+        private const val KEY_USER_INPUT = "edit_input"
 
         fun newInstance(currentPkg: String?): BlockListEditDialog {
             val args = Bundle()
@@ -71,11 +72,14 @@ class BlockListEditDialog : DialogFragment(), TextWatcher {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val savedInput: String? = savedInstanceState?.getString(KEY_USER_INPUT, null)
         val dialog = AlertDialog.Builder(requireContext())
                 .setView(R.layout.dialog_edit_package)
                 .setTitle(R.string.block_edit_title)
                 .setNegativeButton(android.R.string.cancel, null)
                 .create()
+
+        dialog.setCanceledOnTouchOutside(false)
 
         dialog.setButton(DialogInterface.BUTTON_POSITIVE, getString(android.R.string.ok)) { _, _ ->
             val newPkg = inputText.text.toString()
@@ -91,6 +95,7 @@ class BlockListEditDialog : DialogFragment(), TextWatcher {
                 viewModel.onAppBlockStateChanged(currentPkg)
             }
         }
+
         dialog.setOnShowListener {
             inputLayout = dialog.findViewById(R.id.inputLayout)!!
             inputText = dialog.findViewById(R.id.inputText)!!
@@ -98,15 +103,23 @@ class BlockListEditDialog : DialogFragment(), TextWatcher {
             dialog.getButton(DialogInterface.BUTTON_NEUTRAL)
                     .setTextColor(resources.getColor(R.color.material_red_800, requireContext().theme))
 
-            if (currentPkg.isEmpty()) {
-                confirmButton.isEnabled = false
-            } else {
-                inputText.setText(currentPkg)
-            }
             // validate user input and lock positive button if invalid
             inputText.addTextChangedListener(this)
+            // init input text
+            when {
+                savedInput != null -> inputText.setText(savedInput)
+
+                currentPkg.isEmpty() -> confirmButton.isEnabled = false
+
+                else -> inputText.setText(currentPkg)
+            }
         }
         return dialog
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(KEY_USER_INPUT, inputText.text?.toString())
     }
 
     override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
