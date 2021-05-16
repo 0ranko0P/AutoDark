@@ -44,7 +44,7 @@
     <string name="adb_check">Sprawdź</string>
     <string name="adb_check_failed">Niepowodzenie! Upewnij się, że wpisałeś komendę poprawnie.</string>
     <string name="adb_description">Użyj swojego komputera by przyznać uprawnienia."
-        "\n Na początku proszę przeczytać tę instrukcję: <a href="https://greenify.uservoice.com/knowledgebase/articles/749142-how-to-grant-permissions-required-by-some-features">guide</a> (jest napisana dla Greenify, lecz działanie jest takie same)."
+        "\n Na początku proszę przeczytać tę instrukcję: <a href="https://developer.android.com/studio/command-line/adb.html">ADB guide</a>."
         "\n Po przeczytaniu instrukcji i zapoznaniu się z ADB, naciśnij przycisk \'Wyślij komendę\' i prześlij (bądź przepisz) ją na swój komputer."
         "\n Następnie wykonaj komendę by przyznać uprawnienia aplikacji."
         "\n Pod koniec naciśnij przycisk \'Sprawdź\' by zakończyć proces."

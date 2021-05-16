@@ -85,7 +85,7 @@
     <string name="adb_check">Check</string>
     <string name="adb_check_failed">Failed! make sure you typed right command.</string>
     <string name="adb_description">Use your PC/Mac to grant permission through ADB."
-        "\n First Please read this <a href="https://greenify.uservoice.com/knowledgebase/articles/749142-how-to-grant-permissions-required-by-some-features">guide</a> (its written for Greenify but procedure are basically the same)."
+        "\n First Please read this <a href="https://developer.android.com/studio/command-line/adb.html">ADB guide</a>."
         "\n After you read the guide and know how to use ADB, click the share/copy button below to send the command code to your PC/Mac."
         "\n After that, run the command to grant permission.
         "\n Finally, you can click the 'Check' button to finish this grant procedure."

@@ -64,7 +64,7 @@
     <string name="adb_check">Überprüfen</string>
     <string name="adb_check_failed">Fehlgeschlagen! Überprüfen, ob das korrekte Kommando eingetippt wurde.</string>
     <string name="adb_description">PC/Mac benutzen um Berechtigung mit ADB zu erteilen."
-        "\n Bitte zuerst folgendes lesen: <a href="https://greenify.uservoice.com/knowledgebase/articles/749142-how-to-grant-permissions-required-by-some-features">guide</a> (Artikel ist für Greenify geschrieben, der Vorgang ist aber der selbe)."
+        "\n Bitte zuerst folgendes lesen: <a href="https://developer.android.com/studio/command-line/adb.html">ADB guide</a>."
         "\n Nachdem der Artikel gelese wurde und verstanden wurde wie ADB bedient wird, unten auf den Teilen-Button klicken um das Kommando an den PC/Mac zu senden."
         "\n Danach das Kommando ausführen um die Berechtigung zu erteilen.
         "\n Danach auf den Überprüfen-Button klicken um den Vorgang abzuschließen."
