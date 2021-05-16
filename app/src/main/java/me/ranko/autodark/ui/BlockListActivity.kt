@@ -220,8 +220,8 @@ class BlockListActivity : BaseListActivity() {
         val endOffset = actionBarSize + statusBarHeight
         binding.swipeRefresh.setProgressViewOffset(false, actionBarSize, endOffset)
 
-        // avoid refresh on editing or searching
-        if (viewModel.isEditing().not() && binding.toolbarEdit.hasFocus()) {
+        // avoid refresh app list while editing or searching
+        if (viewModel.isEditing().not() && binding.toolbarEdit.hasFocus().not()) {
             viewModel.refreshList()
         }
         return WindowInsetsCompat.CONSUMED
