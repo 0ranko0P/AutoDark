@@ -136,7 +136,7 @@ class BlockListActivity : BaseListActivity() {
                 getColor(R.color.primary)
             } else {
                 binding.fab.setImageResource(R.drawable.ic_save)
-                ViewUtil.getAttrColor(this, android.R.attr.colorControlNormal)
+                ViewUtil.getAttrColor(this, R.attr.colorOnSurface)
             }
             // use primary icon color when editing
             menu?.findItem(R.id.action_edit)?.icon?.mutate()?.setTint(iconColor)

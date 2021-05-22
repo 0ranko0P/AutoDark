@@ -58,6 +58,10 @@
 
     <style name="Widget.ActionBar" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
 
+    <style name="Widget.ActionBarLight" parent="ThemeOverlay.MaterialComponents.Toolbar.Primary" >
+        <item name="colorOnPrimary">?attr/colorOnSurface</item>
+    </style>
+
     <style name="CardBaseStyle">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>

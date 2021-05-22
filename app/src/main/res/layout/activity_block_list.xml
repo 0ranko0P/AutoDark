@@ -79,6 +79,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:focusable="true"
+                android:theme="@style/Widget.ActionBarLight"
                 android:focusableInTouchMode="true">
 
                 <com.google.android.material.textfield.TextInputEditText
