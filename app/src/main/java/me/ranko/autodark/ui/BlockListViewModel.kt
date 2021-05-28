@@ -276,12 +276,12 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     private suspend fun loadAppList(): List<BlockableApplication> {
-        val hookSysApp = shouldShowSystemApp()
+        val showSysApp = shouldShowSystemApp()
         val blockFirst = isBlockedFirst()
 
         val resultMap: Map<Boolean, List<BlockableApplication>> = getInstalledApps()
             .stream()
-            .filter { app -> hookSysApp || ApplicationInfo.FLAG_SYSTEM.and(app.flags) != ApplicationInfo.FLAG_SYSTEM }
+            .filter { app -> showSysApp || app.isSysApp().not() || isAppBlocked(app) }
             .sorted { o1, o2 -> getAppName(o1).compareTo(getAppName(o2)) }
             .collect(Collectors.partitioningBy { app -> blockFirst && isAppBlocked(app) })
 

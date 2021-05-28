@@ -14,6 +14,8 @@ class BlockableApplication(
 
     override fun isPrimaryUser(): Boolean = user == null || userId == Process.ROOT_UID
 
+    fun isSysApp(): Boolean = flags.and(FLAG_SYSTEM) != 0
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         return other is Blockable && packageName == other.getPackageName()
