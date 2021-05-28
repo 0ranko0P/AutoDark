@@ -256,22 +256,22 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
         _isRefreshing.value = true
         timer = Instant.now()
-        viewModelScope.launch(Dispatchers.Main) {
+        viewModelScope.launch(Dispatchers.IO) {
             if (clearCurrent) {
-                val blockedApps = withContext(Dispatchers.IO) {
-                    if (mBlockSet.isNotEmpty()) mBlockSet.clear()
-                    FileUtil.readList(BLOCK_LIST_PATH)?.map { BaseBlockableApplication(it) }
+                if (mBlockSet.isNotEmpty()) mBlockSet.clear()
+                val blockedApps = FileUtil.readList(BLOCK_LIST_PATH)?.map {
+                    BaseBlockableApplication(it)
                 }
                 blockedApps?.let { mBlockSet.addAll(it) }
             }
 
             if (isEditing()) {
                 _mEditList = _mAppList.value!!
-                _mAppList.value = mBlockSet
+                _mAppList.postValue(mBlockSet)
             } else {
-                _mAppList.value = loadAppList()
+                _mAppList.postValue(loadAppList())
             }
-            _isRefreshing.value = false
+            _isRefreshing.postValue(false)
         }
     }
 
