@@ -267,7 +267,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
             if (isEditing()) {
                 _mEditList = _mAppList.value!!
-                _mAppList.value = loadEditAppList()
+                _mAppList.value = mBlockSet
             } else {
                 _mAppList.value = loadAppList()
             }
@@ -298,8 +298,6 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    private fun loadEditAppList(): Collection<Blockable> = mBlockSet.sortedBy { it.getPackageName() }
-
     fun onEditMode() {
         _isEditing.value = _isEditing.value != true
         refreshList(false)
@@ -319,13 +317,13 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         return if (mBlockSet.contains(app)) {
             mBlockSet.remove(app)
             if (isEditing()) {
-                _mAppList.value = _mEditList
+                _mAppList.value = _mAppList.value
             }
             false
         } else {
             mBlockSet.add(BaseBlockableApplication(app))
             if (isEditing()) {
-                _mAppList.value = _mEditList
+                _mAppList.value = _mAppList.value
             }
             true
         }
