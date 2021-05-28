@@ -13,6 +13,7 @@ import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.collection.ArraySet
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -20,7 +21,8 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.CircularAnimationUtil
 import me.ranko.autodark.Utils.ViewUtil
-import me.ranko.autodark.model.UserApplicationInfo
+import me.ranko.autodark.model.Blockable
+import me.ranko.autodark.model.BlockableApplication
 
 class BlockListAdapter(context: Context,
                        requestManager: RequestManager,
@@ -28,16 +30,16 @@ class BlockListAdapter(context: Context,
     RecyclerView.Adapter<BlockListAdapter.BaseViewHolder<Any>>() {
 
     interface AppSelectListener {
-        fun onAppBlockStateChanged(packageName: String): Boolean
+        fun onAppBlockStateChanged(app: Blockable): Boolean
 
-        fun isAppBlocked(packageName: String): Boolean
+        fun isAppBlocked(app: Blockable): Boolean
 
-        fun onEditItemClicked(packageName: String)
+        fun onEditItemClicked(app: Blockable)
     }
 
     private val packageManager = context.packageManager
 
-    private var data: List<Any> = emptyList()
+    private var data: Collection<Blockable> = emptyList()
 
     private var isSearchMode = false
     private var isRefreshing = false
@@ -57,19 +59,18 @@ class BlockListAdapter(context: Context,
         abstract fun recycle()
     }
 
-    class MiniViewHolder(view: View, private val mListener: AppSelectListener) : BaseViewHolder<String>(view) {
+    class MiniViewHolder(view: View, private val mListener: AppSelectListener) : BaseViewHolder<Blockable>(view) {
         private val id: TextView = view.findViewById(R.id.appID)
 
-        override fun bind(data: String, listener: AppSelectListener) {
-            ViewUtil.setStrikeFontStyle(id, listener.isAppBlocked(data).not())
-            id.text = data
+        override fun bind(data: Blockable, listener: AppSelectListener) {
+            id.text = data.getPackageName()
             itemView.setOnClickListener { mListener.onEditItemClicked(data) }
         }
 
         override fun recycle() = itemView.setOnClickListener(null)
     }
 
-    inner class AppViewHolder(view: View) : BaseViewHolder<ApplicationInfo>(view) {
+    inner class AppViewHolder(view: View) : BaseViewHolder<BlockableApplication>(view) {
         private val rootRipple: View = view.findViewById(R.id.appRootBg)
         private val rootView: RelativeLayout = view.findViewById(R.id.appRoot)
         private val icon: ImageView = rootView.findViewById(R.id.icon)
@@ -77,17 +78,17 @@ class BlockListAdapter(context: Context,
         private val name: TextView = rootView.findViewById(R.id.name)
         private val id: TextView = rootView.findViewById(R.id.appID)
 
-        override fun bind(data: ApplicationInfo, listener: AppSelectListener) {
-            applyBlockedMark(listener.isAppBlocked(data.packageName), false)
+        override fun bind(data: BlockableApplication, listener: AppSelectListener) {
+            applyBlockedMark(listener.isAppBlocked(data), false)
             rootView.setOnClickListener {
                 if (!isRefreshing) {
-                    val isBlocked = listener.onAppBlockStateChanged(data.packageName)
+                    val isBlocked = listener.onAppBlockStateChanged(data)
                     applyBlockedMark(isBlocked, true)
                 }
             }
             mRequest.load(data).into(icon)
             id.text = data.packageName
-            name.text = if (data !is UserApplicationInfo) {
+            name.text = if (data.isPrimaryUser()) {
                 data.loadLabel(packageManager)
             } else {
                 id.context.getString(R.string.app_badged_label, data.loadLabel(packageManager), data.userId)
@@ -139,18 +140,25 @@ class BlockListAdapter(context: Context,
         setData(emptyList())
     }
 
-    override fun onViewDetachedFromWindow(holder: BaseViewHolder<Any>) {
-    }
-
     override fun onBindViewHolder(holder: BaseViewHolder<Any>, position: Int) {
-        holder.bind(data[position], listener)
+        holder.bind(randomAccess(position), listener)
     }
 
     override fun getItemCount() = data.size
 
-    override fun getItemViewType(position: Int): Int = if (data[position] is ApplicationInfo) 0 else 1
+    override fun getItemViewType(position: Int): Int = if (randomAccess(position) is ApplicationInfo) 0 else 1
 
-    fun setData(data: List<Any>) {
+    private fun randomAccess(position: Int): Blockable {
+        return when (val adapterData = data) {
+            is List -> adapterData[position]
+
+            is ArraySet -> adapterData.valueAt(position)!!
+
+            else -> throw UnsupportedOperationException("Not a random accessible collection: " + adapterData::class)
+        }
+    }
+
+    fun setData(data: Collection<Blockable>) {
         this.data = data
         notifyDataSetChanged()
     }

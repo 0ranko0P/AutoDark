@@ -98,8 +98,7 @@ class BlockListActivity : BaseListActivity() {
         binding.recyclerView.adapter = mAdapter
         binding.recyclerView.addOnScrollListener(mScrollListener)
 
-        viewModel.mAppList.observe(this, { list -> if (!viewModel.isEditing()) mAdapter.setData(list) })
-        viewModel.mEditList.observe(this, { list -> if (viewModel.isEditing()) mAdapter.setData(list) })
+        viewModel.mAppList.observe(this, { list -> mAdapter.setData(list) })
 
         binding.swipeRefresh.setOnRefreshListener { viewModel.refreshList() }
         binding.swipeRefresh.setColorSchemeResources( // add RGB power
@@ -109,12 +108,12 @@ class BlockListActivity : BaseListActivity() {
         )
 
         viewModel.isRefreshing.observe(this, { isRefreshing ->
-            binding.toolbarEdit.visibility = if (isRefreshing || viewModel.isEditing()) View.INVISIBLE else View.VISIBLE
-
             if (isRefreshing) {
                 binding.fab.hide()
+                binding.toolbarEdit.visibility = View.INVISIBLE
             } else {
                 binding.fab.show()
+                binding.toolbarEdit.visibility = View.VISIBLE
             }
             binding.swipeRefresh.isRefreshing = isRefreshing
             mAdapter.setRefreshing(isRefreshing)

@@ -16,6 +16,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import androidx.annotation.StringRes
+import androidx.collection.ArraySet
 import androidx.databinding.ObservableField
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.*
@@ -27,7 +28,9 @@ import me.ranko.autodark.Constant.PERMISSION_SEND_DARK_BROADCAST
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.FileUtil
 import me.ranko.autodark.core.LoadStatus
-import me.ranko.autodark.model.UserApplicationInfo
+import me.ranko.autodark.model.BaseBlockableApplication
+import me.ranko.autodark.model.Blockable
+import me.ranko.autodark.model.BlockableApplication
 import me.ranko.autodark.receivers.BlockListReceiver
 import me.ranko.autodark.receivers.BlockListReceiver.Companion.ACTION_SWITCH_INPUT_METHOD_RESULT
 import me.ranko.autodark.receivers.BlockListReceiver.Companion.ACTION_UPDATE_PROGRESS
@@ -45,7 +48,6 @@ import java.util.concurrent.atomic.AtomicReference
 import java.util.regex.Pattern
 import java.util.stream.Collectors
 import kotlin.collections.ArrayList
-import kotlin.collections.HashSet
 
 class BlockListViewModel(application: Application) : AndroidViewModel(application), BlockListAdapter.AppSelectListener {
 
@@ -70,7 +72,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
     private inner class SearchHelper(owner: LifecycleOwner, private val edit: EditText) : TextWatcher,
             DefaultLifecycleObserver, View.OnFocusChangeListener {
 
-        private var originList: List<ApplicationInfo> = emptyList()
+        private var originList: Collection<Blockable> = emptyList()
         private var appendSearch = false
 
         init {
@@ -89,15 +91,16 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
             if (str.isEmpty()) {
                 _mAppList.value = emptyList()
             } else {
-                val result = LinkedList<ApplicationInfo>()
-                // iterate old list if isAppendInput
+                val result = LinkedList<Blockable>()
+                // iterate old list if is appendSearch
                 val appList = if (appendSearch) _mAppList.value!! else originList
                 for (app in appList) {
-                    if (app.packageName.contains(str, true) || getAppName(app).contains(str, true)) {
+                    if (app.getPackageName().contains(str, true)) {
+                        result.add(app)
+                    } else if (app is ApplicationInfo && getAppName(app).contains(str, true)) {
                         result.add(app)
                     }
                 }
-
                 _mAppList.value = ArrayList(result)
             }
         }
@@ -112,7 +115,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         override fun onFocusChange(v: View, hasFocus: Boolean) {
             _isSearching.value = hasFocus
             if (hasFocus) {
-                originList = _mAppList.value!!
+                originList = if (isEditing()) mBlockSet else _mAppList.value!!
                 _mAppList.value = emptyList()
             } else {
                 edit.text.clear()
@@ -131,7 +134,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val mPackageManager by lazy (LazyThreadSafetyMode.NONE) { mContext.packageManager }
 
-    private val mBlockSet = HashSet<String>()
+    private val mBlockSet = ArraySet<BaseBlockableApplication>()
 
     private var timer: Instant = Instant.now()
 
@@ -157,17 +160,20 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
     val isSearching: LiveData<Boolean>
         get() = _isSearching
 
-    private val _mAppList = MutableLiveData<List<ApplicationInfo>>()
-    val mAppList: LiveData<List<ApplicationInfo>>
+    private val _mAppList = MutableLiveData<Collection<Blockable>>()
+    val mAppList: LiveData<Collection<Blockable>>
         get() = _mAppList
 
     private var _isEditing = MutableLiveData(false)
     val isEditing: LiveData<Boolean>
         get() = _isEditing
 
-    private val _mEditList = MutableLiveData<List<String>>()
-    val mEditList: LiveData<List<String>>
-        get() = _mEditList
+    /**
+     * Temporary reference [_mAppList] when entering edit mode
+     *
+     * @see refreshList
+     * */
+    private var _mEditList: Collection<Blockable> = emptyList()
 
     private var mSearchHelper: SearchHelper? = null
 
@@ -206,14 +212,14 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     @Suppress("UNCHECKED_CAST", "QueryPermissionsNeeded")
-    suspend fun getInstalledApps(): Collection<ApplicationInfo> = withContext(Dispatchers.IO) {
-        val myApps = mPackageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+    suspend fun getInstalledApps(): Collection<BlockableApplication> = withContext(Dispatchers.IO) {
+        val myApps = mPackageManager.getInstalledApplications(PackageManager.GET_META_DATA).map { BlockableApplication(it) }
         if (!UserManager.supportsMultipleUsers()) {
             Timber.i("No multi-user support")
             return@withContext myApps
         }
 
-        val appMap = ArrayMap<String, ApplicationInfo>()
+        val appMap = ArrayMap<String, BlockableApplication>()
         myApps.forEach { app -> appMap[app.packageName] = app }
 
         // avoid request Manifest.permission.MANAGE_USERS permission
@@ -234,7 +240,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
                 for (app in pkgMethod.invoke(mPackageManager, PackageManager.GET_META_DATA, uid) as List<ApplicationInfo>) {
                     ensureActive()
                     if (!appMap.contains(app.packageName)) {
-                        appMap[app.packageName] = UserApplicationInfo(app, user, uid)
+                        appMap[app.packageName] = BlockableApplication(app, user, uid)
                     }
                 }
             }
@@ -251,36 +257,39 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         _isRefreshing.value = true
         timer = Instant.now()
         viewModelScope.launch(Dispatchers.Main) {
-            withContext(Dispatchers.IO) {
-                if (clearCurrent) {
+            if (clearCurrent) {
+                val blockedApps = withContext(Dispatchers.IO) {
                     if (mBlockSet.isNotEmpty()) mBlockSet.clear()
-                    FileUtil.readList(BLOCK_LIST_PATH)?.let { mBlockSet.addAll(it) }
+                    FileUtil.readList(BLOCK_LIST_PATH)?.map { BaseBlockableApplication(it) }
                 }
-                if (_isEditing.value == true) {
-                    _mEditList.postValue(loadEditAppList())
-                } else {
-                    _mAppList.postValue(loadAppList())
-                }
+                blockedApps?.let { mBlockSet.addAll(it) }
+            }
+
+            if (isEditing()) {
+                _mEditList = _mAppList.value!!
+                _mAppList.value = loadEditAppList()
+            } else {
+                _mAppList.value = loadAppList()
             }
             _isRefreshing.value = false
         }
     }
 
-    private suspend fun loadAppList(): List<ApplicationInfo> {
+    private suspend fun loadAppList(): List<BlockableApplication> {
         val hookSysApp = shouldShowSystemApp()
         val blockFirst = isBlockedFirst()
 
-        val resultMap: Map<Boolean, List<ApplicationInfo>> = getInstalledApps()
-                .stream()
-                .filter { app -> hookSysApp || ApplicationInfo.FLAG_SYSTEM.and(app.flags) != ApplicationInfo.FLAG_SYSTEM }
-                .sorted { o1, o2 -> getAppName(o1).compareTo(getAppName(o2)) }
-                .collect(Collectors.partitioningBy { app -> blockFirst && isAppBlocked(app.packageName) })
+        val resultMap: Map<Boolean, List<BlockableApplication>> = getInstalledApps()
+            .stream()
+            .filter { app -> hookSysApp || ApplicationInfo.FLAG_SYSTEM.and(app.flags) != ApplicationInfo.FLAG_SYSTEM }
+            .sorted { o1, o2 -> getAppName(o1).compareTo(getAppName(o2)) }
+            .collect(Collectors.partitioningBy { app -> blockFirst && isAppBlocked(app) })
 
         val appList = resultMap[false]!!
 
         return if (blockFirst) {
             val blockList = resultMap[true]!!
-            val blockFirstList = ArrayList<ApplicationInfo>(blockList.size + appList.size)
+            val blockFirstList = ArrayList<BlockableApplication>(blockList.size + appList.size)
             blockFirstList.addAll(blockList)
             blockFirstList.addAll(appList)
             blockFirstList
@@ -289,7 +298,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-    private fun loadEditAppList(): List<String> = mBlockSet.sorted().toMutableList()
+    private fun loadEditAppList(): Collection<Blockable> = mBlockSet.sortedBy { it.getPackageName() }
 
     fun onEditMode() {
         _isEditing.value = _isEditing.value != true
@@ -306,24 +315,26 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun shouldShowSystemApp(): Boolean = sp.getBoolean(KEY_SHOW_SYSTEM_APP, false)
 
-    override fun onAppBlockStateChanged(packageName: String): Boolean {
-        return if (mBlockSet.contains(packageName)) {
-            mBlockSet.remove(packageName)
+    override fun onAppBlockStateChanged(app: Blockable): Boolean {
+        return if (mBlockSet.contains(app)) {
+            mBlockSet.remove(app)
             if (isEditing()) {
-                _mEditList.value = (_mEditList.value as ArrayList).apply { remove(packageName) }
+                _mAppList.value = _mEditList
             }
             false
         } else {
-            mBlockSet.add(packageName)
-            if (isEditing()) _mEditList.value = loadEditAppList()
+            mBlockSet.add(BaseBlockableApplication(app))
+            if (isEditing()) {
+                _mAppList.value = _mEditList
+            }
             true
         }
     }
 
-    override fun isAppBlocked(packageName: String): Boolean = mBlockSet.contains(packageName)
+    override fun isAppBlocked(app: Blockable): Boolean = mBlockSet.contains(app)
 
-    override fun onEditItemClicked(packageName: String) {
-        dialog.set(BlockListEditDialog.newInstance(packageName))
+    override fun onEditItemClicked(app: Blockable) {
+        dialog.set(BlockListEditDialog.newInstance(app.getPackageName()))
     }
 
     fun onFabClicked(@Suppress("UNUSED_PARAMETER")v: View) {
@@ -342,9 +353,10 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
         startUpload("onRequestUploadList: Upload time out!")
         viewModelScope.launch(Dispatchers.IO) {
+            val blockedPackages = mBlockSet.map { it.getPackageName() } as ArrayList
             try {
-                Files.write(BLOCK_LIST_PATH, mBlockSet)
-                BlockListReceiver.sendNewList(mContext, ArrayList(mBlockSet))
+                Files.write(BLOCK_LIST_PATH, blockedPackages)
+                BlockListReceiver.sendNewList(mContext, blockedPackages)
             } catch (e: Exception) {
                 Timber.w(e, "Failed to write block list")
                 stopUpload(false)

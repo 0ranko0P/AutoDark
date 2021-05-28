@@ -1,7 +1,6 @@
 package me.ranko.autodark.ui
 
 import android.content.Context
-import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
 import com.bumptech.glide.Priority
@@ -12,24 +11,24 @@ import com.bumptech.glide.load.model.ModelLoader
 import com.bumptech.glide.load.model.ModelLoaderFactory
 import com.bumptech.glide.load.model.MultiModelLoaderFactory
 import com.bumptech.glide.signature.ObjectKey
-import me.ranko.autodark.model.UserApplicationInfo
+import me.ranko.autodark.model.BlockableApplication
 
-class ApplicationIconLoader(val packageManager: PackageManager) : ModelLoader<ApplicationInfo, Drawable> {
+class ApplicationIconLoader(val packageManager: PackageManager) : ModelLoader<BlockableApplication, Drawable> {
 
-    override fun buildLoadData(model: ApplicationInfo, width: Int, height: Int, options: Options): ModelLoader.LoadData<Drawable> {
+    override fun buildLoadData(model: BlockableApplication, width: Int, height: Int, options: Options): ModelLoader.LoadData<Drawable> {
         return ModelLoader.LoadData(ObjectKey(model), ApplicationIconDataFetcher(packageManager, model))
     }
 
-    override fun handles(model: ApplicationInfo): Boolean = true
+    override fun handles(model: BlockableApplication): Boolean = true
 
     class ApplicationIconDataFetcher(private val packageManager: PackageManager,
-                                     private val app: ApplicationInfo): DataFetcher<Drawable> {
+                                     private val app: BlockableApplication): DataFetcher<Drawable> {
         override fun loadData(priority: Priority, callback: DataFetcher.DataCallback<in Drawable>) {
             val icon = packageManager.getApplicationIcon(app)
-            if (app !is UserApplicationInfo) {
+            if (app.isPrimaryUser()) {
                 callback.onDataReady(icon)
             } else {
-                callback.onDataReady(packageManager.getUserBadgedIcon(icon, app.user))
+                callback.onDataReady(packageManager.getUserBadgedIcon(icon, app.user!!))
             }
         }
 
@@ -46,11 +45,11 @@ class ApplicationIconLoader(val packageManager: PackageManager) : ModelLoader<Ap
         override fun getDataSource(): DataSource = DataSource.LOCAL
     }
 
-    class ApplicationIconFactory(context: Context): ModelLoaderFactory<ApplicationInfo, Drawable> {
+    class ApplicationIconFactory(context: Context): ModelLoaderFactory<BlockableApplication, Drawable> {
 
         private val packageManager: PackageManager = context.applicationContext.packageManager
 
-        override fun build(multiFactory: MultiModelLoaderFactory): ModelLoader<ApplicationInfo, Drawable> {
+        override fun build(multiFactory: MultiModelLoaderFactory): ModelLoader<BlockableApplication, Drawable> {
             return ApplicationIconLoader(packageManager)
         }
 

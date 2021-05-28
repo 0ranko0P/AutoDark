@@ -1,7 +1,6 @@
 package com.android.wallpaper.asset;
 
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
@@ -23,6 +22,7 @@ import java.io.InputStream;
 
 import me.ranko.autodark.asset.BuiltInWallpaperAssetLoader;
 import me.ranko.autodark.asset.FileAssetLoader;
+import me.ranko.autodark.model.BlockableApplication;
 import me.ranko.autodark.ui.ApplicationIconLoader;
 
 /**
@@ -57,6 +57,6 @@ public final class WallpaperGlideModule extends AppGlideModule {
                 .append(LiveWallpaperThumbAsset.class, Drawable.class, new LiveWallpaperThumbAssetLoaderFactory())
                 .append(CurrentWallpaperAssetVN.class, InputStream.class, new CurrentWallpaperAssetVNLoaderFactory())
                 .append(BuiltInWallpaperAsset.class, Bitmap.class, new BuiltInWallpaperAssetLoader.BuiltInWallpaperAssetLoaderFactory())
-                .append(ApplicationInfo.class, Drawable.class, new ApplicationIconLoader.ApplicationIconFactory(context));
+                .append(BlockableApplication.class, Drawable.class, new ApplicationIconLoader.ApplicationIconFactory(context));
     }
 }

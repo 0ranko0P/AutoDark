@@ -14,6 +14,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.ViewUtil
+import me.ranko.autodark.model.BaseBlockableApplication
 
 class BlockListEditDialog : DialogFragment(), TextWatcher {
 
@@ -85,14 +86,14 @@ class BlockListEditDialog : DialogFragment(), TextWatcher {
             val newPkg = inputText.text.toString()
             if (currentPkg.isNotEmpty() && currentPkg != newPkg) {
                 // remove old package
-                viewModel.onAppBlockStateChanged(currentPkg)
+                viewModel.onAppBlockStateChanged(BaseBlockableApplication(currentPkg))
             }
-            viewModel.onAppBlockStateChanged(newPkg)
+            viewModel.onAppBlockStateChanged(BaseBlockableApplication(newPkg))
         }
 
         if (currentPkg.isNotEmpty()) {
             dialog.setButton(DialogInterface.BUTTON_NEUTRAL, getString(R.string.app_delete)) { _, _ ->
-                viewModel.onAppBlockStateChanged(currentPkg)
+                viewModel.onAppBlockStateChanged(BaseBlockableApplication(currentPkg))
             }
         }
 
