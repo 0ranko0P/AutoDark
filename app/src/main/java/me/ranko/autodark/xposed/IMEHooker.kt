@@ -1,6 +1,7 @@
 package me.ranko.autodark.xposed
 
 import android.annotation.SuppressLint
+import android.app.UiModeManager
 import android.inputmethodservice.InputMethodService
 import android.os.SystemClock
 import android.util.Log
@@ -27,6 +28,8 @@ class IMEHooker(private val thisPackage: String) : XC_MethodHook() {
 
     private var invalidated = false
 
+    private var mUiManager: UiModeManager? = null
+
     /**
      * Hook [InputMethodService.setInputView] and tag invalidated view
      *
@@ -46,6 +49,8 @@ class IMEHooker(private val thisPackage: String) : XC_MethodHook() {
     override fun beforeHookedMethod(param: MethodHookParam) {
         val mViewField = XposedHelpers.findField(InputMethodService::class.java, "mInputView")
         val ime = param.thisObject as InputMethodService
+        if (notNightMode(ime)) return
+
         try {
             // null cast on first view update
             val mInputView: View = mViewField.get(ime) as View
@@ -59,6 +64,13 @@ class IMEHooker(private val thisPackage: String) : XC_MethodHook() {
         } catch (e: Exception) {
             Log.w(TAG,"onUpdateInputViewShow: ", e)
         }
+    }
+
+    private fun notNightMode(service: InputMethodService): Boolean {
+        if (mUiManager == null) {
+            mUiManager = service.applicationContext.getSystemService(UiModeManager::class.java)!!
+        }
+        return mUiManager?.nightMode == UiModeManager.MODE_NIGHT_NO
     }
 
     private fun invalidateView(mInputViewField: Field, service: InputMethodService) {
