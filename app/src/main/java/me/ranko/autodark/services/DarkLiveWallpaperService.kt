@@ -84,7 +84,7 @@ class DarkLiveWallpaperService : Service() {
                 stop()
             } else {
                 mManager.notify(LIVE_WALLPAPER_ID, buildErrorNotification(applicationContext, e))
-                GlobalScope.launch(Dispatchers.Main) {
+                CoroutineScope(Dispatchers.Main).launch {
                     delay(8000L)
                     stop()
                 }
@@ -127,7 +127,7 @@ class DarkLiveWallpaperService : Service() {
 
     override fun onBind(intent: Intent): IBinder = mBinder
 
-    private fun countDown(): Job =  GlobalScope.launch(Dispatchers.Main) {
+    private fun countDown(): Job =  CoroutineScope(Dispatchers.Main).launch {
         val timeStr = getString(R.string.service_wallpaper_waiting)
         var current = 0
 

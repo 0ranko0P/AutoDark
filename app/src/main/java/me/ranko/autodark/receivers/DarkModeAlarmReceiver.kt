@@ -3,8 +3,8 @@ package me.ranko.autodark.receivers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import me.ranko.autodark.Constant
 import me.ranko.autodark.Utils.FileUtil
@@ -33,7 +33,7 @@ class DarkModeAlarmReceiver : BroadcastReceiver() {
         }
 
         if (Files.exists(Constant.BLOCK_LIST_PATH)) {
-            GlobalScope.launch(Dispatchers.IO) {
+            CoroutineScope(Dispatchers.IO).launch {
                 val list = FileUtil.readList(Constant.BLOCK_LIST_PATH)
                 if (list != null && list.isNotEmpty()) {
                     BlockListReceiver.sendNewList(context, list as ArrayList)

@@ -213,7 +213,7 @@ class DarkWallpaperHelper private constructor(context: Context) {
         }
 
         if (mPreference.getBoolean(KEY_LAST_SETTING_SUCCEED, true)) {
-            GlobalScope.launch(Dispatchers.Main) {
+            CoroutineScope(Dispatchers.Main).launch {
                 applyWallpaper(darkMode)
             }
         } else {

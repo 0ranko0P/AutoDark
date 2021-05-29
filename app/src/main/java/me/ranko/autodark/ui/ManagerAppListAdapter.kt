@@ -15,7 +15,7 @@ import androidx.appcompat.widget.SwitchCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.ranko.autodark.R
@@ -112,7 +112,7 @@ class ManagerAppListAdapter(context: Context,
         open fun bindScoped(app: ApplicationInfo, position: Int) {
             // make scoped app noticeable, so user won't add wrong app to scope
             if (isChecked().not()) {
-                GlobalScope.launch(Dispatchers.Main) {
+                CoroutineScope(Dispatchers.Main).launch {
                     delay(SCOPED_APPS_CHECK_DELAY + position * 120L)
                     setChecked(true)
                 }

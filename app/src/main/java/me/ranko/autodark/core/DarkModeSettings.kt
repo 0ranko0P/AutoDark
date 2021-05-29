@@ -15,8 +15,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.preference.Preference
 import androidx.preference.Preference.OnPreferenceChangeListener
 import androidx.preference.PreferenceManager
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant.*
@@ -369,7 +369,7 @@ class DarkModeSettings private constructor(private val context: Application) :
      * */
     fun onBoot() {
         if (sp.getBoolean(DARK_PREFERENCE_FORCE_ROOT, false)) {
-            GlobalScope.launch (Dispatchers.Main) {
+            CoroutineScope(Dispatchers.Main).launch {
                 // Check set job result
                 val result = setForceDark(true)
                 Timber.v("Force-dark job %s.", if (result) "Succeed" else "Failed")
