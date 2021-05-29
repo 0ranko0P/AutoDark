@@ -168,9 +168,9 @@ class BlockListActivity : BaseListActivity() {
         // prevent exit while uploading
         viewModel.isUploading() -> showMessage(getString(R.string.app_upload_busy))
 
-        viewModel.isEditing() -> viewModel.onEditMode()
-
         binding.toolbarEdit.hasFocus() -> binding.toolbar.clearFocus()
+
+        viewModel.isEditing() -> viewModel.onEditMode()
 
         else -> super.onBackPressed()
     }
