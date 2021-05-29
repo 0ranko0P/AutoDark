@@ -70,9 +70,9 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$ver_lifecycle_extensions"
 
     // Image libraries for DarkWallpaper feature
-    implementation 'com.github.bumptech.glide:glide:4.12.0'
-    kapt 'com.github.bumptech.glide:compiler:4.12.0'
-    implementation ("com.github.bumptech.glide:recyclerview-integration:4.11.0") {
+    implementation "com.github.bumptech.glide:glide:$ver_glide"
+    kapt "com.github.bumptech.glide:compiler:$ver_glide"
+    implementation ("com.github.bumptech.glide:recyclerview-integration:$ver_glide") {
         // Excludes the support library because it's already included by Glide.
         transitive = false
     }
