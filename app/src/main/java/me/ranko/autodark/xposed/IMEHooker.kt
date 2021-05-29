@@ -2,6 +2,7 @@ package me.ranko.autodark.xposed
 
 import android.annotation.SuppressLint
 import android.inputmethodservice.InputMethodService
+import android.os.SystemClock
 import android.util.Log
 import android.view.View
 import de.robv.android.xposed.XC_MethodHook
@@ -64,8 +65,9 @@ class IMEHooker(private val thisPackage: String) : XC_MethodHook() {
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "onUpdateInputViewShown: invalidating mInputView")
         }
+        InputMethodReceiver.sendImeUpdateBroadCast(service, thisPackage)
+        SystemClock.sleep(200L) // delay for binder
         mInputViewField.set(service, null)
         invalidated = true
-        InputMethodReceiver.sendImeUpdateBroadCast(service, thisPackage)
     }
 }
