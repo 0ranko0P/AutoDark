@@ -46,13 +46,13 @@ class BlockListEditDialog : DialogFragment(), TextWatcher {
         /**
          * ASCII version of [Char.isLetter]
          * */
-        private fun Char.isAsciiLetter(): Boolean = toInt().run { this in 65..90 || this in 97..122}
+        private fun Char.isAsciiLetter(): Boolean = code.run { this in 65..90 || this in 97..122}
 
         /**
          * ASCII version of [Char.isLetterOrDigit]
          * */
         private fun Char.isAsciiLetterOrDigit(): Boolean {
-            return toInt().run { this in 65..90 || this in 97..122 || this in 48..57 }
+            return code.run { this in 65..90 || this in 97..122 || this in 48..57 }
         }
     }
 

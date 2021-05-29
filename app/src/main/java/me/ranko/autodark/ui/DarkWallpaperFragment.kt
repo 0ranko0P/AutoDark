@@ -324,8 +324,8 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
         mPageViews[1].lockView.viewTreeObserver.addOnGlobalLayoutListener(this)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         val toolbar = mBinding.root.findViewById<Toolbar>(R.id.toolbar)
         toolbar.removeAllViews()
         setUpToolbar(toolbar)
