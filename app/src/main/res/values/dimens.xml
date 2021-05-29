@@ -6,11 +6,12 @@
     <dimen name="app_bar_background_height">192dp</dimen>
     <dimen name="list_content_padding">16dp</dimen>
     <dimen name="list_title_vertical_margin">2dp</dimen>
-    <dimen name="list_app_icon_size">36dp</dimen>
+    <dimen name="list_app_icon_size">40dp</dimen>
+    <dimen name="list_app_icon_padding">2dp</dimen>
     <dimen name="list_app_icon_margin">16dp</dimen>
     <dimen name="list_app_margin_horizontal">@dimen/list_app_icon_margin</dimen>
     <dimen name="list_app_margin_vertical">8dp</dimen>
-    <dimen name="list_manager_app_title_margin_horizontal">52dp</dimen>
+    <dimen name="list_manager_app_title_margin_horizontal">56dp</dimen>
     <dimen name="main_content_margin_top">192dp</dimen>
     <dimen name="scroll_card_margin_side">48dp</dimen>
     <dimen name="scroll_card_margin">8dp</dimen>

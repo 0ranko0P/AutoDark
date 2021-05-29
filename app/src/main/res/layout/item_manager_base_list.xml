@@ -13,6 +13,7 @@
         android:layout_centerVertical="true"
         android:layout_marginEnd="@dimen/list_app_icon_margin"
         android:contentDescription="@null"
+        android:padding="@dimen/list_app_icon_padding"
         tools:src="@android:mipmap/sym_def_app_icon" />
 
     <TextView android:id="@+id/name"
