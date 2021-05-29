@@ -6,12 +6,17 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.model.BaseBlockableApplication
@@ -113,6 +118,14 @@ class BlockListEditDialog : DialogFragment(), TextWatcher {
                 currentPkg.isEmpty() -> confirmButton.isEnabled = false
 
                 else -> inputText.setText(currentPkg)
+            }
+
+            inputText.requestFocus()
+            val imm = inputText.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            CoroutineScope(Dispatchers.Main).launch {
+                delay(100L)
+                imm.showSoftInput(inputText,InputMethodManager.SHOW_IMPLICIT)
+                if (currentPkg.isNotEmpty()) inputText.setSelection(currentPkg.length)
             }
         }
         return dialog
