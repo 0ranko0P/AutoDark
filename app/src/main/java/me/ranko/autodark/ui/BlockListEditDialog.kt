@@ -146,7 +146,7 @@ class BlockListEditDialog : DialogFragment(), TextWatcher {
             confirmButton.isEnabled = valid
             ViewUtil.setStrikeFontStyle(confirmButton, confirmButton.isEnabled.not())
         }
-        inputLayout.error = if (valid) null else getString(R.string.block_edit_package_error)
+        inputLayout.error = if (valid || s.isEmpty()) null else getString(R.string.block_edit_package_error)
     }
 
     override fun afterTextChanged(s: Editable) {
