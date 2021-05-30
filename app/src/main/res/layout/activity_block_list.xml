@@ -87,7 +87,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@null"
-                    android:hint="@string/app_search_hint"
                     android:inputType="textPersonName"
                     android:lines="1"
                     android:maxLines="1"

@@ -130,11 +130,16 @@ class BlockListActivity : BaseListActivity() {
         })
 
         viewModel.isEditing.observe(this, { editing ->
+            // display different search hint text in edit mode
+            val searchHint = getString(R.string.app_search_hint)
+            // highlight edit button in edit mode
             val iconColor = if (editing) {
                 binding.fab.setImageDrawable(ContextCompat.getDrawable(this, android.R.drawable.ic_input_add))
+                binding.toolbarEdit.hint = getString(R.string.app_search_blocked, searchHint)
                 getColor(R.color.primary)
             } else {
                 binding.fab.setImageResource(R.drawable.ic_save)
+                binding.toolbarEdit.setHint(searchHint)
                 ViewUtil.getAttrColor(this, R.attr.colorOnSurface)
             }
             // use primary icon color when editing

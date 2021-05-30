@@ -29,6 +29,7 @@
     <string name="app_restricted_warning">发现问题</string>
     <string name="app_save">保存</string>
     <string name="app_search_hint">搜索</string>
+    <string name="app_search_blocked"><xliff:g name="search">%1$s</xliff:g>拉黑的应用</string>
     <string name="app_success">操作成功完成</string>
     <string name="app_try_again">重试</string>
     <string name="app_upload_fail">无法保存列表, 请将调试日志发送给开发者以帮助解决问题.</string>
