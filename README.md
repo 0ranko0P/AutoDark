@@ -6,6 +6,10 @@ A small Android app to let you schedule dark mode On/Off.
 
 This app need to modify system secure settings, permission ``` android.permission.WRITE_SECURE_SETTINGS``` are required.
 
+Available on [F-Droid][fdroid_link]
+
+[<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">][fdroid_link]
+
 ## Requirements
 AOSP Andorid 10 like system.
 
@@ -45,3 +49,4 @@ they already have this function or not compatible with their theme engine.
 	SOFTWARE.
 	
 [project_link]: https://github.com/0ranko0P/AutoDark
+[fdroid_link]: https://f-droid.org/packages/me.ranko.autodark
