@@ -126,7 +126,7 @@ class BlockListActivity : BaseListActivity() {
         viewModel.isSearching.observe(this, { searching ->
             mAdapter.setSearchMode(searching)
             // hide menu icon while searching
-            setMenuVisible(searching.not())
+            setMenuVisible(searching.not() && viewModel.isEditing().not())
         })
 
         viewModel.isEditing.observe(this, { editing ->
