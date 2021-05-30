@@ -14,13 +14,14 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.collection.ArraySet
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import kotlinx.coroutines.*
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.CircularAnimationUtil
-import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.model.Blockable
 import me.ranko.autodark.model.BlockableApplication
 
@@ -37,9 +38,46 @@ class BlockListAdapter(context: Context,
         fun onEditItemClicked(app: Blockable)
     }
 
+    companion object {
+        private fun <T> randomAccess(data:Collection<T>, position: Int): T {
+            return when (data) {
+                is List -> data[position]
+
+                is ArraySet -> data.valueAt(position)!!
+
+                else -> throw UnsupportedOperationException("Not a random accessible collection: " + data::class)
+            }
+        }
+    }
+
+    private class AppListDiffCallback(
+        private val oldData: Collection<Blockable>,
+        private val newData: Collection<Blockable>,
+    ): DiffUtil.Callback() {
+
+        private lateinit var old:Blockable
+        private lateinit var new:Blockable
+
+        override fun getOldListSize(): Int = oldData.size
+
+        override fun getNewListSize(): Int = newData.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            old = randomAccess(oldData, oldItemPosition)
+            new = randomAccess(newData, newItemPosition)
+            return old::class.java == new::class.java && old.getPackageName() == new.getPackageName()
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return old.isPrimaryUser() == new.isPrimaryUser()
+        }
+    }
+
     private val packageManager = context.packageManager
 
     private var data: Collection<Blockable> = emptyList()
+
+    private var mDiffJob: Job? = null
 
     private var isSearchMode = false
     private var isRefreshing = false
@@ -137,30 +175,42 @@ class BlockListAdapter(context: Context,
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        setData(emptyList())
+        submitData(emptyList())
     }
 
     override fun onBindViewHolder(holder: BaseViewHolder<Any>, position: Int) {
-        holder.bind(randomAccess(position), listener)
+        holder.bind(randomAccess(data, position), listener)
     }
 
     override fun getItemCount() = data.size
 
-    override fun getItemViewType(position: Int): Int = if (randomAccess(position) is ApplicationInfo) 0 else 1
-
-    private fun randomAccess(position: Int): Blockable {
-        return when (val adapterData = data) {
-            is List -> adapterData[position]
-
-            is ArraySet -> adapterData.valueAt(position)!!
-
-            else -> throw UnsupportedOperationException("Not a random accessible collection: " + adapterData::class)
-        }
+    override fun getItemViewType(position: Int): Int {
+        return if (randomAccess(data, position) is ApplicationInfo) 0 else 1
     }
 
-    fun setData(data: Collection<Blockable>) {
-        this.data = data
-        notifyDataSetChanged()
+    fun submitData(data: Collection<Blockable>) {
+        mDiffJob?.let { job -> if (job.isActive) job.cancel() }
+
+        if (this.data.isEmpty() || data.isEmpty() || !isSearchMode) {
+            this.data = data
+            notifyDataSetChanged()
+        } else {
+            val start = System.currentTimeMillis()
+            mDiffJob = CoroutineScope(Dispatchers.IO).launch {
+                val result = DiffUtil.calculateDiff(AppListDiffCallback(this@BlockListAdapter.data, data))
+                // do not update list too frequent
+                if (System.currentTimeMillis() - start < 200L) {
+                    delay(300L)
+                } else if (!isActive) {
+                    return@launch // drop outdated result
+                }
+
+                withContext(Dispatchers.Main) {
+                    this@BlockListAdapter.data = data
+                    result.dispatchUpdatesTo(this@BlockListAdapter)
+                }
+            }
+        }
     }
 
     fun setSearchMode(isSearchMode: Boolean) {

@@ -98,7 +98,7 @@ class BlockListActivity : BaseListActivity() {
         binding.recyclerView.adapter = mAdapter
         binding.recyclerView.addOnScrollListener(mScrollListener)
 
-        viewModel.mAppList.observe(this, { list -> mAdapter.setData(list) })
+        viewModel.mAppList.observe(this, { list -> mAdapter.submitData(list) })
 
         binding.swipeRefresh.setOnRefreshListener { viewModel.refreshList() }
         binding.swipeRefresh.setColorSchemeResources( // add RGB power
