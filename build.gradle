@@ -6,7 +6,7 @@ buildscript {
         ver_core = '1.5.0-rc01'
         ver_fragment = "1.0.0"
         ver_glide = '4.12.0'
-        ver_gradle = '4.2.1'
+        ver_gradle = '7.0.1'
         ver_leak = "2.0-beta-3"
         ver_license ="1.0.0"
         ver_lifecycle_extensions = "2.3.1"
