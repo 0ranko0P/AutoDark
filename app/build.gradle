@@ -49,9 +49,9 @@ dependencies {
 
     // Support libraries
     implementation "androidx.appcompat:appcompat:$ver_appcompat"
-    implementation "androidx.legacy:legacy-support-v4:$ver_support"
     implementation "androidx.preference:preference:$ver_preference"
     implementation "com.google.android.material:material:$ver_material"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 
     // Android KTX
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$ver_kotlin"

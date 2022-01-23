@@ -5,6 +5,7 @@ import me.ranko.autodark.core.LoadStatus.Companion.FAILED
 import me.ranko.autodark.core.LoadStatus.Companion.START
 import me.ranko.autodark.core.LoadStatus.Companion.SUCCEED
 
+@Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
 @IntDef(START, SUCCEED, FAILED)
 @Retention(AnnotationRetention.SOURCE)
 annotation class LoadStatus {

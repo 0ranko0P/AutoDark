@@ -59,7 +59,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         private const val KEY_BLOCKED_FIRST = "blocked_first"
 
         class Factory(private val application: Application) : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 if (modelClass.isAssignableFrom(BlockListViewModel::class.java)) {
                     @Suppress("UNCHECKED_CAST")
                     return BlockListViewModel(application) as T

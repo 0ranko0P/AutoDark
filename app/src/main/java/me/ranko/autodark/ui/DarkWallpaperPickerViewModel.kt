@@ -395,7 +395,7 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
 
     companion object {
         class Factory(private val application: Application) : ViewModelProvider.Factory {
-            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
                 if (modelClass.isAssignableFrom(DarkWallpaperPickerViewModel::class.java)) {
                     @Suppress("UNCHECKED_CAST")
                     return DarkWallpaperPickerViewModel(application) as T
