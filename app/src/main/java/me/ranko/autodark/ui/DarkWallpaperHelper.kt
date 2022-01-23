@@ -572,15 +572,22 @@ class DarkWallpaperHelper private constructor(context: Context) {
             return Pair(liveWallpaper, liveWallpaper)
         }
 
-        val home: WallpaperInfo = loadWallpaperFromSystem(WallpaperManager.FLAG_SYSTEM)!!
-        val lock: WallpaperInfo? = loadWallpaperFromSystem(WallpaperManager.FLAG_LOCK)
-        return Pair(home, lock ?: home)
+        val homeId: Int = mManager.getWallpaperId(WallpaperManager.FLAG_SYSTEM)
+        val lockId: Int = mManager.getWallpaperId(WallpaperManager.FLAG_LOCK)
+
+        val home: WallpaperInfo = loadWallpaperFromSystem(WallpaperManager.FLAG_SYSTEM, homeId)!!
+        return if (homeId == lockId || lockId == -1) {
+            Pair(home, home)
+        } else {
+            val lock: WallpaperInfo? = loadWallpaperFromSystem(WallpaperManager.FLAG_LOCK, lockId)
+            Pair(home, lock ?: home)
+        }
     }
 
     @SuppressLint("MissingPermission")
     @VisibleForTesting
-    private fun loadWallpaperFromSystem(which: Int): SystemWallpaperInfo? {
-        when (val id = mManager.getWallpaperId(which)) {
+    private fun loadWallpaperFromSystem(which: Int, id: Int): SystemWallpaperInfo? {
+        when (id) {
             BuiltInWallpaperAsset.BUILT_IN_WALLPAPER_ID -> return BuiltInWallpaperInfo()
 
             -1 -> return null // Lockscreen wallpaper not configured
