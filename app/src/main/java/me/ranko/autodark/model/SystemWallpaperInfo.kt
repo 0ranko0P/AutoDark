@@ -64,7 +64,7 @@ open class SystemWallpaperInfo(protected val which: Int, val id: Int) : Wallpape
     open suspend fun export(context: Context, outFile: File) {
         val asset = getAsset(context) as CurrentWallpaperAssetVN
         yield()
-        ParcelFileDescriptor.AutoCloseInputStream(asset.getWallpaperPfd()).use { ins ->
+        (asset.openInputStream() as ParcelFileDescriptor.AutoCloseInputStream).use { ins ->
             FileOutputStream(outFile).use { des ->
                 val source: FileChannel = ins.channel
                 des.channel.transferFrom(source, 0, source.size())

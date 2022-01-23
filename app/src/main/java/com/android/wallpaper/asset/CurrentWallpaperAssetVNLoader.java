@@ -15,8 +15,6 @@
  */
 package com.android.wallpaper.asset;
 
-import android.os.ParcelFileDescriptor.AutoCloseInputStream;
-
 import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Priority;
@@ -79,7 +77,7 @@ public final class CurrentWallpaperAssetVNLoader implements ModelLoader<CurrentW
         @Override
         public void loadData(@NotNull Priority priority, @NotNull final DataCallback<? super InputStream> callback) {
             try {
-                ins = new AutoCloseInputStream(mAsset.getWallpaperPfd());
+                ins = mAsset.openInputStream();
                 callback.onDataReady(ins);
             } catch (Exception e) {
                 callback.onLoadFailed(e);

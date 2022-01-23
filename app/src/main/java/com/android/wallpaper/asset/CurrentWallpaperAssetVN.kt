@@ -21,7 +21,6 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.Point
 import android.os.ParcelFileDescriptor
-import timber.log.Timber
 import java.io.IOException
 import java.io.InputStream
 
@@ -63,15 +62,9 @@ class CurrentWallpaperAssetVN(context: Context, private val which: Int) : Stream
         return Point(options.outWidth, options.outHeight)
     }
 
-    fun getWallpaperPfd(): ParcelFileDescriptor = mManager.getWallpaperFile(which)
-
-    override fun openInputStream(): InputStream?  {
+    override fun openInputStream(): InputStream  {
         val pfd = mManager.getWallpaperFile(which)
-        if (pfd == null) {
-            Timber.e("ParcelFileDescriptor for wallpaper %s, id %s is null, unable to open InputStream.", which, id)
-            return null
-        }
-
+            ?: throw NullPointerException("ParcelFileDescriptor for wallpaper $which, id $id is null, unable to open InputStream.")
         return ParcelFileDescriptor.AutoCloseInputStream(pfd)
     }
 
