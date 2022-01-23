@@ -3,13 +3,13 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion "31.0.0"
+    compileSdkVersion 31
+    buildToolsVersion "32.0.0"
 
     defaultConfig {
         applicationId "me.ranko.autodark"
         minSdkVersion 29
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode 14
         versionName "3.0.4"
     }

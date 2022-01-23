@@ -231,7 +231,7 @@ class DarkModeSettings private constructor(private val context: Application) :
                 context,
                 if (type == DARK_PREFERENCE_START) REQUEST_ALARM_START else REQUEST_ALARM_END,
                 intent,
-                PendingIntent.FLAG_CANCEL_CURRENT
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT
         )
     }
 

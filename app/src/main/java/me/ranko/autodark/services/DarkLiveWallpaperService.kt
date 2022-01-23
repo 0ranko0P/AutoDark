@@ -1,7 +1,6 @@
 package me.ranko.autodark.services
 
 import android.app.*
-import android.app.PendingIntent.FLAG_ONE_SHOT
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Icon
@@ -41,7 +40,12 @@ class DarkLiveWallpaperService : Service() {
 
         private fun getErrorNotification(context: Context, title: String, content: String): Notification {
             val intent = Intent(context, DarkWallpaperPickerActivity::class.java)
-            val pendingIntent = PendingIntent.getActivity(context, -1, intent, FLAG_ONE_SHOT)
+            val pendingIntent = PendingIntent.getActivity(
+                context,
+                -1,
+                intent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT
+            )
             val builder = Notification.Builder(context, LIVE_WALLPAPER_CHANNEL)
             builder.setSmallIcon(R.drawable.ic_auto_dark)
             builder.setContentTitle(title)
@@ -157,7 +161,12 @@ class DarkLiveWallpaperService : Service() {
     private fun getNotification(title: String, content: String): Notification {
         val stopIntent = Intent(this, javaClass)
         stopIntent.action = ACTION_STOP_SERVICE
-        val pendingIntent = PendingIntent.getService(this, 0, stopIntent, FLAG_ONE_SHOT)
+        val pendingIntent = PendingIntent.getService(
+            this,
+            0,
+            stopIntent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT
+        )
 
         val cancelAction = Notification.Action.Builder(
                 Icon.createWithResource(applicationContext, R.drawable.ic_auto_dark),

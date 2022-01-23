@@ -66,6 +66,7 @@
 
         <activity
             android:name=".ui.DarkWallpaperPickerActivity"
+            android:exported="false"
             android:resizeableActivity="false"
             android:theme="@style/AppTheme.ActionBar.Preview" />
 
@@ -73,6 +74,7 @@
 
         <activity
             android:name=".ui.MainActivity"
+            android:exported="true"
             android:theme="@style/AppTheme.Transparent.DarkActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -93,6 +95,7 @@
         <service
             android:name=".services.DarkModeTileService"
             android:enabled="true"
+            android:exported="false"
             android:icon="@drawable/ic_dark_theme"
             android:label="@string/tile_dark_theme"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
@@ -104,7 +107,7 @@
         <service
             android:name=".services.DarkLiveWallpaperService"
             android:enabled="true"
-            android:exported="false"/>
+            android:exported="false" />
 
         <meta-data
             android:name="xposedmodule"
@@ -116,5 +119,4 @@
             android:name="xposedminversion"
             android:value="92+" />
     </application>
-
 </manifest>
