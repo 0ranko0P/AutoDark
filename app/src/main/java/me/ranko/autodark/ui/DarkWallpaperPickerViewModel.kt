@@ -11,7 +11,6 @@ import com.android.wallpaper.model.WallpaperInfo
 import com.android.wallpaper.module.WallpaperPersister.*
 import com.android.wallpaper.util.TaskRunner
 import kotlinx.coroutines.*
-import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.R
 import me.ranko.autodark.core.DarkModeSettings
 import me.ranko.autodark.core.LoadStatus
@@ -58,7 +57,7 @@ class DarkWallpaperPickerViewModel(application: Application) : ShizukuViewModel(
     }
 
     private val mApp: Application = application
-    private val mHelper: DarkWallpaperHelper = DarkWallpaperHelper.getInstance(application, this)
+    private val mHelper = DarkWallpaperHelper.getInstance(application, this)
 
     /**
      * Store corrupted wallpaper assets here, e.g uninstalled LiveWallpaper.
@@ -99,6 +98,13 @@ class DarkWallpaperPickerViewModel(application: Application) : ShizukuViewModel(
 
     val message = ObservableInt()
 
+    /**
+     * Notify UI to show permission request view
+     * */
+    private val _requestPermissions = MutableLiveData<Boolean>()
+    val requestPermissions: LiveData<Boolean>
+        get() = _requestPermissions
+
     private val _wallpaperPickRequest = MutableLiveData<WallpaperRequest>()
     val wallpaperPickRequest: LiveData<WallpaperRequest>
         get() = _wallpaperPickRequest
@@ -112,6 +118,8 @@ class DarkWallpaperPickerViewModel(application: Application) : ShizukuViewModel(
     private var exception: Exception? = null
 
     init {
+        _requestPermissions.value = DarkWallpaperPickerActivity.storageGranted(application).not()
+
         if (mHelper.isApplyingLiveWallpaper()) {
             _loadingStatus.value = LoadStatus.START
             loadingText.set(mApp.getString(R.string.app_loading))
@@ -305,15 +313,31 @@ class DarkWallpaperPickerViewModel(application: Application) : ShizukuViewModel(
 
         refreshWallpaperJob = viewModelScope.launch(Dispatchers.Main) {
             val wallpapers = mHelper.loadPreviewWallpapers()
+            checkMigrate()
             _pickedLightWallpapers.value = Pair(wallpapers[DEST_HOME_SCREEN], wallpapers[DEST_LOCK_SCREEN])
             _pickedDarkWallpapers.value = Pair(wallpapers[DEST_HOME_SCREEN + 2], wallpapers[DEST_LOCK_SCREEN + 2])
             refreshWallpaperJob = null
         }
     }
 
+    /**
+     * Check if AutoWallpaper enabled and contains LiveWallpaper but Shizuku not available.
+     * This means user are migrating to Sui,
+     * or just simply forgot activate Shizuku after reboot.
+     * */
+    private fun checkMigrate() {
+        if (_deleteAvailable.value == true && !isShizukuAvailable() && isLiveWallpaperPicked() && !mHelper.isShizukuDismissed()) {
+            _requestPermissions.value = true
+        }
+    }
+
+    fun onAllPermissionHandled() {
+        _requestPermissions.value = false
+    }
+
     fun isNoDestination(): Boolean = mHelper.isLiveWallpaperPicked(darkModeSelected)
 
-    fun isLiveWallpaperPicked(): Boolean {
+    private fun isLiveWallpaperPicked(): Boolean {
         return mHelper.isLiveWallpaperPicked(true) || mHelper.isLiveWallpaperPicked(false)
     }
 
@@ -373,10 +397,6 @@ class DarkWallpaperPickerViewModel(application: Application) : ShizukuViewModel(
     fun getLiveWallpapersAsync(): Deferred<List<LiveWallpaperInfo>> = viewModelScope.async {
         val pm = mApp.packageManager
         mHelper.getLiveWallpapers().values.sortedBy { it.wallpaperComponent.loadLabel(pm).toString() }
-    }
-
-    fun shouldPrepareMigration(): Boolean {
-        return AutoDarkApplication.isSui && _deleteAvailable.value == true && isShizukuAvailable().not()
     }
 
     fun getException(): Exception? {

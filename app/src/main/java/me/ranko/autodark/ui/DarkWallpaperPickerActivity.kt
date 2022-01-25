@@ -15,8 +15,7 @@ import me.ranko.autodark.ui.DarkWallpaperPickerViewModel.WallpaperRequest
 import me.ranko.autodark.ui.StandalonePreviewActivity.Companion.ARG_WALLPAPER
 import timber.log.Timber
 
-class DarkWallpaperPickerActivity : BasePreviewActivity(),
-    DarkWallpaperPermissionFragment.PermissionListener {
+class DarkWallpaperPickerActivity : BasePreviewActivity() {
 
     companion object {
         private const val REQUEST_PICK_IMAGE = 233
@@ -33,33 +32,50 @@ class DarkWallpaperPickerActivity : BasePreviewActivity(),
         viewModel = ViewModelProvider(this, DarkWallpaperPickerViewModel.Companion.Factory(application)).get()
         lifecycle.addObserver(viewModel)
         setContentView(R.layout.activity_preview)
-        if (storageGranted(this)) {
-            onAllPermissionHandled()
-        } else {
-            onRequestPermission()
-        }
+
+        viewModel.requestPermissions.observe(this, { request ->
+            if (request) onRequestPermission() else onAllPermissionHandled()
+        })
     }
 
     private fun onRequestPermission() {
-        if (supportFragmentManager.findFragmentById(R.id.fragment_container) == null) {
-            supportFragmentManager.beginTransaction()
-                .add(R.id.fragment_container, DarkWallpaperPermissionFragment())
-                .commit()
-        }
+        if (supportFragmentManager.findFragmentByTag(DarkWallpaperPermissionFragment.TAG) != null) return
+
+        val migrating = storageGranted(this)
+        supportFragmentManager.beginTransaction()
+            .add(
+                R.id.fragment_container,
+                DarkWallpaperPermissionFragment.instance(migrating),
+                DarkWallpaperPermissionFragment.TAG
+            )
+            .commit()
     }
 
-    override fun onAllPermissionHandled() {
-        if (supportFragmentManager.findFragmentByTag(DarkWallpaperFragment.TAG) == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, DarkWallpaperFragment(), DarkWallpaperFragment.TAG)
-                .commit()
+    private fun onAllPermissionHandled() {
+        with(supportFragmentManager) {
+            val permissionFrag = findFragmentByTag(DarkWallpaperPermissionFragment.TAG)
+            if (permissionFrag != null) {
+                beginTransaction().remove(permissionFrag).commit()
+            }
+            if (findFragmentByTag(DarkWallpaperFragment.TAG) == null) {
+                beginTransaction()
+                    .replace(
+                        R.id.fragment_container,
+                        DarkWallpaperFragment(),
+                        DarkWallpaperFragment.TAG
+                    )
+                    .commit()
+            }
         }
 
         viewModel.wallpaperPickRequest.observe(this, { request ->
             if (request == WallpaperRequest.STATIC_WALLPAPER) {
                 val intent = Intent(Intent.ACTION_GET_CONTENT)
                 intent.type = "image/*"
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"), REQUEST_PICK_IMAGE)
+                startActivityForResult(
+                    Intent.createChooser(intent, "Select Picture"),
+                    REQUEST_PICK_IMAGE
+                )
             }
         })
     }

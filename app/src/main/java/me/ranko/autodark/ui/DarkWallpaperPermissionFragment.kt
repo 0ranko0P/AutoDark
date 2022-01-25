@@ -14,6 +14,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
@@ -38,24 +39,34 @@ class DarkWallpaperPermissionFragment : AppbarFragment() {
 
     private lateinit var mBinding: FragmentDarkWallpaperPermissionBinding
 
-    private lateinit var mListener: PermissionListener
-
-    interface PermissionListener {
-        fun onAllPermissionHandled()
-    }
+    /**
+     * @see DarkWallpaperPickerViewModel.checkMigrate
+     * */
+    private var isMigrating = false
 
     companion object {
         private const val REQUEST_PERMISSION_STORAGE = 615
+        private const val ARG_IS_MIGRATE = "arg_M"
+        val TAG = DarkWallpaperPermissionFragment::class.simpleName
+
+        fun instance(isMigrating: Boolean): DarkWallpaperPermissionFragment {
+            return DarkWallpaperPermissionFragment().apply {
+                val bundle = Bundle()
+                bundle.putBoolean(ARG_IS_MIGRATE, isMigrating)
+                arguments = bundle
+            }
+        }
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        mListener = requireActivity() as PermissionListener
         viewModel = ViewModelProvider(requireActivity(),
             DarkWallpaperPickerViewModel.Companion.Factory(requireActivity().application)).get()
+        isMigrating = requireArguments().getBoolean(ARG_IS_MIGRATE)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        setHasOptionsMenu(true)
         mBinding = FragmentDarkWallpaperPermissionBinding.inflate(inflater, container, false)
         mBinding.viewModel = viewModel
         mBinding.lifecycleOwner = viewLifecycleOwner
@@ -78,7 +89,6 @@ class DarkWallpaperPermissionFragment : AppbarFragment() {
             mBinding.shizukuHide.setOnClickListener(this::onShizukuClick)
             mBinding.shizukuRequest.setOnClickListener(this::onShizukuClick)
         }
-        mBinding.storageRequest.setOnClickListener(this::onStorageClick)
 
         viewModel.shizukuRequesting.observe(viewLifecycleOwner, { requested ->
             if (requested == null || requested == true) return@observe // skip requesting
@@ -90,15 +100,22 @@ class DarkWallpaperPermissionFragment : AppbarFragment() {
             }
         })
 
-        setHasOptionsMenu(true);
         // Included layout, remove unnecessary views in toolbar
         val toolbar = mBinding.root.findViewById<Toolbar>(R.id.toolbar)
         toolbar.removeAllViews()
         setUpToolbar(toolbar)
+        val activity = requireActivity() as AppCompatActivity
 
-        val activity = requireActivity() as DarkWallpaperPickerActivity
-        activity.setSupportActionBar(toolbar)
-        activity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        // Do not setup actionbar in migration mode
+        if (isMigrating.not()) {
+            mBinding.storageRequest.setOnClickListener(this::onStorageClick)
+            setHasOptionsMenu(true)
+            activity.setSupportActionBar(toolbar)
+            activity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        } else {
+            activity.setSupportActionBar(null)
+            mBinding.storageLayout.visibility = View.GONE
+        }
         adjustStatusBarColor(false)
     }
 
@@ -109,11 +126,11 @@ class DarkWallpaperPermissionFragment : AppbarFragment() {
     private fun onShizukuClick(v: View) {
         if (v.id == mBinding.shizukuRequest.id) {
             when (viewModel.status.value) {
-                ShizukuStatus.AVAILABLE -> hidePermissionCard(mBinding.shizukuLayout)
+                ShizukuStatus.UNAUTHORIZED -> viewModel.requestPermission(this)
 
                 ShizukuStatus.DEAD -> ShizukuApi.buildShizukuDeadDialog(requireActivity()).show()
 
-                ShizukuStatus.UNAUTHORIZED -> viewModel.requestPermission(this)
+                ShizukuStatus.AVAILABLE -> hidePermissionCard(mBinding.shizukuLayout)
 
                 else -> Snackbar.make(mBinding.root, R.string.shizuku_not_install, Snackbar.LENGTH_SHORT).show()
             }
@@ -151,7 +168,8 @@ class DarkWallpaperPermissionFragment : AppbarFragment() {
                     targetCard.visibility = View.GONE
                     if (mBinding.shizukuLayout.isGone && mBinding.storageLayout.isGone) {
                         adjustStatusBarColor(true)
-                        mListener.onAllPermissionHandled()
+                        (requireActivity() as AppCompatActivity).setSupportActionBar(null)
+                        viewModel.onAllPermissionHandled()
                     }
                 }
             })
