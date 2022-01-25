@@ -263,8 +263,8 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
 
     private var mMenuDelete: MenuItem? = null
 
-    private lateinit var mLightWallpaperObserver: WallpaperObserver
-    private lateinit var mDarkWallpaperObserver: WallpaperObserver
+    private var mLightWallpaperObserver: WallpaperObserver? = null
+    private var mDarkWallpaperObserver: WallpaperObserver? = null
 
     private val mGlideRequestListener by lazy(LazyThreadSafetyMode.NONE) {
         object : RequestListener<Drawable> {
@@ -404,8 +404,8 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
                 normalWallpaperOptions,
                 mPageViews[1])
 
-        viewModel.pickedLightWallpapers.observe(viewLifecycleOwner, mLightWallpaperObserver)
-        viewModel.pickedDarkWallpapers.observe(viewLifecycleOwner, mDarkWallpaperObserver)
+        viewModel.pickedLightWallpapers.observe(viewLifecycleOwner, mLightWallpaperObserver!!)
+        viewModel.pickedDarkWallpapers.observe(viewLifecycleOwner, mDarkWallpaperObserver!!)
 
         viewModel.loadStatus.observe(viewLifecycleOwner, Observer { status ->
             if (status == LoadStatus.FAILED) {
@@ -479,14 +479,17 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
 
     override fun onDestroyView() {
         super.onDestroyView()
+        if (mPageViews.isNotEmpty()) {
+            mPageViews[1].lockView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+            mPageViews.clear()
+        }
         mBinding.previewPager.setOnPageChangeListener(null)
         mAdapter.destroy()
-        mPageViews.clear()
         mBinding.previewPager.setAdapter(null)
         mLiveWallpaperBrowser?.destroy()
         mBinding.bottomActionbar.reset()
-        mLightWallpaperObserver.destroy(viewModel.pickedLightWallpapers)
-        mDarkWallpaperObserver.destroy(viewModel.pickedDarkWallpapers)
+        mLightWallpaperObserver?.destroy(viewModel.pickedLightWallpapers)
+        mDarkWallpaperObserver?.destroy(viewModel.pickedDarkWallpapers)
     }
 
     companion object {
