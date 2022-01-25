@@ -15,12 +15,10 @@ import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.R
 import me.ranko.autodark.core.DarkModeSettings
 import me.ranko.autodark.core.LoadStatus
-import me.ranko.autodark.core.ShizukuApi
-import me.ranko.autodark.core.ShizukuStatus
 import me.ranko.autodark.model.CroppedWallpaperInfo
 import timber.log.Timber
 
-class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(application),
+class DarkWallpaperPickerViewModel(application: Application) : ShizukuViewModel(application),
         ViewPager.OnPageChangeListener, SetWallpaperCallback {
 
     enum class WallpaperRequest {
@@ -79,8 +77,6 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
     val pickedDarkWallpapers: LiveData<Pair<WallpaperInfo, WallpaperInfo>>
         get() = _pickedDarkWallpapers
 
-    private var _shizukuPermissionGranted: Boolean = ShizukuApi.checkShizuku(mApp) == ShizukuStatus.AVAILABLE
-
     private var refreshWallpaperJob: Job? = null
 
     private val _applyAvailable = MutableLiveData(false)
@@ -125,7 +121,7 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
     fun requestCategory() {
         _wallpaperPickRequest.value = when {
 
-            _shizukuPermissionGranted -> WallpaperRequest.CATEGORY_CHOOSER
+            isShizukuAvailable() -> WallpaperRequest.CATEGORY_CHOOSER
 
             mHelper.isShizukuDismissed() -> WallpaperRequest.STATIC_WALLPAPER
 
@@ -379,13 +375,9 @@ class DarkWallpaperPickerViewModel(application: Application) : AndroidViewModel(
         mHelper.getLiveWallpapers().values.sortedBy { it.wallpaperComponent.loadLabel(pm).toString() }
     }
 
-    fun isShizukuGranted(): Boolean = _shizukuPermissionGranted
-
-    fun onShizukuGranted() {
-        _shizukuPermissionGranted = true
+    fun shouldPrepareMigration(): Boolean {
+        return AutoDarkApplication.isSui && _deleteAvailable.value == true && isShizukuAvailable().not()
     }
-
-    fun shouldPrepareMigration(): Boolean = AutoDarkApplication.isSui && _deleteAvailable.value == true && isShizukuGranted().not()
 
     fun getException(): Exception? {
         val e = exception ?: return null

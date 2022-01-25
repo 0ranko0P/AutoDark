@@ -19,7 +19,7 @@ import me.ranko.autodark.core.LoadStatus
 import me.ranko.autodark.core.ShizukuApi
 import timber.log.Timber
 
-class PermissionViewModel(application: Application) : AndroidViewModel(application) {
+class PermissionViewModel(application: Application) : ShizukuViewModel(application) {
 
     /**
      * Progress that indicates grant with root permission job status
@@ -62,6 +62,15 @@ class PermissionViewModel(application: Application) : AndroidViewModel(applicati
             _permissionResult.value = checkSecurePermission(getApplication())
             // Notify job completed
             jobIndicator.set(if (_permissionResult.value!!) LoadStatus.SUCCEED else LoadStatus.FAILED)
+        }
+    }
+
+    override fun onRequestPermissionResult(requestCode: Int, grantResult: Int) {
+        super.onRequestPermissionResult(requestCode, grantResult)
+        if (grantResult == PackageManager.PERMISSION_GRANTED) {
+            grantWithShizuku()
+        } else {
+            _permissionResult.value = false
         }
     }
 

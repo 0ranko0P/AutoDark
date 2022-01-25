@@ -79,6 +79,14 @@ public class PermissionLayout extends LinearLayout implements View.OnClickListen
         return mIcon;
     }
 
+    public void setIconColor(@NonNull String colorName) {
+        mIcon.setColorName(colorName);
+    }
+
+    public String getIconColor() {
+        return mIcon.getColorName();
+    }
+
     public void setTitle(@StringRes int title) {
         mTitle.setText(title);
     }

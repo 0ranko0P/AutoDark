@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="me.ranko.autodark.core.ShizukuStatus" />
+        <import type="me.ranko.autodark.core.ShizukuApi" />
+        <import type="me.ranko.autodark.AutoDarkApplication" />
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="me.ranko.autodark.ui.DarkWallpaperPickerViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/bottom_sheet_background"
+        android:orientation="vertical"
+        tools:context=".ui.DarkWallpaperPermissionFragment">
+
+        <include layout="@layout/section_header" />
+
+        <me.ranko.autodark.ui.widget.PermissionLayout
+            android:id="@+id/storageLayout"
+            style="@style/CardStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/fab_margin"
+            android:orientation="vertical"
+            app:description="@string/permission_wallpaper"
+            app:expandDescription="true"
+            app:iconColor="teal"
+            app:srcIcon="@drawable/ic_info_gm2_24px"
+            app:title="@string/permission_title">
+
+            <TextView android:id="@+id/storageRequest"
+                style="@style/CardButton"
+                android:text="@string/root_grant"
+                app:drawableStartCompat="@drawable/ic_grant" />
+        </me.ranko.autodark.ui.widget.PermissionLayout>
+
+        <me.ranko.autodark.ui.widget.PermissionLayout
+            android:id="@+id/shizukuLayout"
+            style="@style/CardStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:expandDescription="true"
+            app:iconColor="@{AutoDarkApplication.isSui ? ShizukuApi.SUI_COLOR : ShizukuApi.SHIZUKU_COLOR}"
+            app:srcIcon="@drawable/ic_shizuku"
+            app:title="@string/chooser_live_wallpaper_restricted_title"
+            app:description="@string/chooser_live_wallpaper_restricted_description">
+
+            <TextView android:id="@+id/shizukuRequest"
+                style="@style/CardButton"
+                android:drawableStart="@drawable/ic_grant"
+                android:text="@string/root_grant"
+                android:visibility="@{viewModel.shizukuRequesting ? View.GONE : View.VISIBLE}" />
+
+            <ProgressBar android:id="@+id/shizukuProgress"
+                style="@style/CardProgress"
+                android:visibility="@{viewModel.shizukuRequesting ? View.VISIBLE : View.GONE}"
+                tools:visibility="visible" />
+
+            <TextView android:id="@+id/shizukuHide"
+                style="@style/CardButton"
+                android:text="@string/chooser_live_wallpaper_restricted_hide"
+                android:visibility="@{viewModel.shizukuRequesting ? View.GONE : View.VISIBLE}" />
+        </me.ranko.autodark.ui.widget.PermissionLayout>
+    </LinearLayout>
+</layout>

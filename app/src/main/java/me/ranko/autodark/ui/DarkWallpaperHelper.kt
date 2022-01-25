@@ -21,12 +21,12 @@ import com.android.wallpaper.module.WallpaperPersister.*
 import com.android.wallpaper.module.WallpaperSetter
 import kotlinx.coroutines.*
 import me.ranko.autodark.R
-import me.ranko.autodark.services.DarkLiveWallpaperService
 import me.ranko.autodark.core.DarkModeSettings
 import me.ranko.autodark.core.ShizukuApi
 import me.ranko.autodark.core.ShizukuStatus
 import me.ranko.autodark.model.*
 import me.ranko.autodark.model.PersistableWallpaper.Companion.getWallpaperFile
+import me.ranko.autodark.services.DarkLiveWallpaperService
 import me.ranko.autodark.ui.WallpaperType.DARK_HOME
 import me.ranko.autodark.ui.WallpaperType.HOME
 import timber.log.Timber
@@ -254,7 +254,7 @@ class DarkWallpaperHelper private constructor(context: Context) {
 
     @VisibleForTesting
     fun applyLiveWallpaper(wallpaper: LiveWallpaperInfo, callback: SetWallpaperCallback) {
-        when (val status = ShizukuApi.checkShizuku(mContext!!)) {
+        when (ShizukuApi.checkShizukuCompat(mContext!!)) {
 
             ShizukuStatus.AVAILABLE -> mSetter.setCurrentLiveWallpaper(wallpaper, callback)
 
@@ -270,7 +270,7 @@ class DarkWallpaperHelper private constructor(context: Context) {
 
             ShizukuStatus.UNAUTHORIZED -> Toast.makeText(mContext!!, R.string.permission_failed, Toast.LENGTH_SHORT).show()
 
-            else -> callback.onError(IllegalStateException("Unable connect to Shizuku: $status."))
+            ShizukuStatus.NOT_INSTALL -> callback.onError(IllegalStateException("Shizuku uninstalled"))
         }
     }
 
@@ -478,7 +478,7 @@ class DarkWallpaperHelper private constructor(context: Context) {
         val lock: WallpaperInfo? = readJsonByName(KEY_BACKUP_WALLPAPER_LOCK)
 
         if (home is LiveWallpaperInfo) {
-            val status = ShizukuApi.checkShizuku(mContext!!)
+            val status = ShizukuApi.checkShizukuCompat(mContext!!)
             if (status == ShizukuStatus.AVAILABLE) {
                 applyLiveWallpaper(home, callback)
             } else {

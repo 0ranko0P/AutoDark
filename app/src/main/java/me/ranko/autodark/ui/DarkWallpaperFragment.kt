@@ -494,5 +494,7 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
 
         private const val BROWSER_DEFAULT_GRID_SPAN_COUNT = 3
         private const val BROWSER_STATE_POSITION_INDEX = "posIndex"
+
+        val TAG = DarkWallpaperFragment::class.simpleName
     }
 }

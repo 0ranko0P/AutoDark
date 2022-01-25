@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.IPackageManager
 import android.content.pm.PackageManager
+import androidx.annotation.NonNull
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import me.ranko.autodark.AutoDarkApplication
@@ -15,6 +16,7 @@ import me.ranko.autodark.Constant
 import me.ranko.autodark.R
 import rikka.shizuku.*
 import timber.log.Timber
+import rikka.shizuku.ShizukuProvider
 
 enum class ShizukuStatus {
     /* Shizuku only */
@@ -28,11 +30,7 @@ enum class ShizukuStatus {
     DEAD,
 
     /**
-     * Running but unauthorized, should send
-     * permission request after this status returned
-     *
-     * @see ShizukuProvider.PERMISSION
-     * @see ShizukuApi.requestPermission
+     * Binder received but unauthorized
      * */
     UNAUTHORIZED,
 
@@ -48,6 +46,8 @@ object ShizukuApi {
 
     const val SUI_COLOR = "light_green"
 
+    const val SHIZUKU_COLOR = "indigo"
+
     const val REQUEST_CODE_SHIZUKU_PERMISSION = 7
 
     private val mWallpaperManager: IWallpaperManager by lazy {
@@ -58,13 +58,13 @@ object ShizukuApi {
         IPackageManager.Stub.asInterface(ShizukuBinderWrapper(SystemServiceHelper.getSystemService("package")))
     }
 
-    fun checkShizuku(context: Context): ShizukuStatus {
-        if (!AutoDarkApplication.isSui && !ShizukuProvider.isShizukuInstalled(context)) {
+    fun checkShizukuCompat(context: Context, skipMangerCheck: Boolean = false): ShizukuStatus {
+        if (skipMangerCheck.not() && isShizukuInstalled(context).not()) {
             return ShizukuStatus.NOT_INSTALL
         }
 
         try {
-            val permission = if (!Shizuku.isPreV11() && Shizuku.getVersion() >= 11) {
+            val permission = if (isPre11().not()) {
                 Shizuku.checkSelfPermission()
             } else {
                 ContextCompat.checkSelfPermission(context, ShizukuProvider.PERMISSION)
@@ -78,31 +78,10 @@ object ShizukuApi {
             // service version below v11 and the app have't get the permission
             return ShizukuStatus.UNAUTHORIZED
         } catch (e: IllegalStateException) {
-            Timber.d(e,"Failed to pingBinder")
             return ShizukuStatus.DEAD
         } catch (e: Exception) {
             Timber.i(e, "WTF")
             return ShizukuStatus.DEAD
-        }
-    }
-
-    /**
-     * Register callbacks before request
-     *
-     * @see Shizuku.addRequestPermissionResultListener
-     * @see Shizuku.removeRequestPermissionResultListener
-     * */
-    fun requestPermission(activity: Activity) {
-        val isPreV11: Boolean  = try {
-            Shizuku.isPreV11() && Shizuku.getVersion() <= 10
-        } catch (e: SecurityException) {
-            true
-        }
-
-        if (isPreV11) {
-            activity.requestPermissions(arrayOf(ShizukuProvider.PERMISSION), REQUEST_CODE_SHIZUKU_PERMISSION)
-        } else {
-            Shizuku.requestPermission(REQUEST_CODE_SHIZUKU_PERMISSION)
         }
     }
 
@@ -121,6 +100,21 @@ object ShizukuApi {
             .create()
     }
 
+    /**
+     * Return if Shizuku or Sui is installed.
+     *
+     * @param context Context
+     * @return true if Shizuku or Sui is installed
+     */
+    fun isShizukuInstalled(@NonNull context: Context): Boolean {
+        if (AutoDarkApplication.isSui) return true
+        return try {
+            context.packageManager.getPermissionInfo(ShizukuProvider.PERMISSION, 0) != null
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
+        }
+    }
+
     fun getIWallpaperManager(): IWallpaperManager = mWallpaperManager
 
     fun setForceDark(enabled: Boolean): Boolean {
@@ -136,5 +130,11 @@ object ShizukuApi {
 
     fun grantWithShizuku() {
         mManager.grantRuntimePermission(BuildConfig.APPLICATION_ID, Manifest.permission.WRITE_SECURE_SETTINGS, android.os.Process.ROOT_UID)
+    }
+
+    fun isPre11(): Boolean = try {
+        Shizuku.isPreV11() && Shizuku.getVersion() <= 10
+    } catch (e: SecurityException) {
+        true
     }
 }
