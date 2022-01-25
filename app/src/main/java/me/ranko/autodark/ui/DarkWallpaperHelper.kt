@@ -178,7 +178,7 @@ class DarkWallpaperHelper private constructor(private val mContext: Context) {
             if (persisted == null) persisted = ArrayList(4)
             persisted.add(wallpaper)
         }
-        return persisted
+        return if (persisted == null || persisted.size != WallpaperType.values().size) null else persisted
     }
 
     private suspend fun readJsonByName(name: String): WallpaperInfo? {
