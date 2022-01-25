@@ -41,7 +41,7 @@ enum class WallpaperType {
 /**
  * Helper class to manage dark wallpaper
  * */
-class DarkWallpaperHelper private constructor(context: Context) {
+class DarkWallpaperHelper private constructor(private val mContext: Context) {
 
     companion object {
         private const val PREFS_FILE_NAME = "dark_wallpaper"
@@ -112,7 +112,7 @@ class DarkWallpaperHelper private constructor(context: Context) {
 
         private fun destroy() {
             if (isApplyingLiveWallpaper()) {
-                mContext!!.unbindService(connection!!)
+                mContext.unbindService(connection!!)
                 connection = null
             }
 
@@ -120,11 +120,9 @@ class DarkWallpaperHelper private constructor(context: Context) {
         }
     }
 
-    private var mContext: Context? = context.applicationContext
+    private val mPreference = mContext.getSharedPreferences(PREFS_FILE_NAME, Context.MODE_PRIVATE)
 
-    private val mPreference = context.getSharedPreferences(PREFS_FILE_NAME, Context.MODE_PRIVATE)
-
-    private val mManager by lazy { WallpaperManager.getInstance(mContext!!) }
+    private val mManager by lazy { WallpaperManager.getInstance(mContext) }
 
     private val mSetter by lazy(LazyThreadSafetyMode.NONE) { WallpaperSetter(WallpaperPersister(mContext)) }
 
@@ -243,24 +241,24 @@ class DarkWallpaperHelper private constructor(context: Context) {
         } else {
             val lock = wallpapers[index + 1] as DarkWallpaperInfo
             Timber.d("Applying Wallpaper, homeId: %s, lockId: %s.", home.wallpaperId, lock.wallpaperId)
-            val homeAsset = home.getAsset(mContext!!) as StreamableAsset
+            val homeAsset = home.getAsset(mContext) as StreamableAsset
             if (home == lock) {
                 mSetter.setDarkWallpapers(homeAsset, null, callback)
             } else {
-                mSetter.setDarkWallpapers(homeAsset, lock.getAsset(mContext!!) as StreamableAsset, callback)
+                mSetter.setDarkWallpapers(homeAsset, lock.getAsset(mContext) as StreamableAsset, callback)
             }
         }
     }
 
     @VisibleForTesting
     fun applyLiveWallpaper(wallpaper: LiveWallpaperInfo, callback: SetWallpaperCallback) {
-        when (ShizukuApi.checkShizukuCompat(mContext!!)) {
+        when (ShizukuApi.checkShizukuCompat(mContext)) {
 
             ShizukuStatus.AVAILABLE -> mSetter.setCurrentLiveWallpaper(wallpaper, callback)
 
             ShizukuStatus.DEAD -> {
                 connection = DarkWallpaperConnection(callback)
-                with(mContext!!) {
+                with(mContext) {
                     val intent = Intent(this, DarkLiveWallpaperService::class.java)
                     intent.putExtra(DarkLiveWallpaperService.ARG_TARGET_WALLPAPER, wallpaper)
                     bindService(intent, connection!!, BIND_AUTO_CREATE)
@@ -268,7 +266,7 @@ class DarkWallpaperHelper private constructor(context: Context) {
                 }
             }
 
-            ShizukuStatus.UNAUTHORIZED -> Toast.makeText(mContext!!, R.string.permission_failed, Toast.LENGTH_SHORT).show()
+            ShizukuStatus.UNAUTHORIZED -> Toast.makeText(mContext, R.string.permission_failed, Toast.LENGTH_SHORT).show()
 
             ShizukuStatus.NOT_INSTALL -> callback.onError(IllegalStateException("Shizuku uninstalled"))
         }
@@ -325,7 +323,7 @@ class DarkWallpaperHelper private constructor(context: Context) {
         // replace mPersisted with new arr once finished
         val newWallpaperArr = ArrayList<WallpaperInfo>(4)
         var exception: Exception? = null
-        val context = mContext!!
+        val context = mContext
 
         try {
             val wallpaperRoot: File = getWallpaperFile(context, "Null").parentFile!!
@@ -368,8 +366,8 @@ class DarkWallpaperHelper private constructor(context: Context) {
             if (exception != null) {
                 Timber.d("Clean up while error happened")
                 for (picked in mPicked) {
-                    if (picked is PersistableWallpaper && picked.isNew(mContext!!).not()) {
-                        picked.delete(mContext!!)
+                    if (picked is PersistableWallpaper && picked.isNew(mContext).not()) {
+                        picked.delete(mContext)
                     }
                 }
             }
@@ -383,7 +381,7 @@ class DarkWallpaperHelper private constructor(context: Context) {
                 // skip LiveWallpaper or unchanged wallpaper
                 if (old is LiveWallpaperInfo || old == new) continue
                 if (isDarkWallpaperInUse(old as DarkWallpaperInfo, newWallpaperArr)) continue
-                val file = getWallpaperFile(mContext!!, old.wallpaperId)
+                val file = getWallpaperFile(mContext, old.wallpaperId)
                 // check exists, home & lock screen usually using same wallpaper
                 if (file.exists()) {
                     val result = file.delete()
@@ -430,7 +428,7 @@ class DarkWallpaperHelper private constructor(context: Context) {
                     .remove(KEY_BACKUP_WALLPAPER_LOCK)
                     .apply()
         } else {
-            val backupDir = mContext!!.getFileStreamPath(DEFAULT_BACKUP_FOLDER)
+            val backupDir = mContext.getFileStreamPath(DEFAULT_BACKUP_FOLDER)
             if (backupDir.exists().not() && backupDir.mkdir().not()) {
                 Timber.e(IOException("Unable to crate backup dir: $backupDir"))
                 return // ignore it
@@ -438,9 +436,9 @@ class DarkWallpaperHelper private constructor(context: Context) {
             val lock = sysWallpapers.second as SystemWallpaperInfo
             var succeed = true
             try {
-                (home as SystemWallpaperInfo).export(mContext!!, File(backupDir, home.wallpaperId))
+                (home as SystemWallpaperInfo).export(mContext, File(backupDir, home.wallpaperId))
                 if (lock != home) {
-                    lock.export(mContext!!, File(backupDir, lock.wallpaperId))
+                    lock.export(mContext, File(backupDir, lock.wallpaperId))
                 }
             } catch (e: Exception) {
                 succeed = false
@@ -478,7 +476,7 @@ class DarkWallpaperHelper private constructor(context: Context) {
         val lock: WallpaperInfo? = readJsonByName(KEY_BACKUP_WALLPAPER_LOCK)
 
         if (home is LiveWallpaperInfo) {
-            val status = ShizukuApi.checkShizukuCompat(mContext!!)
+            val status = ShizukuApi.checkShizukuCompat(mContext)
             if (status == ShizukuStatus.AVAILABLE) {
                 applyLiveWallpaper(home, callback)
             } else {
@@ -486,7 +484,7 @@ class DarkWallpaperHelper private constructor(context: Context) {
                 callback.onError(IllegalStateException("Unable connect to Shizuku: $status."))
             }
         } else {
-            val backupDir = mContext!!.getFileStreamPath(DEFAULT_BACKUP_FOLDER)
+            val backupDir = mContext.getFileStreamPath(DEFAULT_BACKUP_FOLDER)
             val homeAsset = FileAsset(File(backupDir, home.wallpaperId))
 
             if (lock == null) {
@@ -522,7 +520,7 @@ class DarkWallpaperHelper private constructor(context: Context) {
         }
         editor.remove(KEY_LAST_SETTING_SUCCEED).apply()
         try {
-            getWallpaperFile(mContext!!, "null").parentFile?.deleteRecursively()
+            getWallpaperFile(mContext, "null").parentFile?.deleteRecursively()
         } catch (e: Exception) {
             Timber.w(e)
         }
@@ -544,7 +542,7 @@ class DarkWallpaperHelper private constructor(context: Context) {
     private fun cleanRestoreDir() {
         mPreference.edit().remove(KEY_BACKUP_WALLPAPER_HOME).remove(KEY_BACKUP_WALLPAPER_LOCK).apply()
         clearPicked()
-        if (mContext!!.getFileStreamPath(DEFAULT_BACKUP_FOLDER).deleteRecursively().not()) {
+        if (mContext.getFileStreamPath(DEFAULT_BACKUP_FOLDER).deleteRecursively().not()) {
             Timber.w("Unable to delete backup folder")
         }
     }
@@ -553,7 +551,7 @@ class DarkWallpaperHelper private constructor(context: Context) {
         if (mLiveWallpapers == null) {
             synchronized(this@DarkWallpaperHelper) {
                 if (mLiveWallpapers == null) {
-                    val list = LiveWallpaperInfo.getAll(mContext!!, null)
+                    val list = LiveWallpaperInfo.getAll(mContext, null)
                     val map = ArrayMap<ComponentName, LiveWallpaperInfo>(list.size)
                     for (wallpaper in list) {
                         map[wallpaper.wallpaperComponentName] = wallpaper
@@ -662,7 +660,6 @@ class DarkWallpaperHelper private constructor(context: Context) {
         INSTANCE = null
         viewModelCallback = null
         connection = null
-        mContext = null
         mPersisted = null
         mLiveWallpapers?.clear()
         mLiveWallpapers = null
