@@ -102,9 +102,9 @@
     <string name="chooser_category_wallpaper">Wallpapers</string>
     <string name="chooser_category_live_wallpaper">Live wallpapers</string>
     <string name="chooser_live_wallpaper_restricted_description">Changing Live wallpapers requires
-        <xliff:g name="shizuku_or_sui">%1$s</xliff:g> to access privilege API.
+        Shizuku/Sui to access privilege API.
         \nThis is Optional, dismiss if you don\'t need LiveWallpaper.\n
-        \nSee also: <a href="https://android.googlesource.com/platform/frameworks/base/+/android-11.0.0_r1/services/core/java/com/android/server/wallpaper/WallpaperManagerService.java">WallpaperManagerService.java</a>
+        \nSee also: <a href="https://android.googlesource.com/platform/frameworks/base/+/android-11.0.0_r1/services/core/java/com/android/server/wallpaper/WallpaperManagerService.java">WallpaperManagerService</a>
     </string>
     <string name="chooser_live_wallpaper_restricted_hide">Hide</string>
     <string name="chooser_live_wallpaper_restricted_title">Live wallpapers unavailable</string>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="center_horizontal|bottom"
@@ -8,11 +9,24 @@
     android:orientation="vertical"
     android:paddingTop="8dp">
 
-    <ViewStub android:id="@+id/permissionStub"
+    <me.ranko.autodark.ui.widget.PermissionLayout
+        android:id="@+id/permissionShizuku"
+        style="@style/CardStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:layout="@layout/content_permission_shizuku_card" />
+        app:description="@string/chooser_live_wallpaper_restricted_description"
+        app:expandDescription="true"
+        app:srcIcon="@drawable/ic_shizuku"
+        app:title="@string/chooser_live_wallpaper_restricted_title">
+
+        <TextView
+            android:id="@+id/btnShizuku"
+            style="@style/CardButton"
+            android:layout_width="wrap_content"
+            android:layout_gravity="end"
+            android:onClick="onShizukuClick"
+            android:text="@string/app_do_not_show" />
+    </me.ranko.autodark.ui.widget.PermissionLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnWallpaper"

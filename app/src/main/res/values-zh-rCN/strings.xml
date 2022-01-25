@@ -98,9 +98,10 @@
 
     <string name="chooser_category_wallpaper">壁纸</string>
     <string name="chooser_category_live_wallpaper">动态壁纸</string>
-    <string name="chooser_live_wallpaper_restricted_description">设置动态壁纸需通过<xliff:g name="shizuku_or_sui">%1$s</xliff:g> 访问系统API.
+    <string name="chooser_live_wallpaper_restricted_description">设置动态壁纸需通过
+        Shizuku/Sui 访问系统API.
         \n这是可选项, 点击隐藏如果您不使用动态壁纸.\n
-        \n查看详细: <a href="https://github.com/aosp-mirror/platform_frameworks_base/blob/android-11.0.0_r1/services/core/java/com/android/server/wallpaper/WallpaperManagerService.java">WallpaperManagerService.java</a>
+        \n查看详细: <a href="https://github.com/aosp-mirror/platform_frameworks_base/blob/android-11.0.0_r1/services/core/java/com/android/server/wallpaper/WallpaperManagerService.java">WallpaperManagerService</a>
     </string>
     <string name="chooser_live_wallpaper_restricted_hide">隐藏</string>
     <string name="chooser_live_wallpaper_restricted_title">动态壁纸不可用</string>

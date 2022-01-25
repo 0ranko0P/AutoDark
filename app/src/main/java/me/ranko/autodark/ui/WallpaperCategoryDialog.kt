@@ -12,8 +12,10 @@ import androidx.lifecycle.get
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.button.MaterialButton
+import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.ViewUtil
+import me.ranko.autodark.core.ShizukuApi
 import me.ranko.autodark.ui.DarkWallpaperPickerViewModel.WallpaperRequest.LIVE_WALLPAPER
 import me.ranko.autodark.ui.DarkWallpaperPickerViewModel.WallpaperRequest.STATIC_WALLPAPER
 import me.ranko.autodark.ui.widget.PermissionLayout
@@ -63,31 +65,16 @@ class WallpaperCategoryDialog : BottomSheetDialogFragment(), View.OnClickListene
         btnLiveWallpaper.setOnClickListener(this)
 
         val shizukuAvailable = requireArguments().getBoolean(ARG_SHIZUKU_AVAILABLE, false)
-        if (shizukuAvailable.not()) {
-            initShizukuPermissionCard(view)
-            btnLiveWallpaper.isEnabled = false
-            ViewUtil.setStrikeFontStyle(btnLiveWallpaper, true)
-        }
-    }
-
-    /**
-     * Called when Shizuku unavailable, inflate a [PermissionLayout] to waning user
-     * that Live wallpaper are restricted.
-     * */
-    private fun initShizukuPermissionCard(root: View) {
-        val stub = root.findViewById<ViewStub>(R.id.permissionStub)
-        shizukuContainer = (stub.inflate() as PermissionLayout).apply {
-            // Included layout, do some initialization here
-            val shizukuOrSui = getString(R.string.shizuku_title) + "/" + getString(R.string.sui_title)
-            setTitle(R.string.chooser_live_wallpaper_restricted_title)
-            description = getString(R.string.chooser_live_wallpaper_restricted_description, shizukuOrSui)
-
-            findViewById<View>(R.id.progressShizuku).visibility = View.GONE
-            val btnShizuku = findViewById<TextView>(R.id.btnShizuku)
-            btnShizuku.setCompoundDrawables(null, null, null, null)
-            btnShizuku.setText(R.string.app_do_not_show)
-            btnShizuku.gravity = Gravity.END
-            btnShizuku.setOnClickListener(this@WallpaperCategoryDialog)
+        shizukuContainer = view.findViewById<PermissionLayout>(R.id.permissionShizuku).also {
+            if (shizukuAvailable.not()) {
+                val btnShizuku = it.findViewById<TextView>(R.id.btnShizuku)
+                btnShizuku.setOnClickListener(this@WallpaperCategoryDialog)
+                btnLiveWallpaper.isEnabled = false
+                ViewUtil.setStrikeFontStyle(btnLiveWallpaper, true)
+                it.iconColor = if (AutoDarkApplication.isSui) ShizukuApi.SUI_COLOR else ShizukuApi.SUI_COLOR
+            } else {
+                it.visibility = View.GONE
+            }
         }
     }
 
