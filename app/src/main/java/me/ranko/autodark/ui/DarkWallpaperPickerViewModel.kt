@@ -1,6 +1,7 @@
 package me.ranko.autodark.ui
 
 import android.app.Application
+import android.os.Build
 import androidx.databinding.ObservableField
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.*
@@ -96,6 +97,7 @@ class DarkWallpaperPickerViewModel(application: Application) : ShizukuViewModel(
 
     val loadingText = ObservableField<String>()
 
+    private var delayedMessage: Int? = null
     val message = ObservableInt()
 
     /**
@@ -126,6 +128,14 @@ class DarkWallpaperPickerViewModel(application: Application) : ShizukuViewModel(
             _deleteAvailable.value = false
         } else {
             _deleteAvailable.value = mHelper.isDarWallpaperPersisted()
+        }
+    }
+
+    override fun onResume(owner: LifecycleOwner) {
+        super.onResume(owner)
+        delayedMessage?.let {
+            message.set(it)
+            delayedMessage = null
         }
     }
 
@@ -185,6 +195,7 @@ class DarkWallpaperPickerViewModel(application: Application) : ShizukuViewModel(
      * @see DarkWallpaperHelper.DefaultWallpaperSetterCallback
      * */
     fun onApplyWallpaperClicked() = viewModelScope.launch(Dispatchers.Main) {
+        val loadingStartTime = System.currentTimeMillis()
         _loadingStatus.value = LoadStatus.START
         loadingText.set(mApp.getString(R.string.prepare_wallpaper_progress_message))
 
@@ -208,6 +219,8 @@ class DarkWallpaperPickerViewModel(application: Application) : ShizukuViewModel(
                 // receive results through callback
                 mHelper.onAlarm(isDarkMode)
             } else {
+                // Show loadingBar longer
+                if (System.currentTimeMillis() - loadingStartTime < 200L) delay(1000L)
                 _loadingStatus.value = LoadStatus.SUCCEED
                 message.set(R.string.save_wallpaper_success_message)
             }
@@ -228,7 +241,11 @@ class DarkWallpaperPickerViewModel(application: Application) : ShizukuViewModel(
         if (_loadingStatus.value != LoadStatus.SUCCEED)
             _loadingStatus.value = LoadStatus.SUCCEED
         updateButtonsState()
-        message.set(R.string.save_wallpaper_success_message)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            delayedMessage = R.string.save_wallpaper_success_message
+        } else {
+            message.set(R.string.save_wallpaper_success_message)
+        }
     }
 
     /**
@@ -303,9 +320,9 @@ class DarkWallpaperPickerViewModel(application: Application) : ShizukuViewModel(
         })
     }
 
-    private fun onWallpaperDeleted(start: Long, succeed: Boolean) = viewModelScope.launch(Dispatchers.Main) {
+    private fun onWallpaperDeleted(start: Long, restored: Boolean) = viewModelScope.launch(Dispatchers.Main) {
         val cost = System.currentTimeMillis() - start
-        Timber.i("DeleteAll time cost: %s, succeed: %s", cost, succeed)
+        Timber.i("DeleteAll time cost: %s, succeed: %s", cost, restored)
         if (cost < 1000L) delay(2000L)
         refreshWallpaperPreview()
         _loadingStatus.value = LoadStatus.SUCCEED

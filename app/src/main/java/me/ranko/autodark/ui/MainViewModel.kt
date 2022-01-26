@@ -3,6 +3,7 @@ package me.ranko.autodark.ui
 import android.annotation.SuppressLint
 import android.app.Application
 import android.app.UiModeManager
+import android.os.Build
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,7 +35,7 @@ enum class DarkSwitch(val id: Int) {
     SHARE(6),
 }
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
+class MainViewModel(application: Application) : AndroidViewModel(application), DefaultLifecycleObserver {
 
     private val mContext = application
 
@@ -61,18 +62,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * An observable summary text message
      * Allow UI receive messages from the view model
-     *
-     * @see     hasDelayedMessage
      * */
     val summaryText = ObservableField<Summary>()
 
     /**
-     * A dark mode changes will cause configuration change.
-     * Tell UI to get the summary message
-     *
-     * @see     getDelayedSummary
+     * A dark mode or wallpaper changes will cause configuration change.
+     * Update summary message on [onResume]
      * */
-    private var hasDelayedMessage: Boolean = false
+    private var delayedSummary: Summary? = null
 
     /**
      * Action button for user to trigger dark mode manually
@@ -100,14 +97,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /**
      * Called when fab on main activity has been clicked
      * */
-    fun onFabClicked() {
-        when (switch.get()) {
-            DarkSwitch.ON -> triggerMasterSwitch(false)
+    fun onFabClicked() = when (switch.get() as DarkSwitch) {
+        DarkSwitch.ON -> triggerMasterSwitch(false)
 
-            DarkSwitch.OFF -> triggerMasterSwitch(true)
+        DarkSwitch.OFF -> triggerMasterSwitch(true)
 
-            DarkSwitch.SHARE -> AboutFragment.shareApp(mContext)
-        }
+        DarkSwitch.SHARE -> AboutFragment.shareApp(mContext)
     }
 
     /**
@@ -128,6 +123,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         // delay 360ms to let button animation finish
         viewModelScope.launch {
+            saveSwitch(status)
             delay(360L)
             if (status) {
                 darkSettings.setAllAlarm()
@@ -136,18 +132,31 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             if (darkSettings.isDarkMode() != oldNightMode) {
-                // dark mode has changed
-                // prepare delayed summary message
-                hasDelayedMessage = true
                 // change wallpaper too
-                DarkWallpaperHelper.getInstance(mContext, null).onBoot(oldNightMode.not())
+                val helper = DarkWallpaperHelper.getInstance(mContext, null)
+                if (helper.isDarWallpaperPersisted()) {
+                    helper.onBoot(oldNightMode.not())
+                    // workaround on A12, since activity get
+                    // recreated twice by wallpaper and dark mode changes
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        delay(1200L)
+                        summaryText.set(makeTriggeredSummary())
+                        return@launch
+                    }
+                }
+                delayedSummary = makeTriggeredSummary()
             } else {
                 // show summary message now
                 makeTriggeredSummary()?.apply { summaryText.set(this) }
             }
         }
+    }
 
-        saveSwitch(status)
+    override fun onResume(owner: LifecycleOwner) {
+        delayedSummary?.let {
+            summaryText.set(it)
+            delayedSummary = null
+        }
     }
 
     /**
@@ -205,7 +214,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             if (result) {
                 // send delay message if dark mode changed
                 if (old.xor(darkSettings.isDarkMode() == true)) {
-                    hasDelayedMessage = true
+                    delayedSummary = makeTriggeredSummary()
                 } else {
                     summaryText.set(makeTriggeredSummary())
                 }
@@ -257,15 +266,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             summaryText.set(newSummary(R.string.root_check_failed))
         }
         preference.isEnabled = true
-    }
-
-    fun getDelayedSummary(): Summary? {
-        return if (hasDelayedMessage) {
-            hasDelayedMessage = false
-            makeTriggeredSummary()
-        } else {
-            null
-        }
     }
 
     private fun newSummary(@StringRes message: Int) = Summary(mContext.getString(message))

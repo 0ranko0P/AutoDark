@@ -37,6 +37,7 @@ class MainActivity : BaseListActivity(), FragmentManager.OnBackStackChangedListe
         viewModel = ViewModelProvider(this, MainViewModel.Companion.Factory(application))
                 .get(MainViewModel::class.java)
         binding.viewModel = viewModel
+        lifecycle.addObserver(viewModel)
 
         super.onCreate(savedInstanceState)
 
@@ -67,11 +68,6 @@ class MainActivity : BaseListActivity(), FragmentManager.OnBackStackChangedListe
 
     override fun onResumeFragments() {
         super.onResumeFragments()
-        viewModel.getDelayedSummary()?.run {
-            // delayed summary exists, show summary
-            showSummary(this)
-        }
-
         // check on resume
         // so user won't ignore the receiver problem
         restrictedDialog = viewModel.getRestrictedDialog(this)

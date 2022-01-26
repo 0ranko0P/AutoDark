@@ -6,7 +6,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageView
@@ -267,17 +266,12 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
     private var mLightWallpaperObserver: WallpaperObserver? = null
     private var mDarkWallpaperObserver: WallpaperObserver? = null
 
-    private var _messageV31: String? = null
-
     private val mMessageListener = object : Observable.OnPropertyChangedCallback() {
         override fun onPropertyChanged(sender: Observable, propertyId: Int) {
             val message = (sender as ObservableInt).get()
-            // Show message after theme recreate on A12
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                _messageV31 = getString(message)
-            } else {
-                Snackbar.make(mBinding.root, message, Snackbar.LENGTH_SHORT).show()
-            }
+            if (message == -1) return
+            Snackbar.make(mBinding.root, message, Snackbar.LENGTH_SHORT).show()
+            sender.set(-1) // Avoid sender prevent update same value
         }
     }
 
@@ -355,9 +349,6 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
             val pos = savedInstanceState.getInt(BROWSER_STATE_POSITION_INDEX, -1)
             if (pos != -1) {
                 showLiveWallpaperBrowser(pos)
-            }
-            savedInstanceState.getString(KEY_MESSAGE_V31)?.let {
-                Snackbar.make(mBinding.root, it, Snackbar.LENGTH_SHORT).show()
             }
         }
         viewModel.message.addOnPropertyChangedCallback(mMessageListener)
@@ -460,8 +451,6 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
         if (mBinding.bottomActionbar.isVisible) {
             mLiveWallpaperBrowser!!.save(outState)
         }
-
-        if (_messageV31 != null) outState.putString(KEY_MESSAGE_V31, _messageV31)
     }
 
     private fun showLiveWallpaperBrowser(lastPos: Int?) {
@@ -512,8 +501,6 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
 
         private const val BROWSER_DEFAULT_GRID_SPAN_COUNT = 3
         private const val BROWSER_STATE_POSITION_INDEX = "posIndex"
-
-        private const val KEY_MESSAGE_V31 = "msg"
 
         val TAG = DarkWallpaperFragment::class.simpleName
     }
