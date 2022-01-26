@@ -86,7 +86,7 @@ class DarkWallpaperPickerViewModel(application: Application) : ShizukuViewModel(
     val clearButtonAvailable: LiveData<Boolean>
         get() = _clearAvailable
 
-    private val _deleteAvailable = MutableLiveData(mHelper.isDarWallpaperPersisted())
+    private val _deleteAvailable = MutableLiveData(false)
     val deleteAvailable: LiveData<Boolean>
         get() = _deleteAvailable
 
@@ -123,6 +123,9 @@ class DarkWallpaperPickerViewModel(application: Application) : ShizukuViewModel(
         if (mHelper.isApplyingLiveWallpaper()) {
             _loadingStatus.value = LoadStatus.START
             loadingText.set(mApp.getString(R.string.app_loading))
+            _deleteAvailable.value = false
+        } else {
+            _deleteAvailable.value = mHelper.isDarWallpaperPersisted()
         }
     }
 
@@ -224,6 +227,7 @@ class DarkWallpaperPickerViewModel(application: Application) : ShizukuViewModel(
     override fun onSuccess(id: String) {
         if (_loadingStatus.value != LoadStatus.SUCCEED)
             _loadingStatus.value = LoadStatus.SUCCEED
+        updateButtonsState()
         message.set(R.string.save_wallpaper_success_message)
     }
 
@@ -286,6 +290,7 @@ class DarkWallpaperPickerViewModel(application: Application) : ShizukuViewModel(
     fun deleteAll() = viewModelScope.launch(Dispatchers.Main) {
         val start = System.currentTimeMillis()
         _loadingStatus.value = LoadStatus.START
+        _deleteAvailable.value = false
         loadingText.set(mApp.getString(R.string.delete_wallpapers, mApp.getString(R.string.pref_dark_wallpaper_title)))
         mHelper.deleteAll(object : SetWallpaperCallback {
             override fun onSuccess(id: String) {
