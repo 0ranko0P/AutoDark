@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageView
@@ -266,6 +267,20 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
     private var mLightWallpaperObserver: WallpaperObserver? = null
     private var mDarkWallpaperObserver: WallpaperObserver? = null
 
+    private var _messageV31: String? = null
+
+    private val mMessageListener = object : Observable.OnPropertyChangedCallback() {
+        override fun onPropertyChanged(sender: Observable, propertyId: Int) {
+            val message = (sender as ObservableInt).get()
+            // Show message after theme recreate on A12
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                _messageV31 = getString(message)
+            } else {
+                Snackbar.make(mBinding.root, message, Snackbar.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     private val mGlideRequestListener by lazy(LazyThreadSafetyMode.NONE) {
         object : RequestListener<Drawable> {
             override fun onLoadFailed(e: GlideException?, model: Any, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
@@ -341,7 +356,11 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
             if (pos != -1) {
                 showLiveWallpaperBrowser(pos)
             }
+            savedInstanceState.getString(KEY_MESSAGE_V31)?.let {
+                Snackbar.make(mBinding.root, it, Snackbar.LENGTH_SHORT).show()
+            }
         }
+        viewModel.message.addOnPropertyChangedCallback(mMessageListener)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -413,13 +432,6 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
             }
         })
 
-        viewModel.message.addOnPropertyChangedCallback(object : Observable.OnPropertyChangedCallback() {
-            override fun onPropertyChanged(sender: Observable, propertyId: Int) {
-                val message = (sender as ObservableInt).get()
-                Snackbar.make(mBinding.root, message, Snackbar.LENGTH_SHORT).show()
-            }
-        })
-
         viewModel.wallpaperPickRequest.observe(viewLifecycleOwner, Observer { request ->
             when (request) {
                 WallpaperRequest.CATEGORY_CHOOSER -> {
@@ -448,6 +460,8 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
         if (mBinding.bottomActionbar.isVisible) {
             mLiveWallpaperBrowser!!.save(outState)
         }
+
+        if (_messageV31 != null) outState.putString(KEY_MESSAGE_V31, _messageV31)
     }
 
     private fun showLiveWallpaperBrowser(lastPos: Int?) {
@@ -483,6 +497,7 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
             mPageViews[1].lockView.viewTreeObserver.removeOnGlobalLayoutListener(this)
             mPageViews.clear()
         }
+        viewModel.message.removeOnPropertyChangedCallback(mMessageListener)
         mBinding.previewPager.setOnPageChangeListener(null)
         mAdapter.destroy()
         mBinding.previewPager.setAdapter(null)
@@ -497,6 +512,8 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
 
         private const val BROWSER_DEFAULT_GRID_SPAN_COUNT = 3
         private const val BROWSER_STATE_POSITION_INDEX = "posIndex"
+
+        private const val KEY_MESSAGE_V31 = "msg"
 
         val TAG = DarkWallpaperFragment::class.simpleName
     }
