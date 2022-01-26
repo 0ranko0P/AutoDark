@@ -226,7 +226,8 @@ class DarkWallpaperHelper private constructor(private val mContext: Context) {
      * */
     @VisibleForTesting
     suspend fun applyWallpaper(darkMode: Boolean) {
-        val wallpapers: List<WallpaperInfo>? = readJson()
+        val wallpapers: List<WallpaperInfo>? = mPersisted?.asList() ?: readJson()
+
         if (wallpapers == null) {
             Timber.e("Error while getting persisted wallpapers, abort.")
             return
