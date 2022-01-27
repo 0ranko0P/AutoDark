@@ -5,12 +5,13 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 
-import me.ranko.autodark.services.DarkModeTileService;
+import org.lsposed.hiddenapibypass.HiddenApiBypass;
+
 import me.ranko.autodark.core.DebugTree;
 import me.ranko.autodark.core.ReleaseTree;
+import me.ranko.autodark.services.DarkModeTileService;
 import rikka.sui.Sui;
 import timber.log.Timber;
-import me.weishu.reflection.Reflection;
 
 public final class AutoDarkApplication extends Application {
 
@@ -19,7 +20,7 @@ public final class AutoDarkApplication extends Application {
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        Reflection.unseal(base);
+        HiddenApiBypass.addHiddenApiExemptions("L");
     }
 
     @Override
