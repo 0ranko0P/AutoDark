@@ -54,7 +54,7 @@ object ShizukuApi {
         IWallpaperManager.Stub.asInterface(ShizukuBinderWrapper(SystemServiceHelper.getSystemService("wallpaper")))
     }
 
-    private val mManager:IPackageManager by lazy {
+    private val mManager: IPackageManager by lazy {
         IPackageManager.Stub.asInterface(ShizukuBinderWrapper(SystemServiceHelper.getSystemService("package")))
     }
 

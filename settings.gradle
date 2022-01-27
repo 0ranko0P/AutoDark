@@ -1,8 +1,8 @@
 include ':app'
 include ':aidl'
 project(':aidl').projectDir = new File('Shizuku-API/aidl')
-include ':hidden-api-common'
-project(':hidden-api-common').projectDir = new File('Shizuku-API/hidden-api-common')
+include ':hidden-api-stub'
+project(':hidden-api-stub').projectDir = new File('Shizuku-API/hidden-api-stub')
 include ':hidden-api-dark'
 include ':shared'
 project(':shared').projectDir = new File('Shizuku-API/shared')
