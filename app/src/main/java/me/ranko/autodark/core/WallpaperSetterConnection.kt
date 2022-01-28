@@ -58,7 +58,6 @@ class WallpaperSetterConnection(
     }
 
     override fun onError(e: java.lang.Exception?) {
-        super.onError(e)
         callback.onError(e)
         destroy()
     }
@@ -66,5 +65,6 @@ class WallpaperSetterConnection(
     private fun destroy() {
         context.unbindService(this)
         binder!!.destroy()
+        binder = null
     }
 }

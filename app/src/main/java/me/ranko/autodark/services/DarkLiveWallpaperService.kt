@@ -12,7 +12,6 @@ import me.ranko.autodark.R
 import me.ranko.autodark.core.ShizukuApi
 import me.ranko.autodark.core.ShizukuStatus
 import me.ranko.autodark.core.WallpaperSetterBinder
-import me.ranko.autodark.core.WallpaperSetterBinder.WallpaperSetterServiceCallback
 import rikka.shizuku.Shizuku
 
 class DarkLiveWallpaperService : Service() {
@@ -33,56 +32,49 @@ class DarkLiveWallpaperService : Service() {
         }
     }
 
-    private inner class ShizukuListener(var callback: WallpaperSetterServiceCallback?) :
+    private class DarkBinder(service: DarkLiveWallpaperService) : WallpaperSetterBinder(),
         Shizuku.OnBinderReceivedListener {
 
-        init {
+        private var mCallback: WallpaperSetterServiceCallback? = null
+        private var mService: DarkLiveWallpaperService? = service
+
+        override fun start(callback: WallpaperSetterServiceCallback) {
+            mCallback = callback
             Shizuku.addBinderReceivedListenerSticky(this)
         }
 
         override fun onBinderReceived() {
-            val status = ShizukuApi.checkShizukuCompat(application, true)
-            if (status == ShizukuStatus.AVAILABLE) {
-                updateNotification(content = getString(R.string.service_wallpaper_setting))
-                callback?.onReadyToSet()
-            } else {
-                val err = CancellationException("Failed to connect Shizuku: $status")
-                callback?.onServiceFailure(err)
-                val builder = Notification.Builder(application, LIVE_WALLPAPER_CHANNEL)
-                builder.setSmallIcon(R.drawable.ic_auto_dark)
-                builder.setContentTitle(getString(R.string.service_wallpaper_failed_title))
-                builder.setContentText(getString(R.string.service_wallpaper_failed_error, status.name))
-                mManager.notify(LIVE_WALLPAPER_ID, builder.build())
-            }
-            unsubscribe()
-        }
-
-        fun unsubscribe() {
             Shizuku.removeBinderReceivedListener(this)
-            callback = null
-        }
-    }
-
-    private inner class DarkBinder : WallpaperSetterBinder() {
-        private var mCallback: WallpaperSetterServiceCallback? = null
-        private var mShizukuListener: ShizukuListener? = null
-
-        override fun start(callback: WallpaperSetterServiceCallback) {
-            mCallback = callback
-            mShizukuListener = ShizukuListener(callback)
+            val status = ShizukuApi.checkShizukuCompat(mService!!.application, true)
+            mService!!.apply {
+                if (status == ShizukuStatus.AVAILABLE) {
+                    updateNotification(content = getString(R.string.service_wallpaper_setting))
+                    mCallback?.onReadyToSet()
+                } else {
+                    val err = CancellationException("Failed to connect Shizuku: $status")
+                    val builder = Notification.Builder(application, LIVE_WALLPAPER_CHANNEL)
+                    builder.setSmallIcon(R.drawable.ic_auto_dark)
+                    builder.setContentTitle(getString(R.string.service_wallpaper_failed_title))
+                    builder.setContentText(getString(R.string.service_wallpaper_failed_error, err.message))
+                    mManager.notify(LIVE_WALLPAPER_ID, builder.build())
+                    mCallback?.onServiceFailure(err)
+                }
+            }
         }
 
         fun onCancel() {
+            Shizuku.removeBinderReceivedListener(this)
             val exception = CancellationException("User cancel")
-            mShizukuListener?.unsubscribe()
             mCallback!!.onServiceFailure(exception)
         }
 
         override fun destroy() {
             mCallback = null
-            mShizukuListener = null
-            stopForeground(true)
-            stopSelf()
+            mService!!.apply {
+                stopForeground(true)
+                stopSelf()
+            }
+            mService = null
         }
     }
 
@@ -91,7 +83,7 @@ class DarkLiveWallpaperService : Service() {
     private lateinit var channel: NotificationChannel
 
     private lateinit var mTitle: String
-    private val mBinder = DarkBinder()
+    private val mBinder = DarkBinder(this)
 
     override fun onCreate() {
         super.onCreate()

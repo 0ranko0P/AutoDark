@@ -21,9 +21,7 @@ import me.ranko.autodark.core.WallpaperSetterConnection
  * */
 class RotationListenerService: Service() {
 
-    private val mBinder = ListenerBinder()
-
-    private var sensorListener: OrientationListener? = null
+    private val mBinder = ListenerBinder(this)
 
     private class OrientationListener(
         context: Application,
@@ -57,19 +55,19 @@ class RotationListenerService: Service() {
         }
     }
 
-    private inner class ListenerBinder : WallpaperSetterBinder() {
-        private var callback: WallpaperSetterServiceCallback? = null
+    private class ListenerBinder(service: RotationListenerService) : WallpaperSetterBinder() {
+        private var mService: RotationListenerService? = service
 
         override fun start(callback: WallpaperSetterServiceCallback) {
-            this.callback = callback
-            sensorListener = OrientationListener(application, callback)
-            sensorListener!!.enable()
+            OrientationListener(mService!!.application, callback).enable()
         }
 
         override fun destroy() {
-            sensorListener = null
-            stopForeground(true)
-            stopSelf()
+            mService!!.apply {
+                stopForeground(true)
+                stopSelf()
+            }
+            mService = null
         }
     }
 
