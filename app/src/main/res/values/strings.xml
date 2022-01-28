@@ -135,10 +135,8 @@
 
     <string name="service_wallpaper_channel_name">Set <xliff:g name="chooser_category_live_wallpaper">%1$s</xliff:g></string>
     <string name="service_wallpaper_waiting">Waiting for Shizuku&#8230;</string>
-    <string name="service_wallpaper_waiting_count_down"><xliff:g name="service_wallpaper_waiting">%1$s</xliff:g> <xliff:g name="second">%2$s</xliff:g>s.</string>
     <string name="service_wallpaper_setting">Shizuku is online, applying wallpaper&#8230;</string>
     <string name="service_wallpaper_failed_title">Unable to set Live Wallpaper</string>
-    <string name="service_wallpaper_failed_timeout">Time out waiting Shizuku</string>
     <string name="service_wallpaper_failed_error">Error occurred: <xliff:g name="error">%1$s</xliff:g></string>
 
     <string name="shizuku_connect_failed">Unable to connect the Shizuku core service, please make sure it is running.</string>

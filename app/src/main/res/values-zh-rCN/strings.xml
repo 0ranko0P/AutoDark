@@ -134,7 +134,6 @@
     <string name="service_wallpaper_waiting">正在等待Shizuku&#8230;</string>
     <string name="service_wallpaper_setting">Shizuku 已启动, 正在应用壁纸&#8230;</string>
     <string name="service_wallpaper_failed_title">无法设置动态壁纸</string>
-    <string name="service_wallpaper_failed_timeout">等待Shizuku 超时</string>
     <string name="service_wallpaper_failed_error">出现错误: <xliff:g name="error">%1$s</xliff:g></string>
 
     <string name="shizuku_connect_failed">无法连接到Shizuku 核心服务, 请确保Shizuku 正在运行.</string>

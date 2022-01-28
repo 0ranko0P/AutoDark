@@ -3,17 +3,17 @@ package me.ranko.autodark.services
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.graphics.drawable.Icon
-import android.os.Binder
 import android.os.IBinder
 import com.android.wallpaper.model.LiveWallpaperInfo
-import com.android.wallpaper.module.WallpaperPersister
-import com.android.wallpaper.module.WallpaperSetter
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellationException
 import me.ranko.autodark.R
-import me.ranko.autodark.ui.DarkWallpaperPickerActivity
+import me.ranko.autodark.core.ShizukuApi
+import me.ranko.autodark.core.ShizukuStatus
+import me.ranko.autodark.core.WallpaperSetterBinder
+import me.ranko.autodark.core.WallpaperSetterBinder.WallpaperSetterServiceCallback
 import rikka.shizuku.Shizuku
-import java.util.concurrent.TimeoutException
 
 class DarkLiveWallpaperService : Service() {
 
@@ -25,74 +25,64 @@ class DarkLiveWallpaperService : Service() {
         private const val LIVE_WALLPAPER_CHANNEL = "LIVE_WALLPAPER"
         private const val LIVE_WALLPAPER_ID = 7
 
-        // up to 30s
-        private const val TIMER_MAX_COUNT_DOWN = 30
-        private const val TIMER_SLEEP_DURATION = 1000L
-
-        fun buildErrorNotification(context: Context, e: Exception?): Notification = with(context) {
-            return@with if (e is TimeoutException) {
-                getErrorNotification(this, getString(R.string.service_wallpaper_failed_title), getString(R.string.service_wallpaper_failed_timeout))
-            } else {
-                val error = getString(R.string.service_wallpaper_failed_error, e?.message ?: "null")
-                getErrorNotification(this, getString(R.string.service_wallpaper_failed_error), error)
-            }
-        }
-
-        private fun getErrorNotification(context: Context, title: String, content: String): Notification {
-            val intent = Intent(context, DarkWallpaperPickerActivity::class.java)
-            val pendingIntent = PendingIntent.getActivity(
-                context,
-                -1,
-                intent,
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_ONE_SHOT
-            )
-            val builder = Notification.Builder(context, LIVE_WALLPAPER_CHANNEL)
-            builder.setSmallIcon(R.drawable.ic_auto_dark)
-            builder.setContentTitle(title)
-            builder.setContentText(content)
-            builder.setContentIntent(pendingIntent)
-            return builder.build()
-        }
-
-        fun createChannel(context: Context): NotificationChannel = with(context) {
-            val channelName = getString(R.string.service_wallpaper_channel_name, getString(R.string.chooser_category_live_wallpaper))
-            return NotificationChannel(LIVE_WALLPAPER_CHANNEL, channelName, NotificationManager.IMPORTANCE_LOW)
+        fun startForegroundService(context: Context, wallpaper: LiveWallpaperInfo, conn: ServiceConnection) {
+            val intent = Intent(context, DarkLiveWallpaperService::class.java)
+            intent.putExtra(ARG_TARGET_WALLPAPER, wallpaper)
+            context.bindService(intent, conn, BIND_AUTO_CREATE)
+            context.startForegroundService(intent)
         }
     }
 
-    inner class DarkBinder : Binder(), Shizuku.OnBinderReceivedListener, WallpaperPersister.SetWallpaperCallback {
-        var mCallback: WallpaperPersister.SetWallpaperCallback? = null
+    private inner class ShizukuListener(var callback: WallpaperSetterServiceCallback?) :
+        Shizuku.OnBinderReceivedListener {
 
-        fun start(callback: WallpaperPersister.SetWallpaperCallback) {
-            mCallback = callback
-            Shizuku.addBinderReceivedListener(this)
+        init {
+            Shizuku.addBinderReceivedListenerSticky(this)
         }
 
         override fun onBinderReceived() {
-            timer?.cancel()
-            unBindShizuku()
-            updateNotification(content = getString(R.string.service_wallpaper_setting))
-            val setter = WallpaperSetter(WallpaperPersister(applicationContext))
-            setter.setCurrentLiveWallpaper(target, mCallback)
-            stop()
-        }
-
-        override fun onSuccess(id: String) {
-            mCallback?.onSuccess(id)
-            stop()
-        }
-
-        override fun onError(e: Exception?) {
-            mCallback?.onError(e)
-            if (e is CancellationException) {
-                stop()
+            val status = ShizukuApi.checkShizukuCompat(application, true)
+            if (status == ShizukuStatus.AVAILABLE) {
+                updateNotification(content = getString(R.string.service_wallpaper_setting))
+                callback?.onReadyToSet()
             } else {
-                mManager.notify(LIVE_WALLPAPER_ID, buildErrorNotification(applicationContext, e))
-                CoroutineScope(Dispatchers.Main).launch {
-                    delay(8000L)
-                    stop()
-                }
+                val err = CancellationException("Failed to connect Shizuku: $status")
+                callback?.onServiceFailure(err)
+                val builder = Notification.Builder(application, LIVE_WALLPAPER_CHANNEL)
+                builder.setSmallIcon(R.drawable.ic_auto_dark)
+                builder.setContentTitle(getString(R.string.service_wallpaper_failed_title))
+                builder.setContentText(getString(R.string.service_wallpaper_failed_error, status.name))
+                mManager.notify(LIVE_WALLPAPER_ID, builder.build())
             }
+            unsubscribe()
+        }
+
+        fun unsubscribe() {
+            Shizuku.removeBinderReceivedListener(this)
+            callback = null
+        }
+    }
+
+    private inner class DarkBinder : WallpaperSetterBinder() {
+        private var mCallback: WallpaperSetterServiceCallback? = null
+        private var mShizukuListener: ShizukuListener? = null
+
+        override fun start(callback: WallpaperSetterServiceCallback) {
+            mCallback = callback
+            mShizukuListener = ShizukuListener(callback)
+        }
+
+        fun onCancel() {
+            val exception = CancellationException("User cancel")
+            mShizukuListener?.unsubscribe()
+            mCallback!!.onServiceFailure(exception)
+        }
+
+        override fun destroy() {
+            mCallback = null
+            mShizukuListener = null
+            stopForeground(true)
+            stopSelf()
         }
     }
 
@@ -103,12 +93,12 @@ class DarkLiveWallpaperService : Service() {
     private lateinit var mTitle: String
     private val mBinder = DarkBinder()
 
-    private var timer: Job? = null
-
     override fun onCreate() {
         super.onCreate()
         mManager = getSystemService(NotificationManager::class.java)
-        channel = createChannel(this)
+        val channelName = getString(R.string.service_wallpaper_channel_name, getString(R.string.chooser_category_live_wallpaper))
+
+        channel = NotificationChannel(LIVE_WALLPAPER_CHANNEL, channelName, NotificationManager.IMPORTANCE_LOW)
         mManager.createNotificationChannel(channel)
         // update new title while LiveWallpaperInfo arrived
         val title = channel.name.toString()
@@ -117,42 +107,16 @@ class DarkLiveWallpaperService : Service() {
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         if (intent.action == ACTION_STOP_SERVICE) {
-            timer?.cancel("User cancel")
-            onCancel()
+            mBinder.onCancel()
         } else {
             target = intent.getParcelableExtra(ARG_TARGET_WALLPAPER)!!
             mTitle = getString(R.string.service_wallpaper_title, channel.name, target.getTitle(baseContext))
             updateNotification(mTitle, getString(R.string.service_wallpaper_waiting))
-
-            timer = countDown()
         }
         return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onBind(intent: Intent): IBinder = mBinder
-
-    private fun countDown(): Job =  CoroutineScope(Dispatchers.Main).launch {
-        val timeStr = getString(R.string.service_wallpaper_waiting)
-        var current = 0
-
-        while (isActive) {
-            delay(TIMER_SLEEP_DURATION)
-            current++
-            updateNotification(mTitle, getString(R.string.service_wallpaper_waiting_count_down, timeStr, (TIMER_MAX_COUNT_DOWN - current).toString()))
-            if (isActive.not()) break
-            if (current >= TIMER_MAX_COUNT_DOWN) {
-                timer = null
-                unBindShizuku()
-                mBinder.onError(TimeoutException("Time out waiting Shizuku online"))
-                break
-            }
-        }
-    }
-
-    private fun onCancel() {
-        unBindShizuku()
-        mBinder.onError(CancellationException())
-    }
 
     private fun updateNotification(title: String = mTitle, content: String) {
         mManager.notify(LIVE_WALLPAPER_ID, getNotification(title, content))
@@ -179,13 +143,5 @@ class DarkLiveWallpaperService : Service() {
         builder.setContentText(content)
         builder.addAction(cancelAction)
         return builder.build()
-    }
-
-    private fun unBindShizuku() = Shizuku.removeBinderReceivedListener(mBinder)
-
-    fun stop() {
-        mBinder.mCallback = null
-        stopForeground(false)
-        stopSelf()
     }
 }

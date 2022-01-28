@@ -15,6 +15,8 @@
  */
 package com.android.wallpaper.picker;
 
+import static com.android.wallpaper.picker.LoadWallpaperErrorDialogFragment.getExceptionString;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -29,11 +31,8 @@ import com.android.wallpaper.module.WallpaperPersister.Destination;
 
 import java.io.Serializable;
 import java.util.concurrent.CancellationException;
-import java.util.concurrent.TimeoutException;
 
 import me.ranko.autodark.R;
-
-import static com.android.wallpaper.picker.LoadWallpaperErrorDialogFragment.getExceptionString;
 
 /**
  * Dialog fragment which communicates a message that setting the wallpaper failed with an option to
@@ -66,9 +65,7 @@ public final class SetWallpaperErrorDialogFragment extends DialogFragment {
         super.onCreateDialog(savedInstanceState);
         Serializable exception = requireArguments().getSerializable(ARG_EXCEPTION);
         String message;
-        if (exception instanceof TimeoutException) {
-            message = getString(R.string.service_wallpaper_failed_timeout);
-        } else if (exception instanceof CancellationException) {
+        if (exception instanceof CancellationException) {
             message = getString(android.R.string.cancel);
         } else {
             message = exception == null ? "" : getExceptionString((Exception) exception);
@@ -78,7 +75,7 @@ public final class SetWallpaperErrorDialogFragment extends DialogFragment {
         AlertDialog.Builder builder = LoadWallpaperErrorDialogFragment.buildShareMessageDialog(this, message)
                 .setTitle(R.string.save_wallpaper_error_title)
                 .setMessage(message);
-        if (!(exception instanceof TimeoutException || exception instanceof CancellationException)) {
+        if (!(exception instanceof CancellationException)) {
             builder.setPositiveButton(R.string.app_try_again, (dialogInterface, i) -> {
                 // The component hosting this DialogFragment could be either a Fragment or an
                 // Activity, so check if a target Fragment was explicitly set--if not then the

@@ -4,8 +4,6 @@ import android.annotation.SuppressLint
 import android.app.WallpaperManager
 import android.content.ComponentName
 import android.content.Context
-import android.content.Context.BIND_AUTO_CREATE
-import android.content.Intent
 import android.util.ArrayMap
 import android.view.Surface
 import android.widget.Toast
@@ -31,7 +29,6 @@ import me.ranko.autodark.ui.WallpaperType.HOME
 import timber.log.Timber
 import java.io.File
 import java.io.IOException
-import java.util.concurrent.TimeoutException
 
 enum class WallpaperType {
     HOME, LOCK, DARK_HOME, DARK_LOCK;
@@ -80,7 +77,7 @@ class DarkWallpaperHelper private constructor(private val mContext: Context) {
         }
     }
 
-    inner class DefaultWallpaperSetterCallback : SetWallpaperCallback {
+    private inner class DefaultWallpaperSetterCallback : SetWallpaperCallback {
 
         override fun onSuccess(id: String) {
             Timber.d("Set wallpaper succeed, new id: %s.", id)
@@ -90,7 +87,7 @@ class DarkWallpaperHelper private constructor(private val mContext: Context) {
         }
 
         override fun onError(e: Exception?) {
-            if (e is TimeoutException || e is CancellationException) {
+            if (e is CancellationException) {
                 Timber.d(e.localizedMessage)
             } else {
                 mPreference.edit().putBoolean(KEY_LAST_SETTING_SUCCEED, false).apply()
@@ -101,8 +98,7 @@ class DarkWallpaperHelper private constructor(private val mContext: Context) {
         }
 
         private fun destroy() {
-            if (isApplyingLiveWallpaper()) connection = null
-
+            connection = null
             if (viewModelCallback == null) this@DarkWallpaperHelper.destroy()
         }
     }
@@ -224,7 +220,6 @@ class DarkWallpaperHelper private constructor(private val mContext: Context) {
         val home = wallpapers[index]
 
         if (home is LiveWallpaperInfo) {
-            Timber.d("Setting LiveWallpaper id: %s.", home.wallpaperId)
             applyLiveWallpaper(home, callback)
         } else {
             val lock: DarkWallpaperInfo? = (wallpapers[index + 1]).let {
@@ -232,8 +227,7 @@ class DarkWallpaperHelper private constructor(private val mContext: Context) {
             }
 
             Timber.d("Applying Wallpaper, home:%s, lock:%s.", home.wallpaperId, lock?.wallpaperId)
-            val checkRotation = shouldCheckOrientation()
-            if (checkRotation && ViewUtil.getRotation(mContext) != Surface.ROTATION_0) {
+            if (shouldCheckOrientation() && ViewUtil.getRotation(mContext) != Surface.ROTATION_0) {
                 Timber.d("Illegal orientation, starting listener service")
                 connection = WallpaperSetterConnection(mContext, Pair(home, lock), callback, mSetter)
                 RotationListenerService.startForegroundService(mContext, connection!!)
@@ -245,19 +239,15 @@ class DarkWallpaperHelper private constructor(private val mContext: Context) {
         }
     }
 
-    fun applyLiveWallpaper(wallpaper: LiveWallpaperInfo, callback: SetWallpaperCallback) {
+    private fun applyLiveWallpaper(wallpaper: LiveWallpaperInfo, callback: SetWallpaperCallback) {
+        Timber.d("Applying LiveWallpaper id: %s.", wallpaper.wallpaperId)
         when (ShizukuApi.checkShizukuCompat(mContext)) {
 
             ShizukuStatus.AVAILABLE -> mSetter.setCurrentLiveWallpaper(wallpaper, callback)
 
             ShizukuStatus.DEAD -> {
                 connection = WallpaperSetterConnection(mContext, wallpaper, callback, mSetter)
-                with(mContext) {
-                    val intent = Intent(this, DarkLiveWallpaperService::class.java)
-                    intent.putExtra(DarkLiveWallpaperService.ARG_TARGET_WALLPAPER, wallpaper)
-                    bindService(intent, connection!!, BIND_AUTO_CREATE)
-                    startForegroundService(intent)
-                }
+                DarkLiveWallpaperService.startForegroundService(mContext, wallpaper, connection!!)
             }
 
             ShizukuStatus.UNAUTHORIZED -> Toast.makeText(mContext, R.string.permission_failed, Toast.LENGTH_SHORT).show()
