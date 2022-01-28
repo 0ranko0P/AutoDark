@@ -6,9 +6,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Context.BIND_AUTO_CREATE
 import android.content.Intent
-import android.content.ServiceConnection
-import android.os.IBinder
 import android.util.ArrayMap
+import android.view.Surface
 import android.widget.Toast
 import androidx.annotation.VisibleForTesting
 import com.android.wallpaper.asset.BuiltInWallpaperAsset
@@ -21,12 +20,12 @@ import com.android.wallpaper.module.WallpaperPersister.*
 import com.android.wallpaper.module.WallpaperSetter
 import kotlinx.coroutines.*
 import me.ranko.autodark.R
-import me.ranko.autodark.core.DarkModeSettings
-import me.ranko.autodark.core.ShizukuApi
-import me.ranko.autodark.core.ShizukuStatus
+import me.ranko.autodark.Utils.ViewUtil
+import me.ranko.autodark.core.*
 import me.ranko.autodark.model.*
 import me.ranko.autodark.model.PersistableWallpaper.Companion.getWallpaperFile
 import me.ranko.autodark.services.DarkLiveWallpaperService
+import me.ranko.autodark.services.RotationListenerService
 import me.ranko.autodark.ui.WallpaperType.DARK_HOME
 import me.ranko.autodark.ui.WallpaperType.HOME
 import timber.log.Timber
@@ -54,6 +53,8 @@ class DarkWallpaperHelper private constructor(private val mContext: Context) {
         private const val KEY_HIDE_SHIZUKU_WARNING = "hideShizuku"
         private const val KEY_LAST_SETTING_SUCCEED = "NoErr"
 
+        private const val KEY_CHECK_ROTATION = "check_orientation"
+
         @SuppressLint("StaticFieldLeak")
         @Volatile
         private var INSTANCE: DarkWallpaperHelper? = null
@@ -76,17 +77,6 @@ class DarkWallpaperHelper private constructor(private val mContext: Context) {
                 if (wallpaper.wallpaperId == old.wallpaperId) return true
             }
             return false
-        }
-
-        private class DarkWallpaperConnection(val callback: SetWallpaperCallback): ServiceConnection {
-
-            override fun onServiceConnected(name: ComponentName, service: IBinder) {
-                (service as DarkLiveWallpaperService.DarkBinder).start(callback)
-            }
-
-            override fun onServiceDisconnected(name: ComponentName) {
-                // no-op
-            }
         }
     }
 
@@ -111,10 +101,7 @@ class DarkWallpaperHelper private constructor(private val mContext: Context) {
         }
 
         private fun destroy() {
-            if (isApplyingLiveWallpaper()) {
-                mContext.unbindService(connection!!)
-                connection = null
-            }
+            if (isApplyingLiveWallpaper()) connection = null
 
             if (viewModelCallback == null) this@DarkWallpaperHelper.destroy()
         }
@@ -139,7 +126,7 @@ class DarkWallpaperHelper private constructor(private val mContext: Context) {
 
     private var mLiveWallpapers: ArrayMap<ComponentName, LiveWallpaperInfo>? = null
 
-    private var connection: DarkWallpaperConnection? = null
+    private var connection: WallpaperSetterConnection? = null
 
     /**
      * Notify wallpaper apply result to ViewModel.
@@ -227,11 +214,11 @@ class DarkWallpaperHelper private constructor(private val mContext: Context) {
     @VisibleForTesting
     suspend fun applyWallpaper(darkMode: Boolean) {
         val wallpapers: List<WallpaperInfo>? = mPersisted?.asList() ?: readJson()
-
         if (wallpapers == null) {
             Timber.e("Error while getting persisted wallpapers, abort.")
             return
         }
+
         val index = if (darkMode) DARK_HOME.ordinal else HOME.ordinal
         val callback = DefaultWallpaperSetterCallback()
         val home = wallpapers[index]
@@ -240,25 +227,31 @@ class DarkWallpaperHelper private constructor(private val mContext: Context) {
             Timber.d("Setting LiveWallpaper id: %s.", home.wallpaperId)
             applyLiveWallpaper(home, callback)
         } else {
-            val lock = wallpapers[index + 1] as DarkWallpaperInfo
-            Timber.d("Applying Wallpaper, homeId: %s, lockId: %s.", home.wallpaperId, lock.wallpaperId)
-            val homeAsset = home.getAsset(mContext) as StreamableAsset
-            if (home == lock) {
-                mSetter.setDarkWallpapers(homeAsset, null, callback)
+            val lock: DarkWallpaperInfo? = (wallpapers[index + 1]).let {
+                if (it.wallpaperId == home.wallpaperId) null else it as DarkWallpaperInfo
+            }
+
+            Timber.d("Applying Wallpaper, home:%s, lock:%s.", home.wallpaperId, lock?.wallpaperId)
+            val checkRotation = shouldCheckOrientation()
+            if (checkRotation && ViewUtil.getRotation(mContext) != Surface.ROTATION_0) {
+                Timber.d("Illegal orientation, starting listener service")
+                connection = WallpaperSetterConnection(mContext, Pair(home, lock), callback, mSetter)
+                RotationListenerService.startForegroundService(mContext, connection!!)
             } else {
-                mSetter.setDarkWallpapers(homeAsset, lock.getAsset(mContext) as StreamableAsset, callback)
+                val homeAsset = home.getAsset(mContext) as StreamableAsset
+                val lockAsset = lock?.let { it.getAsset(mContext) as StreamableAsset }
+                mSetter.setDarkWallpapers(homeAsset, lockAsset, callback)
             }
         }
     }
 
-    @VisibleForTesting
     fun applyLiveWallpaper(wallpaper: LiveWallpaperInfo, callback: SetWallpaperCallback) {
         when (ShizukuApi.checkShizukuCompat(mContext)) {
 
             ShizukuStatus.AVAILABLE -> mSetter.setCurrentLiveWallpaper(wallpaper, callback)
 
             ShizukuStatus.DEAD -> {
-                connection = DarkWallpaperConnection(callback)
+                connection = WallpaperSetterConnection(mContext, wallpaper, callback, mSetter)
                 with(mContext) {
                     val intent = Intent(this, DarkLiveWallpaperService::class.java)
                     intent.putExtra(DarkLiveWallpaperService.ARG_TARGET_WALLPAPER, wallpaper)
@@ -646,6 +639,19 @@ class DarkWallpaperHelper private constructor(private val mContext: Context) {
     fun getPickedWallpaperList(): List<WallpaperInfo> = mPicked
 
     fun isShizukuDismissed(): Boolean = mPreference.getBoolean(KEY_HIDE_SHIZUKU_WARNING, false)
+
+    /**
+     * Check screen orientation before setting wallpaper in the background.
+     * A workaround for some modified Android that can't set wallpaper correctly.
+     *
+     * @see applyWallpaper
+     * @see RotationListenerService
+     * */
+    fun shouldCheckOrientation(): Boolean = mPreference.getBoolean(KEY_CHECK_ROTATION, false)
+
+    fun setCheckOrientation(check: Boolean) {
+        mPreference.edit().putBoolean(KEY_CHECK_ROTATION, check).apply()
+    }
 
     fun dismissShizuku() {
         mPreference.edit().putBoolean(KEY_HIDE_SHIZUKU_WARNING, true).apply()

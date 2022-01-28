@@ -109,6 +109,11 @@
             android:enabled="true"
             android:exported="false" />
 
+        <service
+            android:name=".services.RotationListenerService"
+            android:enabled="true"
+            android:exported="false" />
+
         <meta-data
             android:name="xposedmodule"
             android:value="true" />

@@ -427,6 +427,10 @@ class DarkWallpaperPickerViewModel(application: Application) : ShizukuViewModel(
         return e
     }
 
+    fun shouldCheckOrientation(): Boolean = mHelper.shouldCheckOrientation()
+
+    fun setCheckOrientation(check: Boolean) = mHelper.setCheckOrientation(check)
+
     companion object {
         class Factory(private val application: Application) : ViewModelProvider.Factory {
             override fun <T : ViewModel> create(modelClass: Class<T>): T {

@@ -39,6 +39,8 @@
 
     <string name="accessibility_preview_pager" msgid="1839869637405028575">"第 <xliff:g id="ID_1">%1$d</xliff:g> 页，共 <xliff:g id="ID_2">%2$d</xliff:g> 页"</string>
 
+    <string name="check_orientation">设置时检测方向</string>
+
     <string name="dark_mode_disabled">主开关已关闭</string>
     <string name="dark_mode_permission_denied">设置失败, 无权限!</string>
     <string name="dark_mode_summary_action">现在切换</string>
@@ -124,6 +126,9 @@
     <string name="root_description">如果你的设备拥有 Root 权限, 现在就可授权.</string>
     <string name="root_grant">授权</string>
     <string name="root_title">使用 Root 授权</string>
+
+    <string name="service_rotation_name">旋转事件监听器</string>
+    <string name="service_rotation_listening">检测屏幕方向变化</string>
 
     <string name="service_wallpaper_channel_name">设置 <xliff:g name="chooser_category_live_wallpaper">%1$s</xliff:g></string>
     <string name="service_wallpaper_waiting">正在等待Shizuku&#8230;</string>

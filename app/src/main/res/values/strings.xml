@@ -41,6 +41,8 @@
     <!-- Accessibility label for paging indicator in theme picker preview [CHAR LIMIT=NONE] -->
     <string name="accessibility_preview_pager" msgid="3548503287402185430">Page <xliff:g name="current_page" example="1">%1$d</xliff:g> of <xliff:g name="num_pages" example="2">%2$d</xliff:g></string>
 
+    <string name="check_orientation">Check orientation when set</string>
+
     <string name="dark_mode_disabled">Master switch is off now.</string>
     <string name="dark_mode_permission_denied">Failed to set darkMode: Permission denied!</string>
     <string name="dark_mode_summary_action">Trigger now</string>
@@ -127,6 +129,9 @@
     <string name="root_description">If your device is rooted, you can grant permission with root now.</string>
     <string name="root_grant">Grant Permission</string>
     <string name="root_title">Grant permission using root</string>
+
+    <string name="service_rotation_name">Rotation Listener</string>
+    <string name="service_rotation_listening">Detecting screen rotation changes</string>
 
     <string name="service_wallpaper_channel_name">Set <xliff:g name="chooser_category_live_wallpaper">%1$s</xliff:g></string>
     <string name="service_wallpaper_waiting">Waiting for Shizuku&#8230;</string>

@@ -365,6 +365,7 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
         viewModel.deleteAvailable.observe(this, Observer { available ->
             mMenuDelete?.isVisible = available
         })
+        menu.findItem(R.id.action_orientation)?.isChecked = viewModel.shouldCheckOrientation()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -372,6 +373,11 @@ class DarkWallpaperFragment : PreviewFragment(), ViewTreeObserver.OnGlobalLayout
             android.R.id.home -> finishActivity()
 
             R.id.action_delete -> showDeleteConfirmDialog()
+
+            R.id.action_orientation -> {
+                viewModel.setCheckOrientation(item.isChecked.not())
+                item.isChecked = item.isChecked.not()
+            }
 
             else -> return super.onOptionsItemSelected(item)
         }

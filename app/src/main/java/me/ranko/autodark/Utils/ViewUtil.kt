@@ -56,4 +56,10 @@ object ViewUtil {
         ta.recycle()
         return colorAccent
     }
+
+    @Suppress("DEPRECATION")
+    fun getRotation(context: Context): Int {
+        val window = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        return window.defaultDisplay.rotation
+    }
 }
