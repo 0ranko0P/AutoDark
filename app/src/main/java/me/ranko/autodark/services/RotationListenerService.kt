@@ -76,7 +76,7 @@ class RotationListenerService: Service() {
         val channel = NotificationChannel(
             ROTATION_SERVICE_CHANNEL,
             getString(R.string.service_rotation_name),
-            NotificationManager.IMPORTANCE_LOW
+            NotificationManager.IMPORTANCE_MIN
         )
         mManager.createNotificationChannel(channel)
 
