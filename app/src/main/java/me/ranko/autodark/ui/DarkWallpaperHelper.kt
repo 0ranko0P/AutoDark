@@ -17,6 +17,7 @@ import com.android.wallpaper.module.WallpaperPersister
 import com.android.wallpaper.module.WallpaperPersister.*
 import com.android.wallpaper.module.WallpaperSetter
 import kotlinx.coroutines.*
+import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.ViewUtil
 import me.ranko.autodark.core.*
@@ -637,7 +638,9 @@ class DarkWallpaperHelper private constructor(private val mContext: Context) {
      * @see applyWallpaper
      * @see RotationListenerService
      * */
-    fun shouldCheckOrientation(): Boolean = mPreference.getBoolean(KEY_CHECK_ROTATION, false)
+    fun shouldCheckOrientation(): Boolean {
+        return mPreference.getBoolean(KEY_CHECK_ROTATION, AutoDarkApplication.isLineageOS())
+    }
 
     fun setCheckOrientation(check: Boolean) {
         mPreference.edit().putBoolean(KEY_CHECK_ROTATION, check).apply()

@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Build;
 
 import org.lsposed.hiddenapibypass.HiddenApiBypass;
 
@@ -36,7 +37,11 @@ public final class AutoDarkApplication extends Application {
     }
 
     public static boolean isOnePlus() {
-        return android.os.Build.BRAND.toUpperCase().contains(Constant.BRAND_ONE_PLUS);
+        return Build.BRAND.toUpperCase().contains(Constant.BRAND_ONE_PLUS);
+    }
+
+    public static boolean isLineageOS() {
+        return Build.DISPLAY.startsWith("lineage");
     }
 
     public static boolean isComponentEnabled(Context context, Class<?> target) {
