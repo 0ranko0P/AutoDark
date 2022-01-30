@@ -142,7 +142,7 @@ public class ContentUriAsset extends StreamableAsset {
     }
 
     @Override
-    protected InputStream openInputStream() {
+    public InputStream openInputStream() {
         try {
             return mContext.getContentResolver().openInputStream(mUri);
         } catch (FileNotFoundException e) {

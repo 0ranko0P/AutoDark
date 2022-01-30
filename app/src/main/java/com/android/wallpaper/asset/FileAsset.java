@@ -72,7 +72,7 @@ public final class FileAsset extends StreamableAsset {
     }
 
     @Override
-    protected InputStream openInputStream() {
+    public InputStream openInputStream() {
         try {
             return new FileInputStream(mFile.getAbsolutePath());
         } catch (FileNotFoundException e) {

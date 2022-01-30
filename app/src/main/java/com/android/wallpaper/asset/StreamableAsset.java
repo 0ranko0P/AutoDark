@@ -130,7 +130,7 @@ public abstract class StreamableAsset extends Asset {
      * Returns an InputStream representing the asset. Should only be called off the main UI thread.
      */
     @Nullable
-    protected abstract InputStream openInputStream();
+    public abstract InputStream openInputStream();
 
     /**
      * Gets the EXIF orientation value of the asset. This method should only be called off the main UI
