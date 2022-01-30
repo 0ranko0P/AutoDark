@@ -33,7 +33,7 @@ class DarkWallpaperPickerViewModel(application: Application) : ShizukuViewModel(
         /**
          * Requesting a restricted chooser, and warning user LiveWallpapers unavailable.
          *
-         * @see WallpaperCategoryDialog.initShizukuPermissionCard
+         * @see WallpaperCategoryDialog
          * */
         CATEGORY_RESTRICTED,
 

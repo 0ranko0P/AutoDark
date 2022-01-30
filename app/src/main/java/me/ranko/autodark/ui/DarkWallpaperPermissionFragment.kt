@@ -5,7 +5,6 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -14,6 +13,8 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
@@ -45,7 +46,6 @@ class DarkWallpaperPermissionFragment : AppbarFragment() {
     private var isMigrating = false
 
     companion object {
-        private const val REQUEST_PERMISSION_STORAGE = 615
         private const val ARG_IS_MIGRATE = "arg_M"
         val TAG = DarkWallpaperPermissionFragment::class.simpleName
 
@@ -58,11 +58,27 @@ class DarkWallpaperPermissionFragment : AppbarFragment() {
         }
     }
 
+    private val storagePermissionLauncher = registerForActivityResult(RequestPermission()) { result ->
+        if (result) {
+            hidePermissionCard(mBinding.storageLayout)
+        } else {
+            showManualInstruction()
+            onPermissionDenied()
+        }
+    }
+
+    private val permissionSettingsLauncher = registerForActivityResult(StartActivityForResult()) {
+        if (DarkWallpaperPickerActivity.storageGranted(requireContext())) {
+            hidePermissionCard(mBinding.storageLayout)
+        }
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         viewModel = ViewModelProvider(requireActivity(),
             DarkWallpaperPickerViewModel.Companion.Factory(requireActivity().application)).get()
         isMigrating = requireArguments().getBoolean(ARG_IS_MIGRATE)
+        viewModel.registerPermissionPre11(this)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -90,7 +106,7 @@ class DarkWallpaperPermissionFragment : AppbarFragment() {
             mBinding.shizukuRequest.setOnClickListener(this::onShizukuClick)
         }
 
-        viewModel.shizukuRequesting.observe(viewLifecycleOwner, { requested ->
+        viewModel.shizukuRequesting.observe(viewLifecycleOwner) { requested ->
             if (requested == null || requested == true) return@observe // skip requesting
 
             if (viewModel.isShizukuAvailable()) {
@@ -98,7 +114,7 @@ class DarkWallpaperPermissionFragment : AppbarFragment() {
             } else {
                 onPermissionDenied()
             }
-        })
+        }
 
         // Included layout, remove unnecessary views in toolbar
         val toolbar = mBinding.root.findViewById<Toolbar>(R.id.toolbar)
@@ -126,7 +142,7 @@ class DarkWallpaperPermissionFragment : AppbarFragment() {
     private fun onShizukuClick(v: View) {
         if (v.id == mBinding.shizukuRequest.id) {
             when (viewModel.status.value) {
-                ShizukuStatus.UNAUTHORIZED -> viewModel.requestPermission(this)
+                ShizukuStatus.UNAUTHORIZED -> viewModel.requestPermission()
 
                 ShizukuStatus.DEAD -> ShizukuApi.buildShizukuDeadDialog(requireActivity()).show()
 
@@ -139,24 +155,21 @@ class DarkWallpaperPermissionFragment : AppbarFragment() {
         }
     }
 
-    private fun onStorageClick(@Suppress("UNUSED_PARAMETER")v: View?) {
+    private fun onStorageClick(v: View) {
         if (shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
             showManualInstruction()
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-            val uri = Uri.fromParts("package", requireContext().packageName, null)
+            val uri = Uri.fromParts("package", v.context.packageName, null)
             intent.data = uri
-            startActivityForResult(intent, REQUEST_PERMISSION_STORAGE)
+            permissionSettingsLauncher.launch(intent)
         } else {
-            requestPermissions(
-                arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                REQUEST_PERMISSION_STORAGE
-            )
+            storagePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
         }
     }
 
     /**
      * Hide permission description card, if all card are hidden means
-     * permissions are handled, notify [PermissionListener] at this time.
+     * permissions are handled, notify viewModel at this time.
      * */
     private fun hidePermissionCard(targetCard: PermissionLayout) {
         targetCard.animate()
@@ -173,35 +186,6 @@ class DarkWallpaperPermissionFragment : AppbarFragment() {
                     }
                 }
             })
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        when (requestCode) {
-            REQUEST_PERMISSION_STORAGE -> {
-                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    hidePermissionCard(mBinding.storageLayout)
-                } else {
-                    showManualInstruction()
-                    onPermissionDenied()
-                }
-            }
-
-            ShizukuApi.REQUEST_CODE_SHIZUKU_PERMISSION -> {
-                viewModel.onRequestPermissionResultPre11(requestCode, grantResults[0])
-            }
-
-            else -> super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == REQUEST_PERMISSION_STORAGE) {
-            if (DarkWallpaperPickerActivity.storageGranted(requireContext())) {
-                hidePermissionCard(mBinding.storageLayout)
-            }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data)
-        }
     }
 
     private fun showManualInstruction() {

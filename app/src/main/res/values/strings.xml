@@ -19,6 +19,7 @@
     <string name="app_loading">Loading...</string>
     <string name="app_location_failed">Location is not available now, please configure the time manually.</string>
     <string name="app_location_disabled">Location is disabled.</string>
+    <string name="app_select_img">Select Picture</string>
     <string name="app_xposed_option">Xposed Options</string>
 
     <string name="app_restricted">Some vendors (like Oneplus) restrict app background activity to optimize their battery.

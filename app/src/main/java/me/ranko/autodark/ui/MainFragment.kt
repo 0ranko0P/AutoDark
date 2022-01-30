@@ -11,6 +11,7 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Pair
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts.RequestMultiplePermissions
 import androidx.databinding.Observable
 import androidx.databinding.ObservableField
 import androidx.fragment.app.FragmentActivity
@@ -27,9 +28,9 @@ import kotlinx.coroutines.launch
 import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant
 import me.ranko.autodark.R
-import me.ranko.autodark.receivers.BlockListReceiver
-import me.ranko.autodark.core.DarkPreferenceType
 import me.ranko.autodark.core.DarkPreferenceSupplier
+import me.ranko.autodark.core.DarkPreferenceType
+import me.ranko.autodark.receivers.BlockListReceiver
 import me.ranko.autodark.ui.Preference.DarkDisplayPreference
 import me.ranko.autodark.ui.Preference.DarkSwitchPreference
 
@@ -72,8 +73,6 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
     companion object {
         val PERMISSIONS_LOCATION = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
 
-        const val REQUEST_LOCATION_PERMISSION = 12
-
         const val DARK_PREFERENCE_AUTO = "dark_mode_auto"
         const val DARK_PREFERENCE_START = "dark_mode_time_start"
         const val DARK_PREFERENCE_END = "dark_mode_time_end"
@@ -100,6 +99,12 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
     }
 
     private lateinit var viewModel: MainViewModel
+
+    private val locationPermissionLauncher =
+        registerForActivityResult(RequestMultiplePermissions()) { result ->
+            val granted = result.values.find { it.not() } ?: true
+            viewModel.onLocationPermissionResult(granted)
+        }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -159,7 +164,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
 
         // observe auto mode job result
         // also init darkTimeCategory there
-        viewModel.autoMode.observe(viewLifecycleOwner, { result ->
+        viewModel.autoMode.observe(viewLifecycleOwner) { result ->
             autoPreference.isChecked = result
             // hide custom time preferences when using auto mode
             startPreference.isVisible = !result
@@ -167,7 +172,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
 
             // enable time preference status
             setTimePreferenceEnabled(viewModel.switch.get() == DarkSwitch.ON)
-        })
+        }
     }
 
     /**
@@ -184,7 +189,7 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
             setTimePreferenceEnabled(false)
             viewModel.onAutoModeClicked()
         } else {
-            requestPermissions(PERMISSIONS_LOCATION, REQUEST_LOCATION_PERMISSION)
+            locationPermissionLauncher.launch(PERMISSIONS_LOCATION)
         }
     }
 
@@ -214,14 +219,6 @@ class MainFragment : PreferenceFragmentCompat(), DarkPreferenceSupplier {
             else -> return super.onPreferenceTreeClick(preference)
         }
         return true
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (requestCode == REQUEST_LOCATION_PERMISSION) {
-            viewModel.onLocationPermissionResult(grantResults[0] == PackageManager.PERMISSION_GRANTED)
-        } else {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        }
     }
 
     /**

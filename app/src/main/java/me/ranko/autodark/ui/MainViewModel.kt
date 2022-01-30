@@ -18,6 +18,7 @@ import com.android.wallpaper.util.ScreenSizeCalculator
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.*
+import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.AutoDarkApplication.isComponentEnabled
 import me.ranko.autodark.Constant.*
 import me.ranko.autodark.R
@@ -112,7 +113,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application), D
      * @see    DarkModeSettings.cancelAllAlarm
      * */
     private fun triggerMasterSwitch(status: Boolean) {
-        if (!PermissionViewModel.checkSecurePermission(mContext)) {
+        if (!AutoDarkApplication.checkSecurePermission(mContext)) {
             // start permission activity
             _requirePermission.value = true
             return
@@ -241,11 +242,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application), D
         showPermissionSummary(granted)
     }
 
-    fun onSecurePermissionResult(granted: Boolean) {
-        if (granted) {
+    fun onSecurePermissionResult() {
+        if (AutoDarkApplication.checkSecurePermission(getApplication())) {
             darkSettings.overrideIfNeeded()
+            showPermissionSummary(true)
+        } else {
+            showPermissionSummary(false)
         }
-        showPermissionSummary(granted)
     }
 
     private fun showPermissionSummary(granted: Boolean) {

@@ -43,24 +43,8 @@ class StandalonePreviewActivity : BasePreviewActivity(), ImagePreviewFragment.Wa
     companion object {
         private const val READ_EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 1
 
-        const val REQUEST_CODE_PICKER = 257
         const val ARG_WALLPAPER= "wp"
         const val ARG_NO_DESTINATION = "noDest"
-
-        /**
-         * Start StandalonePreviewActivity
-         *
-         * @param data          The content URI from Image picker
-         * @param noDestination Force destination to {@code DEST_BOTH}, parse true when old wallpaper is
-         *                      Live Wallpaper.
-         * */
-        @JvmStatic
-        fun startActivity(activity: Activity, data: Uri, noDestination: Boolean) {
-            val intent = Intent(activity, StandalonePreviewActivity::class.java)
-            intent.data = data
-            intent.putExtra(ARG_NO_DESTINATION, noDestination)
-            activity.startActivityForResult(intent, REQUEST_CODE_PICKER)
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

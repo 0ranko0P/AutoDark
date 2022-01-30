@@ -48,6 +48,7 @@ dependencies {
     //debugImplementation "com.squareup.leakcanary:leakcanary-android:$ver_leak"
 
     // Support libraries
+    implementation "androidx.activity:activity-ktx:$ver_activity"
     implementation "androidx.appcompat:appcompat:$ver_appcompat"
     implementation "androidx.preference:preference:$ver_preference"
     implementation "com.google.android.material:material:$ver_material"

@@ -5,16 +5,19 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.ActivityResultRegistry
+import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.Observable
 import androidx.databinding.ObservableField
 import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import androidx.preference.PreferenceFragmentCompat
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
+import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.R
 import me.ranko.autodark.databinding.ActivityMainBinding
 
@@ -31,21 +34,47 @@ class MainActivity : BaseListActivity(), FragmentManager.OnBackStackChangedListe
         }
     }
 
+    private lateinit var permissionObserver: PermissionResultObserver
+
+    private class PermissionResultObserver(
+        private val provider: ViewModelProvider,
+        private val registry: ActivityResultRegistry
+    ) : DefaultLifecycleObserver {
+
+        private lateinit var activityLauncher : ActivityResultLauncher<Intent>
+
+        override fun onCreate(owner: LifecycleOwner) {
+            activityLauncher = registry.register("permission", owner, StartActivityForResult()) {
+                val viewModel = provider.get(MainViewModel::class.java)
+                viewModel.onSecurePermissionResult()
+            }
+        }
+
+        fun launchPermission(sharedView: View) {
+            PermissionActivity.startWithAnimationForResult(sharedView, activityLauncher)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.lifecycleOwner = this
-        viewModel = ViewModelProvider(this, MainViewModel.Companion.Factory(application))
-                .get(MainViewModel::class.java)
+        val provider = ViewModelProvider(this, MainViewModel.Companion.Factory(application))
+        viewModel = provider[MainViewModel::class.java]
         binding.viewModel = viewModel
         lifecycle.addObserver(viewModel)
+
+        if (!AutoDarkApplication.checkSecurePermission(this)) {
+            permissionObserver = PermissionResultObserver(provider, activityResultRegistry)
+            lifecycle.addObserver(permissionObserver)
+        }
 
         super.onCreate(savedInstanceState)
 
         viewModel.summaryText.addOnPropertyChangedCallback(summaryTextListener)
         viewModel.requirePermission.observe(this, Observer { required ->
             if (!required) return@Observer // ignore consumed signal
-            // Show permission UI now
-            PermissionActivity.startWithAnimationForResult(binding.fab, this)
+
+            permissionObserver.launchPermission(binding.fab)
             viewModel.onRequirePermissionConsumed()
         })
 
@@ -78,14 +107,6 @@ class MainActivity : BaseListActivity(), FragmentManager.OnBackStackChangedListe
         Snackbar.make(binding.coordinatorRoot, summary.message, Snackbar.LENGTH_LONG)
                 .setAction(summary.actionStr, summary.action)
                 .show()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == PermissionActivity.REQUEST_CODE_PERMISSION) {
-            viewModel.onSecurePermissionResult(PermissionViewModel.checkSecurePermission(this))
-        } else {
-            super.onActivityResult(requestCode, resultCode, data)
-        }
     }
 
     override fun onBackStackChanged() {

@@ -1,13 +1,13 @@
 package me.ranko.autodark.ui
 
 import android.Manifest
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.animation.AnimationUtils
+import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -16,7 +16,6 @@ import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.CircularAnimationUtil
 import me.ranko.autodark.core.ShizukuApi
-import me.ranko.autodark.core.ShizukuApi.REQUEST_CODE_SHIZUKU_PERMISSION
 import me.ranko.autodark.core.ShizukuStatus
 import me.ranko.autodark.databinding.ActivityPermissionBinding
 import me.ranko.autodark.ui.widget.PermissionLayout
@@ -55,17 +54,17 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
         binding.viewModel = viewModel
         lifecycle.addObserver(viewModel)
         super.onCreate(savedInstanceState)
+        viewModel.registerPermissionPre11(this)
 
         initShizukuCard()
 
-        viewModel.permissionResult.observe(this, { result ->
+        viewModel.permissionResult.observe(this) { result ->
             if (result) {
-                setResult(RESULT_OK)
                 finish()
             } else {
                 Snackbar.make(binding.coordRoot, R.string.permission_failed, Snackbar.LENGTH_SHORT).show()
             }
-        })
+        }
 
         if (savedInstanceState == null && coordinate != null) {
             val viewTreeObserver = binding.coordRoot.viewTreeObserver
@@ -83,14 +82,6 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
 
     override fun getAppbar(): View = binding.appbarPermission
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (requestCode == REQUEST_CODE_SHIZUKU_PERMISSION) {
-            viewModel.onRequestPermissionResultPre11(REQUEST_CODE_SHIZUKU_PERMISSION, grantResults[0])
-        } else {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        }
-    }
-
     /**
      * Called on grant with Shizuku button clicked
      * */
@@ -103,7 +94,7 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
                 Snackbar.make(binding.coordRoot, R.string.shizuku_not_install, Snackbar.LENGTH_SHORT).show()
             }
 
-            ShizukuStatus.UNAUTHORIZED -> viewModel.requestPermission(this)
+            ShizukuStatus.UNAUTHORIZED -> viewModel.requestPermission()
 
             ShizukuStatus.AVAILABLE -> viewModel.grantWithShizuku()
         }
@@ -153,22 +144,14 @@ class PermissionActivity : BaseListActivity(), ViewTreeObserver.OnGlobalLayoutLi
     companion object {
         private const val ARG_COORDINATE: String = "ARG_COORDINATE"
 
-        const val REQUEST_CODE_PERMISSION = 2233
-
         /**
          * Launch this activity for requesting permission from user
-         *
-         * @return  RESULT_OK onActivityResult callback if user
-         *          granted permission
-         *
-         * @see     Activity.onActivityResult
-         * @see     REQUEST_CODE_PERMISSION
          * */
-        fun startWithAnimationForResult(startView: View, activity: Activity) {
-            val intent = Intent(activity, PermissionActivity::class.java)
+        fun startWithAnimationForResult(startView: View, launcher: ActivityResultLauncher<Intent>) {
+            val intent = Intent(startView.context, PermissionActivity::class.java)
             val coordinate = CircularAnimationUtil.getViewCenterCoordinate(startView)
             intent.putExtra(ARG_COORDINATE, coordinate)
-            activity.startActivityForResult(intent, REQUEST_CODE_PERMISSION)
+            launcher.launch(intent)
         }
     }
 }

@@ -1,16 +1,14 @@
 package me.ranko.autodark.ui
 
-import android.Manifest
 import android.app.Application
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.view.View
-import androidx.core.content.ContextCompat
 import androidx.databinding.ObservableInt
 import androidx.lifecycle.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.Constant.COMMAND_GRANT_ADB
 import me.ranko.autodark.Constant.COMMAND_GRANT_PM
 import me.ranko.autodark.R
@@ -59,7 +57,7 @@ class PermissionViewModel(application: Application) : ShizukuViewModel(applicati
             delay(800L) // Show progress longer
 
             // Notify permission result
-            _permissionResult.value = checkSecurePermission(getApplication())
+            _permissionResult.value = AutoDarkApplication.checkSecurePermission(getApplication())
             // Notify job completed
             jobIndicator.set(if (_permissionResult.value!!) LoadStatus.SUCCEED else LoadStatus.FAILED)
         }
@@ -84,12 +82,6 @@ class PermissionViewModel(application: Application) : ShizukuViewModel(applicati
                 throw IllegalArgumentException("Unable to construct viewModel")
             }
         }
-
-        fun checkSecurePermission(context: Context): Boolean =
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.WRITE_SECURE_SETTINGS
-            ) == PackageManager.PERMISSION_GRANTED
 
         @JvmStatic
         val shareAdbCommand = View.OnClickListener { v ->

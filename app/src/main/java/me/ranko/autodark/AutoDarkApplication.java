@@ -6,6 +6,10 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 
+import android.Manifest;
+
+import androidx.core.content.ContextCompat;
+
 import org.lsposed.hiddenapibypass.HiddenApiBypass;
 
 import me.ranko.autodark.core.DebugTree;
@@ -38,6 +42,10 @@ public final class AutoDarkApplication extends Application {
 
     public static boolean isOnePlus() {
         return Build.BRAND.toUpperCase().contains(Constant.BRAND_ONE_PLUS);
+    }
+
+    public static boolean checkSecurePermission(Context context) {
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_SECURE_SETTINGS) == PackageManager.PERMISSION_GRANTED;
     }
 
     public static boolean isLineageOS() {

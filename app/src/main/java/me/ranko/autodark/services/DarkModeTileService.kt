@@ -14,7 +14,6 @@ import me.ranko.autodark.Constant
 import me.ranko.autodark.R
 import me.ranko.autodark.core.DarkModeSettings
 import me.ranko.autodark.ui.PermissionActivity
-import me.ranko.autodark.ui.PermissionViewModel
 import timber.log.Timber
 
 /**
@@ -46,7 +45,7 @@ class DarkModeTileService : TileService() {
     }
 
     override fun onClick() {
-        if (PermissionViewModel.checkSecurePermission(this)) {
+        if (AutoDarkApplication.checkSecurePermission(this)) {
             darkSettings.setDarkMode(mTile.state != STATE_ACTIVE)
             mTile.updateTile()
         } else {

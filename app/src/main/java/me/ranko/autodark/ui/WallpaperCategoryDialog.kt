@@ -27,7 +27,7 @@ import me.ranko.autodark.ui.widget.PermissionLayout
 class WallpaperCategoryDialog : BottomSheetDialogFragment(), View.OnClickListener {
 
     companion object {
-        const val ARG_SHIZUKU_AVAILABLE = "sa"
+        private const val ARG_SHIZUKU_AVAILABLE = "sa"
 
         fun newInstance(shizukuAvailable: Boolean): WallpaperCategoryDialog {
             val args = Bundle()

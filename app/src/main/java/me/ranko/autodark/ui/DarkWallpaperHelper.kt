@@ -590,7 +590,7 @@ class DarkWallpaperHelper private constructor(private val mContext: Context) {
      * Return True if a LiveWallpaper is picked, the upcoming new picked wallpaper's
      * destination will be ignored.
      *
-     * @see StandalonePreviewActivity.Companion.startActivity
+     * @see DarkWallpaperPickerActivity.ActivityResultObserver.cropImage
      * */
     fun isLiveWallpaperPicked(dark: Boolean): Boolean {
         val index = if (dark) DARK_HOME.ordinal else HOME.ordinal

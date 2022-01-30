@@ -1,11 +1,16 @@
 package me.ranko.autodark.ui
 
-import android.app.Activity
 import android.app.Application
-import android.content.pm.PackageManager
+import android.content.pm.PackageManager.PERMISSION_DENIED
+import android.content.pm.PackageManager.PERMISSION_GRANTED
+import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResultCallback
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.*
 import me.ranko.autodark.core.ShizukuApi
+import me.ranko.autodark.core.ShizukuApi.REQUEST_CODE_SHIZUKU_PERMISSION
 import me.ranko.autodark.core.ShizukuStatus
 import rikka.shizuku.Shizuku
 import rikka.shizuku.ShizukuProvider
@@ -34,6 +39,16 @@ open class ShizukuViewModel(application: Application) : AndroidViewModel(applica
 
     private var mPermissionListener: Shizuku.OnRequestPermissionResultListener? = null
 
+    private val permissionPre11Callback by lazy { ActivityResultCallback<Boolean> { result ->
+        if (result) {
+            onRequestPermissionResult(REQUEST_CODE_SHIZUKU_PERMISSION, PERMISSION_GRANTED)
+        } else {
+            onRequestPermissionResult(REQUEST_CODE_SHIZUKU_PERMISSION, PERMISSION_DENIED)
+        }
+    }}
+
+    private lateinit var permissionPre11Launcher: ActivityResultLauncher<String>
+
     private val mBinderReceiver = Shizuku.OnBinderReceivedListener {
         _status.value = ShizukuApi.checkShizukuCompat(application, true)
         if (_status.value == ShizukuStatus.UNAUTHORIZED && mPermissionListener == null) {
@@ -48,17 +63,13 @@ open class ShizukuViewModel(application: Application) : AndroidViewModel(applica
     }
 
     override fun onRequestPermissionResult(requestCode: Int, grantResult: Int) {
-        if (requestCode != ShizukuApi.REQUEST_CODE_SHIZUKU_PERMISSION) return
-        if (grantResult == PackageManager.PERMISSION_GRANTED) {
+        if (requestCode != REQUEST_CODE_SHIZUKU_PERMISSION) return
+        if (grantResult == PERMISSION_GRANTED) {
             _status.value = ShizukuStatus.AVAILABLE
         } else {
             _status.value = ShizukuStatus.UNAUTHORIZED
         }
         _shizukuRequesting.value = false
-    }
-
-    fun onRequestPermissionResultPre11(requestCode: Int, grantResult: Int) {
-        mPermissionListener!!.onRequestPermissionResult(requestCode, grantResult)
     }
 
     override fun onCreate(owner: LifecycleOwner) {
@@ -76,27 +87,26 @@ open class ShizukuViewModel(application: Application) : AndroidViewModel(applica
         mPermissionListener?.let { Shizuku.removeRequestPermissionResultListener(it) }
     }
 
-    fun requestPermission(frag: Fragment) {
-        _shizukuRequesting.value = true
+    fun registerPermissionPre11(fragment: Fragment) {
         if (ShizukuApi.isPre11()) {
-            frag.requestPermissions(
-                arrayOf(ShizukuProvider.PERMISSION),
-                ShizukuApi.REQUEST_CODE_SHIZUKU_PERMISSION
-            )
-        } else {
-            Shizuku.requestPermission(ShizukuApi.REQUEST_CODE_SHIZUKU_PERMISSION)
+            permissionPre11Launcher =
+                fragment.registerForActivityResult(RequestPermission(), permissionPre11Callback)
         }
     }
 
-    fun requestPermission(activity: Activity) {
+    fun registerPermissionPre11(activity: ComponentActivity) {
+        if (ShizukuApi.isPre11()) {
+            permissionPre11Launcher =
+                activity.registerForActivityResult(RequestPermission(), permissionPre11Callback)
+        }
+    }
+
+    fun requestPermission() {
         _shizukuRequesting.value = true
         if (ShizukuApi.isPre11()) {
-            activity.requestPermissions(
-                arrayOf(ShizukuProvider.PERMISSION),
-                ShizukuApi.REQUEST_CODE_SHIZUKU_PERMISSION
-            )
+            permissionPre11Launcher.launch(ShizukuProvider.PERMISSION)
         } else {
-            Shizuku.requestPermission(ShizukuApi.REQUEST_CODE_SHIZUKU_PERMISSION)
+            Shizuku.requestPermission(REQUEST_CODE_SHIZUKU_PERMISSION)
         }
     }
 
