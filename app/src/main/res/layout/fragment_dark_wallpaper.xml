@@ -23,21 +23,26 @@
 
             <include layout="@layout/section_header" />
 
-            <com.android.wallpaper.widget.PreviewPager
-                android:id="@+id/previewPager"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/preview_pager_background"
-                android:paddingTop="@dimen/fab_margin"
-                app:hideOnLoading="@{viewModel.loadStatus}"
-                app:card_style="disable"
-                tools:layout_height="320dp" />
-
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                android:gravity="bottom"
+                android:background="@color/preview_pager_background">
+
+                <com.android.wallpaper.widget.PreviewPager
+                    android:id="@+id/previewPager"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:paddingTop="@dimen/fab_margin"
+                    app:card_style="disable"
+                    app:hideOnLoading="@{viewModel.loadStatus}"
+                    tools:layout_height="320dp" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
                 app:hideOnLoading="@{viewModel.loadStatus}">
 
@@ -46,7 +51,7 @@
                     style="@style/MaterialPickerButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="0dp"
+                    android:layout_marginTop="@dimen/picker_button_margin_vertical"
                     android:text="@{viewModel.pickerButtonText}" />
 
                 <com.google.android.material.button.MaterialButton
