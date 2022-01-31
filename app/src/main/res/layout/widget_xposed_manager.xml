@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:elevation="6dp"
         android:orientation="vertical"
-        tools:background="@color/edXposedAccent">
+        android:background="@color/appbar_xposed_background">
 
         <TextView android:id="@+id/lock_time"
             android:layout_width="match_parent"
@@ -20,7 +20,7 @@
             android:fontFamily="sans-serif"
             android:gravity="center_vertical"
             android:paddingStart="@dimen/list_app_icon_margin"
-            android:textColor="@color/material_white_1000"
+            android:textColor="?attr/colorOnSurface"
             android:textSize="14dp"
             tools:text="12:20" />
 
@@ -48,7 +48,7 @@
                 app:layout_constraintEnd_toStartOf="@id/menu"
                 app:layout_constraintStart_toEndOf="@id/navIcon"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="@string/app_name" />
+                android:text="@string/app_name" />
 
             <TextView android:id="@+id/id"
                 android:layout_width="0dp"
@@ -58,7 +58,8 @@
                 app:layout_constraintEnd_toEndOf="@id/name"
                 app:layout_constraintStart_toStartOf="@id/name"
                 app:layout_constraintTop_toBottomOf="@id/name"
-                tools:text="@string/enable_scope_edx" />
+                android:textColor="@color/text_color_xposed_list"
+                tools:text="@string/app_name" />
 
             <ImageView android:id="@+id/menu"
                 android:layout_width="0dp"
@@ -74,8 +75,9 @@
     <LinearLayout android:id="@+id/preferenceContainer"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/edXposedAccent"
+        android:background="@color/google_blue_600"
         android:orientation="horizontal"
+        android:paddingStart="@dimen/preference_lsp_padding"
         android:paddingEnd="@dimen/list_app_margin_horizontal">
 
         <TextView android:id="@+id/preferenceTitle"
@@ -85,7 +87,7 @@
             android:gravity="center_vertical"
             android:textColor="@color/material_white_1000"
             android:textSize="16dp"
-            tools:text="@string/enable_scope_edx" />
+            android:text="@string/enable_scope_lsp" />
 
         <Switch android:id="@+id/preferenceSwitch"
             android:layout_width="wrap_content"
@@ -100,7 +102,7 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.EdXposedManager"
+        android:theme="@style/AppTheme.XposedManager"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/item_manager_base_list" />
+        tools:listitem="@layout/item_manager_lsp" />
 </LinearLayout>

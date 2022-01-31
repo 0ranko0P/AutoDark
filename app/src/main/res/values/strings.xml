@@ -161,22 +161,13 @@
 
     <string name="tile_dark_theme">Dark theme</string>
 
-    <string name="activation_scope">Activation Scope<xliff:g name="optional">%1$s</xliff:g></string>
-    <string name="activation_scope_description">Open Xposed manager app and proceed to the ActivationScope page, then choose applications as following:\n
-       (This will also slightly reduce resource consumption)
-    </string>
-    <string name="activation_optional">(Optional)</string>
-    <string name="activation_required">(Required)</string>
+    <string name="activation_scope">Activation Scope (Required)</string>
+    <string name="activation_scope_description">Proceed to the modules page of LSPosed manager, then add input method to the activation scope as following:</string>
 
-    <string name="enable_scope_edx">Enable for this module</string>
     <string name="enable_scope_lsp">Enable module</string>
-    <string name="scope_recommended_edx">The module declares that this application is in the scope of this module</string>
     <string name="scope_recommended_lsp">Recommended</string>
     <string name="other_app">Other app</string>
     <string name="inputmethod">input method</string>
-
-    <string name="install_time">Install time: %1$s</string>
-    <string name="update_time">Update time: %1$s</string>
 
     <string name="xposed_description">This Enables Force-Dark Block list: the apps that you choose won\'t get Force-Dark (Experimental).</string>
 </resources>

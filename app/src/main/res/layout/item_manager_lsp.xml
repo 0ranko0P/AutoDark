@@ -6,15 +6,39 @@
     android:paddingStart="@dimen/list_app_margin_horizontal"
     android:paddingTop="@dimen/list_app_margin_vertical"
     android:paddingEnd="0dp"
-    android:paddingBottom="@dimen/list_app_margin_vertical">
+    android:paddingBottom="@dimen/list_app_margin_vertical"
+    tools:ignore="SpUsage">
 
-    <include android:id="@+id/appListContainer"
-        layout="@layout/item_manager_base_list"
+    <ImageView android:id="@+id/icon"
+        android:layout_width="@dimen/list_app_icon_size"
+        android:layout_height="@dimen/list_app_icon_size"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="@dimen/list_app_icon_margin"
+        android:contentDescription="@null"
+        android:padding="@dimen/list_app_icon_padding"
+        tools:src="@android:mipmap/sym_def_app_icon" />
+
+    <TextView android:id="@+id/name"
+        style="@style/ManagerAppListTextAppearance"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_toStartOf="@+id/checkbox" />
+        android:layout_marginTop="0dp"
+        android:layout_toStartOf="@+id/checkbox"
+        android:layout_toEndOf="@id/icon"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="14dp"
+        tools:text="System UI" />
+
+    <TextView android:id="@+id/appID"
+        style="@style/ManagerAppListTextAppearance"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/name"
+        android:layout_alignStart="@id/name"
+        android:layout_alignEnd="@id/name"
+        tools:text="com.android.systemui" />
 
     <CheckBox android:id="@+id/checkbox"
         android:layout_width="wrap_content"
@@ -23,17 +47,16 @@
         android:layout_alignParentEnd="true"
         android:clickable="false"
         android:gravity="center_vertical"
-        android:theme="@style/AppTheme.EdXposedManager"
+        android:theme="@style/AppTheme.XposedManager"
         tools:checked="true" />
 
     <TextView android:id="@+id/version"
         style="@style/ManagerAppListTextAppearance"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@id/appListContainer"
-        android:layout_alignParentStart="true"
+        android:layout_below="@id/appID"
+        android:layout_alignStart="@id/name"
         android:layout_alignParentEnd="true"
-        android:layout_marginStart="@dimen/list_manager_app_title_margin_horizontal"
         tools:text="@string/pref_version" />
 
     <TextView android:id="@+id/recommended"
@@ -41,11 +64,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_below="@id/version"
-        android:layout_alignParentStart="true"
+        android:layout_alignStart="@id/name"
         android:layout_alignParentEnd="true"
-        android:layout_marginStart="@dimen/list_manager_app_title_margin_horizontal"
         android:text="@string/scope_recommended_lsp"
-        android:textColor="@color/edXposedAccent"
+        android:textColor="@color/google_blue_600"
         android:visibility="gone"
         tools:visibility="visible" />
 </RelativeLayout>

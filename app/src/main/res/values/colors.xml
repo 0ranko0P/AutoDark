@@ -5,10 +5,13 @@
     <color name="secondary">#03DAC6</color>
     <color name="surface">#BDBDBD</color>
     <color name="appbar_background">@color/white_88_alpha</color>
+    <color name="appbar_xposed_background">@color/google_blue_50</color>
     <color name="bottom_sheet_background">@color/material_white_1000</color>
     <color name="bottom_sheet_icon_unchecked_color">@color/material_grey_600</color>
     <color name="color_ripple">#516200EE</color>
-    <color name="edXposedAccent">#448aff</color>
+
+    <color name="google_blue_600">#1A73E8</color>
+    <color name="google_blue_50">#E8F0FE</color>
 
     <color name="google_grey900">#202124</color>
     <color name="dark_blue_gray">#181B20</color>

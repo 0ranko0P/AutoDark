@@ -178,7 +178,6 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
     private var mSearchHelper: SearchHelper? = null
 
     val dialog = ObservableField<DialogFragment?>()
-    private var edXposedDialogShowed = false
 
     val message =  ObservableField<Summary?>()
 
@@ -203,12 +202,6 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun attachSearchHelper(owner: LifecycleOwner, editText: EditText) {
         mSearchHelper = SearchHelper(owner, editText)
-
-        if (edXposedDialogShowed.not() && ActivationScopeDialog.shouldShowEdXposedDialog(mPackageManager, sp)) {
-            dialog.set(ActivationScopeDialog.newInstance(Files.exists(Constant.BLOCK_LIST_INPUT_METHOD_CONFIG_PATH)))
-        }
-        // only check once
-        edXposedDialogShowed = true
     }
 
     @Suppress("UNCHECKED_CAST", "QueryPermissionsNeeded")
@@ -449,7 +442,7 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
                 viewModelScope.launch(Dispatchers.Main) {
                     val cost = Duration.between(timer, Instant.now()).toMillis()
                     if (cost < 600L) delay(1600L) // wait for toast
-                    dialog.set(ActivationScopeDialog.newInstance(true))
+                    dialog.set(ActivationScopeDialog())
                 }
             }
         } else {
