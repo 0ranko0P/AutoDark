@@ -20,7 +20,10 @@ import kotlinx.coroutines.*
 import me.ranko.autodark.AutoDarkApplication
 import me.ranko.autodark.R
 import me.ranko.autodark.Utils.ViewUtil
-import me.ranko.autodark.core.*
+import me.ranko.autodark.core.DarkModeSettings
+import me.ranko.autodark.core.ShizukuApi
+import me.ranko.autodark.core.ShizukuStatus
+import me.ranko.autodark.core.WallpaperSetterConnection
 import me.ranko.autodark.model.*
 import me.ranko.autodark.model.PersistableWallpaper.Companion.getWallpaperFile
 import me.ranko.autodark.services.DarkLiveWallpaperService
@@ -253,7 +256,7 @@ class DarkWallpaperHelper private constructor(private val mContext: Context) {
 
             ShizukuStatus.UNAUTHORIZED -> Toast.makeText(mContext, R.string.permission_failed, Toast.LENGTH_SHORT).show()
 
-            ShizukuStatus.NOT_INSTALL -> callback.onError(IllegalStateException("Shizuku uninstalled"))
+            ShizukuStatus.NOT_INSTALL -> callback.onError(CancellationException("Shizuku uninstalled"))
         }
     }
 
