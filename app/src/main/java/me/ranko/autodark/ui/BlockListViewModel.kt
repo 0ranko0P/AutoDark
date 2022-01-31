@@ -427,8 +427,11 @@ class BlockListViewModel(application: Application) : AndroidViewModel(applicatio
         if (menu.isChecked.not() == Files.exists(imeFlag)) return
 
         startUpload("onRequestImeSwitch: time out waiting ImeHooker response.")
-        viewModelScope.launch(Dispatchers.IO) {
-            if (FileUtil.saveFlagAsFile(imeFlag, !menu.isChecked)) {
+        viewModelScope.launch(Dispatchers.Main) {
+            val succeed = withContext(Dispatchers.IO) {
+                FileUtil.saveFlagAsFile(imeFlag, !menu.isChecked)
+            }
+            if (succeed) {
                 BlockListReceiver.requestSwitchIME(mContext)
                 menu.isChecked = !menu.isChecked
             } else {
